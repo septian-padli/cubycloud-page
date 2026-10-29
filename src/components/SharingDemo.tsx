@@ -12,8 +12,16 @@ export default function SharingDemo() {
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState(false);
   const first = useRef<HTMLButtonElement>(null);
+  const previous = useRef<HTMLButtonElement | null>(null);
 
-  useEffect(() => { if (mode) first.current?.focus(); ScrollTrigger.refresh(); }, [mode, protectedLink]);
+  useEffect(() => {
+    if (mode) first.current?.focus();
+    else previous.current?.focus();
+  }, [mode]);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(frame);
+  }, [mode, protectedLink, confirmed]);
   useEffect(() => {
     if (!mode) return;
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setMode(null); };
@@ -30,14 +38,16 @@ export default function SharingDemo() {
 
   return <div className={`share-demo mode-${mode ?? 'idle'}`}>
     <div className="demo-head"><span>SHARING CONTROL / SIMULATION</span><button onClick={reset}><RotateCcw size={14} /> RESET DEMO</button></div>
-    <div className="share-canvas">
+    <div className={`share-canvas permission-${permission.toLowerCase()} ${protectedLink ? 'is-protected' : ''} ${confirmed ? 'is-confirmed' : ''}`}>
       <div className="share-path left-path"><span>INTERNAL<br />ACCESS</span><i /></div>
       <div className="share-file"><span className="share-file-mark" /><FileText size={32} strokeWidth={1.3} /><b>Field notes.txt</b><small>SELECTED FILE / SYNTHETIC</small></div>
       <div className="share-path right-path"><i /><span>PUBLIC<br />LINK</span></div>
+      <div className="route-result internal-result" aria-hidden="true"><Users size={22} /><span>REGISTERED USER<br /><b>{permission.toUpperCase()} ACCESS</b></span><span className="route-status">{confirmed ? '✓' : '○'}</span></div>
+      <div className="route-result public-result" aria-hidden="true"><Link2 size={22} /><span>DEMO LINK<br /><b>{protectedLink ? 'PASSWORD SETTING ON' : 'OPEN SETTING'}</b></span><span className="route-status">{confirmed ? '✓' : '○'}</span></div>
     </div>
     <div className="share-options">
-      <button className={mode === 'internal' ? 'active' : ''} aria-pressed={mode === 'internal'} onClick={() => { setMode('internal'); setConfirmed(false); setError(false); }}><Users size={22} /><span><b>Internal sharing</b><small>Registered users · Viewer / Editor</small></span><ArrowUpRight size={18} /></button>
-      <button className={mode === 'public' ? 'active' : ''} aria-pressed={mode === 'public'} onClick={() => { setMode('public'); setConfirmed(false); setError(false); }}><Link2 size={22} /><span><b>Public link</b><small>Optional password protection</small></span><ArrowUpRight size={18} /></button>
+      <button className={mode === 'internal' ? 'active' : ''} aria-pressed={mode === 'internal'} onClick={e => { previous.current = e.currentTarget; setMode('internal'); setConfirmed(false); setError(false); }}><Users size={22} /><span><b>Internal sharing</b><small>Registered users · Viewer / Editor</small></span><ArrowUpRight size={18} /></button>
+      <button className={mode === 'public' ? 'active' : ''} aria-pressed={mode === 'public'} onClick={e => { previous.current = e.currentTarget; setMode('public'); setConfirmed(false); setError(false); }}><Link2 size={22} /><span><b>Public link</b><small>Optional password protection</small></span><ArrowUpRight size={18} /></button>
     </div>
     {mode && <div className="share-panel" role="region" aria-label={`${mode} sharing settings`}>
       <div className="share-panel-top"><button ref={first} onClick={() => { setMode(null); setConfirmed(false); }}><ArrowLeft size={15} /> BACK</button><button onClick={() => setMode(null)} aria-label="Close sharing settings"><X size={18} /></button></div>
@@ -48,7 +58,7 @@ export default function SharingDemo() {
       </> : <>
         <p>This demonstration does not create a working URL.</p>
         <label className="toggle-line"><span><KeyRound size={18} /> Password protection</span><input type="checkbox" checked={protectedLink} onChange={e => { setProtectedLink(e.target.checked); setError(false); setConfirmed(false); }} /></label>
-        {protectedLink && <label className="password-field">EXAMPLE PASSWORD<input type="text" value={password} autoComplete="off" onChange={e => { setPassword(e.target.value); setError(false); }} placeholder="Enter a demo-only value" />{error && <span role="alert">Enter a demo value before continuing.</span>}</label>}
+        {protectedLink && <label className="password-field">EXAMPLE PASSWORD<input type="text" value={password} autoComplete="off" onChange={e => { setPassword(e.target.value); setError(false); setConfirmed(false); }} placeholder="Enter a demo-only value" />{error && <span role="alert">Enter a demo value before continuing.</span>}</label>}
       </>}
       {confirmed ? <div className="share-success" role="status"><ShieldCheck size={20} /><span>{mode === 'internal' ? `${permission} access selected. No real invitation was sent.` : 'Public-link settings illustrated. No link was created.'}</span></div> : <button className="share-confirm" onClick={confirm}>SHOW SIMULATED RESULT <Check size={17} /></button>}
     </div>}

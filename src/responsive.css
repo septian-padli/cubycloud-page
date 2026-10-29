@@ -1,0 +1,5 @@
+/* Motion surface and compact wayfinding */
+.core-render{position:absolute;inset:0}.mobile-progress{display:none}.mobile-menu:not(.is-open){display:none}
+.site-header{position:fixed;background:#0f130ef0}
+@media (max-width:850px){.mobile-progress{position:fixed;z-index:34;right:18px;bottom:18px;display:grid;grid-template-columns:auto auto;gap:2px 10px;align-items:center;background:#182017;color:#f0eee3;border:1px solid #99ab5e;padding:10px 12px;box-shadow:4px 4px 0 #0f130e;font:9px 'DM Mono',monospace;text-transform:uppercase;pointer-events:none}.mobile-progress b{font-weight:500;color:#dda15e}.mobile-progress i{grid-column:1/-1;height:2px;background:#8d9a7d;display:block;margin-top:4px}.mobile-progress i span{height:2px;background:#dda15e;display:block}.mobile-menu.is-open{display:flex}}
+@media (prefers-reduced-motion:reduce){.mobile-progress i span{transition:none}}

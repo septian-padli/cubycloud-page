@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Production build
+dist/
+dist-ssr/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Cache and temporary files
+.cache/
+.codegraph/
+__pycache__/
+*.py[cod]
+*$py.class
+.vite-temp/
+.vite/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Agent and workspace internals
+.agents/
+.claude/
+.omp/
+.dyad/
+skills-lock.json

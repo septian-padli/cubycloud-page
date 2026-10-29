@@ -1,0 +1,61 @@
+import { ArrowDownRight, ArrowRight, ArrowUpRight, ChevronDown, CircleHelp, Database, FileText, Folder, HardDrive, Layers3, RotateCcw, ShieldCheck, Star, Trash2, UploadCloud } from 'lucide-react';
+import { useState } from 'react';
+import { links } from '../config';
+import FileExplorerDemo from './FileExplorerDemo';
+import SharingDemo from './SharingDemo';
+import StorageSelectorDemo from './StorageSelectorDemo';
+
+export function SectionIntro({ number, label, title, copy, dark = false }: { number: string; label: string; title: string; copy: string; dark?: boolean }) {
+  return <div className="section-intro"><div className="intro-index"><span className="index-square" />{number} / {label}<span className="index-side">CUBYCLOUD SYSTEMS</span></div><div className="intro-text"><h2>{title}</h2><p>{copy}</p></div><span className={`intro-corner ${dark ? 'on-dark' : ''}`}>[ {number} — 04 ]</span></div>;
+}
+
+export function FilesSection() {
+  return <section id="files" className="chapter files-chapter light-section" aria-labelledby="files-heading"><div className="chapter-shell"><div className="handoff"><div className="handoff-token" aria-hidden="true"><i /><span>FILE / 001</span></div><span>EXTRACTED FROM THE CORE <ArrowDownRight size={15} /></span></div><div className="section-intro"><div className="intro-index"><span className="index-square" />01 / FILES<span className="index-side">THE EVERYDAY, MADE CLEAR</span></div><div className="intro-text"><h2 id="files-heading">OPEN A FOLDER.<br /><em>GET ON WITH</em><br />YOUR WORK.</h2><p>Give files a place to live. Browse folders, upload documents, and handle everyday file tasks from a familiar browser-based drive.</p></div><span className="intro-corner">[ 01 — 04 ]</span></div><div className="files-demo-wrap"><div className="demo-side-label">INSIDE THE SYSTEM<br /><span>01 / MY STORAGE</span></div><FileExplorerDemo /><div className="demo-bottom-caption"><span>FIG. 01 — A SPACE FOR WHAT MATTERS</span><span>CLICK TO EXPLORE ↗</span></div></div></div></section>;
+}
+
+export function SharingSection() {
+  return <section id="sharing" className="chapter sharing-chapter dark-section" aria-labelledby="sharing-heading"><div className="chapter-shell"><div className="section-intro"><div className="intro-index"><span className="index-square" />02 / SHARING<span className="index-side">ONE FILE. YOUR CHOICE.</span></div><div className="intro-text"><h2 id="sharing-heading">PICK A FILE.<br /><em>SHARE IT</em><br />YOUR WAY.</h2><p>Share with registered users using Viewer or Editor access, or create a public link with optional password protection.</p></div><span className="intro-corner on-dark">[ 02 — 04 ]</span></div><div className="share-layout"><SharingDemo /><div className="share-aside"><span className="aside-no">02.01 / ROUTE THE FILE</span><p>Sharing changes who can access a file. It doesn’t move, duplicate, or replicate the file itself.</p><div className="aside-rule" /><small>Organization is one shared tree for authenticated users, not separate team workspaces.</small></div></div></div></section>;
+}
+
+export function StorageSection() {
+  return <section id="storage" className="chapter storage-chapter light-section" aria-labelledby="storage-heading"><div className="chapter-shell"><div className="section-intro"><div className="intro-index"><span className="index-square" />03 / STORAGE<span className="index-side">YOUR INFRASTRUCTURE, YOUR CALL</span></div><div className="intro-text"><h2 id="storage-heading">LOCAL DISKS.<br /><em>S3 STORAGE.</em><br />YOUR CALL.</h2><p>Choose local filesystem storage or connect S3-compatible object storage. Manage files through the same CubyCloud drive experience.</p></div><span className="intro-corner">[ 03 — 04 ]</span></div><StorageSelectorDemo /></div></section>;
+}
+
+const highlights = [
+  { number: '01', title: 'SEE BEFORE YOU OPEN.', body: 'Preview supported images, video, PDFs, and text files in the browser.', icon: FileText },
+  { number: '02', title: 'PICK UP WHERE YOU LEFT OFF.', body: 'Resume supported uploads to My Storage instead of starting over.', icon: UploadCloud },
+  { number: '03', title: 'KEEP WHAT MATTERS CLOSE.', body: 'Star important files. Restore items moved to Trash.', icon: Star },
+  { number: '04', title: 'RUN THE SPACE.', body: 'Administrators manage storage nodes, user quotas, and system settings.', icon: HardDrive },
+];
+export function SupportingHighlights() {
+  const [active, setActive] = useState(0);
+  const item = highlights[active]; const Icon = item.icon;
+  return <section className="highlights light-section" aria-labelledby="highlights-heading"><div className="chapter-shell"><div className="highlights-heading"><span className="eyebrow">THE DETAILS / WITHOUT THE DETOURS</span><h2 id="highlights-heading">THE USEFUL<br /><em>DETAILS.</em></h2><p>A focused drive for the work you actually do.</p></div><div className="highlight-display"><div className="highlight-list" role="group" aria-label="Feature highlights">{highlights.map((h, i) => <button key={h.number} className={active === i ? 'active' : ''} onClick={() => setActive(i)} aria-pressed={active === i}><span>{h.number}</span><b>{h.title}</b><ArrowUpRight size={21} /></button>)}</div><div className="highlight-visual" aria-live="polite"><span className="highlight-visual-top">CUBYCLOUD / FEATURE INDEX {item.number}</span><div className="highlight-icon"><Icon size={100} strokeWidth={.8} />{active === 2 && <Trash2 size={32} strokeWidth={1} />}</div><span className="highlight-visual-bottom">{item.body}</span></div></div></div></section>;
+}
+
+export function SelfHostingSection() {
+  return <section id="self-hosting" className="chapter hosting-chapter dark-section" aria-labelledby="hosting-heading"><div className="chapter-shell"><div className="section-intro"><div className="intro-index"><span className="index-square" />04 / SELF-HOSTING<span className="index-side">THE SYSTEM, EXPOSED</span></div><div className="intro-text"><h2 id="hosting-heading">RUN YOUR DRIVE.<br /><em>NOT ANOTHER</em><br />STACK.</h2><p>CubyCloud packages its Go backend and embedded web interface in a single container. SQLite stores application data without a separate database server.</p></div><span className="intro-corner on-dark">[ 04 — 04 ]</span></div><div className="architecture"><div className="architecture-visual" role="img" aria-label="Exploded CubyCloud architecture: embedded web interface and Go backend in one application container, SQLite for application data, and local or optional S3-compatible file storage"><span className="arch-axis horizontal" /><span className="arch-axis vertical" /><div className="arch-layer layer-front"><Layers3 size={31} /><span>EMBEDDED WEB UI</span></div><div className="arch-layer layer-mid"><span className="brand-mark mini"><i /><i /><i /></span><span>CUBYCLOUD / GO</span></div><div className="arch-layer layer-back"><Database size={30} /><span>SQLITE / APP DATA</span></div><div className="arch-storage"><span className="arch-storage-file" /><span>FILE STORAGE</span><small>LOCAL / OPTIONAL S3-COMPATIBLE</small></div><span className="arch-point a">+</span><span className="arch-point b">+</span><span className="arch-stamp">EXPLODED VIEW / NOT TO SCALE</span></div><div className="architecture-notes"><div><span>01 / APPLICATION</span><p>One container. A Go backend with the web interface embedded.</p></div><div><span>02 / APPLICATION DATA</span><p>SQLite keeps application data without a separate database server.</p></div><div><span>03 / YOUR FILES</span><p>Local filesystem storage, with optional S3-compatible object storage. These are configuration choices, not automatic replication.</p></div><div className="arch-operational"><ShieldCheck size={22} /><p>Set up your first administrator in the browser. You manage the server, network access, HTTPS, storage, and backups.</p></div></div></div></div></section>;
+}
+
+export function OpenSourceSection() {
+  return <section className="open-source dark-section" aria-labelledby="opensource-heading"><div className="chapter-shell"><span className="eyebrow">BUILT IN THE OPEN / AVAILABLE TO INSPECT</span><div className="open-source-main"><h2 id="opensource-heading">NO BLACK BOX.<br /><em>READ THE CODE.</em></h2><div><p>CubyCloud's source is available on GitHub. Inspect how it works, review its license, and make it yours.</p><div className="source-links"><a href={links.github} target="_blank" rel="noopener noreferrer">VIEW SOURCE <ArrowUpRight size={18} /></a><a href={links.license} target="_blank" rel="noopener noreferrer">REVIEW LICENSE ON GITHUB <ArrowUpRight size={18} /></a></div></div></div><div className="source-foot"><span>OPEN SOURCE / SELF-HOSTED / YOURS TO RUN</span><span>AGPL-3.0-OR-LATER · CHECK REPOSITORY FOR CURRENT TERMS</span></div></div></section>;
+}
+
+const faqs = [
+  ['What do I need to run CubyCloud?', 'A host that can run the published container, persistent storage, and the ability to configure network access. Check the product repository for current installation requirements.'],
+  ['Can I use local disks and S3-compatible storage?', 'Yes. CubyCloud supports local filesystem storage and optional S3-compatible storage configured by an administrator. These are storage options, not automatic replication.'],
+  ['How can I share files?', 'Share with registered users using Viewer or Editor access, or create public links with optional passwords.'],
+  ['Does the Organization drive support separate team permissions?', 'No. The current Organization drive is one shared tree accessible to authenticated users, not separate group-based workspaces or granular team permissions.'],
+  ['Is CubyCloud open source?', 'Yes. The source is available on GitHub. Review the repository license for the current AGPL-3.0-or-later terms.'],
+];
+export function PracticalFAQ() {
+  return <section id="faq" className="faq light-section" aria-labelledby="faq-heading"><div className="chapter-shell faq-layout"><div className="faq-left"><span className="eyebrow">THE PRACTICAL QUESTIONS / 05</span><h2 id="faq-heading">BEFORE YOU<br /><em>MAKE IT</em><br />YOURS.</h2><p>A few questions before you make it yours.</p><CircleHelp size={84} strokeWidth={.75} /></div><div className="faq-list">{faqs.map(([question, answer], i) => <details key={question}><summary><span>{String(i + 1).padStart(2, '0')}</span><b>{question}</b><ChevronDown size={20} /></summary><div className="faq-answer">{answer}</div></details>)}</div></div></section>;
+}
+
+export function GetStartedSection() {
+  return <section id="get-started" className="get-started dark-section" aria-labelledby="get-started-heading"><div className="chapter-shell"><div className="get-started-top"><span>THE SPACE IS YOURS.</span><span>[ END / BEGINNING ]</span></div><div className="get-started-center"><div className="final-form" aria-hidden="true"><Folder size={100} strokeWidth={.7} /><span>+</span></div><h2 id="get-started-heading">YOUR FILES.<br /><em>YOUR RULES.</em><br />START HERE.</h2><p>Ready for a simpler place to manage files? Find the installation instructions in the CubyCloud product repository to set up your drive on your own infrastructure.</p><a href={links.installation} target="_blank" rel="noopener noreferrer" className="final-cta">GET STARTED ON GITHUB <ArrowUpRight size={29} /></a><span className="get-started-note">INSTALLATION GUIDE DESTINATION: PRODUCT REPOSITORY README</span></div></div></section>;
+}
+
+export function SiteFooter() {
+  return <footer className="site-footer"><div className="chapter-shell"><div className="footer-top"><a href="#top" className="footer-brand">CUBY<span>CLOUD</span><sup>®</sup></a><a href="#top" className="back-to-top">BACK TO TOP <ArrowRight size={17} className="up-arrow" /></a></div><div className="footer-bottom"><p>YOUR FILES.<br />YOUR SERVER.<br />YOUR RULES.</p><div className="footer-links"><a href={links.github} target="_blank" rel="noopener noreferrer">GITHUB <ArrowUpRight size={14} /></a><a href={links.license} target="_blank" rel="noopener noreferrer">LICENSE <ArrowUpRight size={14} /></a></div><span>SELF-HOSTED FILE DRIVE<br />MADE FOR YOUR SPACE.</span></div><div className="footer-fine"><span>© {new Date().getFullYear()} CUBYCLOUD</span><span>AN INDEPENDENT LANDING PAGE EXPERIMENT</span></div></div></footer>;
+}

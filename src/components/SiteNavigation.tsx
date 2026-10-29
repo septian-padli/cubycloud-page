@@ -1,15 +1,24 @@
 import { ArrowDownRight, ArrowUpRight, Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { chapters, links } from '../config';
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  useEffect(() => { if (!open) return; const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); }; window.addEventListener('keydown', escape); return () => window.removeEventListener('keydown', escape); }, [open]);
-  return <header className="site-header">
-    <a href="#top" className="wordmark" aria-label="CubyCloud, back to top"><span className="brand-mark"><i /><i /><i /></span>CUBY<span>CLOUD</span><sup>®</sup></a>
-    <span className="header-center">SELF-HOSTED FILE DRIVE <span className="header-separator">/</span> EST. IN YOUR SPACE</span>
-    <div className="header-actions"><a className="header-github" href={links.github} target="_blank" rel="noopener noreferrer">GITHUB <ArrowUpRight size={15} /></a><a className="header-cta" href="#get-started">GET STARTED <ArrowUpRight size={16} /></a><button className="menu-toggle" type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button></div>
-    <nav id="mobile-menu" className={`mobile-menu ${open ? 'is-open' : ''}`} aria-label="Mobile navigation" inert={!open}>{chapters.map(c => <a key={c.id} href={`#${c.id}`} onClick={() => setOpen(false)}><small>{c.number}</small>{c.label}<ArrowDownRight size={18} /></a>)}<a href="#get-started" onClick={() => setOpen(false)}><small>→</small>Get started<ArrowUpRight size={18} /></a><a href={links.github} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}><small>↗</small>GitHub<ArrowUpRight size={18} /></a></nav>
+  const toggle = useRef<HTMLButtonElement>(null);
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') { setOpen(false); toggle.current?.focus(); } };
+    const outside = (e: PointerEvent) => { if (!header.current?.contains(e.target as Node)) setOpen(false); };
+    window.addEventListener('keydown', escape);
+    window.addEventListener('pointerdown', outside);
+    return () => { window.removeEventListener('keydown', escape); window.removeEventListener('pointerdown', outside); };
+  }, [open]);
+  return <header ref={header} className="site-header editorial-header">
+    <a href="#top" className="wordmark" aria-label="CubyCloud, back to top" onClick={() => setOpen(false)}><span className="brand-mark"><i /><i /><i /></span>CUBY<span>CLOUD</span><sup>®</sup></a>
+    <nav className="editorial-links" aria-label="Main navigation"><a href="#files">EXPLORE <ArrowDownRight size={14} /></a><a href="/docs">DOCUMENTATION</a><a href={links.github} target="_blank" rel="noopener noreferrer">GITHUB <ArrowUpRight size={14} /></a></nav>
+    <div className="header-actions"><a className="header-cta" href="#get-started" onClick={() => setOpen(false)}>GET STARTED <ArrowUpRight size={16} /></a><button ref={toggle} className="menu-toggle" type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button></div>
+    <nav id="mobile-menu" className={`mobile-menu editorial-mobile ${open ? 'is-open' : ''}`} aria-label="Mobile navigation" inert={!open}><a href="#files" onClick={() => setOpen(false)}><small>01</small>Explore<ArrowDownRight size={18} /></a><a href="/docs" onClick={() => setOpen(false)}><small>02</small>Documentation<ArrowUpRight size={18} /></a><a href={links.github} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}><small>03</small>GitHub<ArrowUpRight size={18} /></a><a href="#get-started" onClick={() => setOpen(false)}><small>→</small>Get started<ArrowUpRight size={18} /></a></nav>
   </header>;
 }
 

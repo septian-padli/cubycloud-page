@@ -1,5 +1,7 @@
 # AI_RULES.md — CubyCloud Landing Page Experiment
 
+> Historical experiment instructions, retained for cleanup review. Not active agent guidance; [AGENTS.md](AGENTS.md) and its linked domain documents supersede them. Current React documentation routes exist, while Astro/Starlight remain targets.
+
 This Dyad repository contains an **independent marketing landing-page experiment**. The separate `../cubycloud` product repository and the FigCraft master are read-only. This experiment does not implement the product, documentation portal, storage, accounts, or deployment.
 
 ## Stack and responsibilities

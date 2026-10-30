@@ -1,147 +1,110 @@
-# CONTENT.md — CubyCloud Website Copy & SEO
-> **Status:** Proposed launch copy, aligned with six approved content decisions; verify product facts and destinations before publication.
-> **Applies to:** The single English marketing homepage and entry points to branded Starlight documentation.
-> **Read with:** `BRIEF.md` (claims/positioning), `PAGES.md` (section order), `DESIGN.md` (presentation), `MOTION.md` and `PROTOTYPE.md` (behavior).
+# CubyCloud Content and SEO
 
-## 1. Editorial Direction
-- **Hero:** Anti-Complexity. Challenge unnecessary software complexity without unverified competitor comparisons.
-- **Feature storytelling:** Interactive Product Narrative. Invite visitors to follow real product actions.
-- **Technical depth:** Progressive Technical Disclosure. Benefit first; implementation details later.
-- **Trust:** Open-Source Transparency. Show real source, license, documentation, and contribution paths.
-- **FAQ:** Practical FAQ before the final conversion section.
-- **SEO priority:** Self-Hosted File Drive. Lead with a clear product category even when the hero is provocative.
-- **Voice:** Bold, direct, human-readable, factually precise; use international English. Indonesian localization is future work.
+> **Purpose:** Record implemented homepage copy, terminology, and metadata rules.
+> **Language:** English.
+> **Current site:** React, TypeScript, and Vite. Astro, React Islands, and Starlight are approved targets, not implemented.
 
-## 2. Global Copy Rules
-- Use short headlines and concise supporting sentences; every bold claim needs a factual explanation.
-- Prefer active verbs: **open, organize, share, choose, run, explore**. Avoid generic SaaS superlatives.
-- Speak to small teams and organizations; explain technical terms when first introduced.
-- Do not describe an unimplemented feature as available, or a planned documentation URL as live.
-- Real screenshots and demonstrations must match product behavior; illustrations must not mimic fabricated UI.
-- Preserve the brand tagline **“Your files. Your server. Your rules.”** as a supporting identity line.
-- Actual product labels such as **My Storage** and **Organization** should match the current UI release.
+## Voice and source priority
 
-## 3. Homepage Copy (Approved Section Order)
-### 00 · Hero + Product Preview
-- **Eyebrow:** `CUBYCLOUD / SELF-HOSTED FILE DRIVE`
-- **H1:** **Your files don't need another bloated platform.**
-- **Lead:** Meet CubyCloud, a focused, self-hosted file drive for organizing, accessing, and sharing files on infrastructure you control.
-- **Supporting line:** Keep it familiar for your team. Choose local disks or optional S3-compatible storage behind the scenes.
-- **Brand signature:** Your files. Your server. Your rules.
-- **Primary CTA:** `Get Started` (installation guide).
-- **Secondary CTA:** `View on GitHub` (source repository).
-- **Preview caption:** `A familiar file drive, running on your server.`
-- **Scroll cue:** `Explore the drive` / accessible alternative: `Jump to features`.
-- **Image alt text pattern:** Describe only the verified interface and visible content, e.g. `CubyCloud file explorer displaying folders and files`.
+Use concise, direct, product-led English. Explain actual file workflows before infrastructure. Prefer precise verbs and product terms; avoid generic SaaS claims, comparisons, and unsupported promises.
 
-### 01 · File Management (`#files`)
-- **Eyebrow:** `01 / FILES`
-- **H2:** **Open a folder. Get on with your work.**
-- **Lead:** Give files a place to live. Browse folders, upload documents, and handle everyday file tasks from a familiar browser-based drive.
-- **Scene cue 1:** `Find your place.` — Navigate folders in My Storage.
-- **Scene cue 2:** `Bring your files in.` — Upload files using the browser.
-- **Scene cue 3:** `Keep things moving.` — Rename, move, duplicate, or restore files.
-- **Contextual CTA:** `Explore file management` → User Guide.
+For homepage copy, current source and captured runtime outrank historical drafts. Preserve wording, capitalization, punctuation, line breaks that affect composition, labels, FAQ text, navigation, disclaimers, and accessible names during migration. Changing copy requires separate approval.
 
-### 02 · File Sharing (`#sharing`)
-- **Eyebrow:** `02 / SHARING`
-- **H2:** **Pick a file. Share it your way.**
-- **Lead:** Share with registered users using Viewer or Editor access, or create a public link with optional password protection.
-- **Scene cue 1:** `Choose who can open it.` — Internal Viewer/Editor sharing.
-- **Scene cue 2:** `Make a link.` — Public file and folder links.
-- **Truthful note:** `Organization is a common drive shared by all signed-in users, not a system of separate team workspaces.`
-- **Contextual CTA:** `Explore sharing` → Sharing & Organization docs.
+The sections and motion are described in `PAGES.md` and `MOTION.md`. Prototype scenarios and simulation limits belong to `PROTOTYPE.md`. This file records copy and SEO; it does not duplicate those contracts.
 
-### 03 · Local + S3 Storage (`#storage`)
-- **Eyebrow:** `03 / STORAGE`
-- **H2:** **Local disks. S3 storage. Your call.**
-- **Lead:** Choose local filesystem storage or connect S3-compatible object storage. Manage files through the same CubyCloud drive experience.
-- **Scene cue 1:** `Start local.` — Store files on disks managed by your server.
-- **Scene cue 2:** `Connect S3.` — Configure optional S3-compatible storage.
-- **Detail line:** `Storage placement and available capacity are configured by the administrator.`
-- **Contextual CTA:** `See storage options` → Storage & Administration docs.
-- **Do not imply:** Automatic replication, cross-provider sync, or guaranteed redundancy.
+## Implemented homepage copy
 
-### 03b · Supporting Feature Highlights
-- **H2:** **The useful details. Without the detours.**
-- **Intro:** The everyday tools you expect, without turning file storage into an entire office suite.
-- **Card: File Previews:** `Check supported images, videos, PDFs, and text files right in the browser.`
-- **Card: Resumable Uploads:** `Resume supported uploads to My Storage instead of starting over.`
-- **Card: Starred & Trash:** `Keep important files close and restore items moved to Trash.`
-- **Card: Admin Controls:** `Manage storage nodes, quotas, and system settings from the admin interface.`
-- **Contextual CTA:** `Read the user guide` → User Guide.
+Text below matches inspected React source, not a proposed replacement or independently captured browser result.
 
-### 04 · Self-Hosting (`#self-hosting`)
-- **Eyebrow:** `04 / SELF-HOSTING`
-- **H2:** **Run your drive. Not another stack.**
-- **Lead:** CubyCloud packages its Go backend and embedded web interface in a single container. SQLite stores application data without a separate database server.
-- **Supporting line:** Set up your first administrator in the browser, then choose where files should live.
-- **Operational note:** `You manage the server, network access, HTTPS, storage, and backups.`
-- **Contextual CTA:** `See installation requirements` → Getting Started.
+### Hero
 
-### 04b · Open Source & Trust
-- **Eyebrow:** `BUILT IN THE OPEN`
-- **H2:** **No black box. Read the code.**
-- **Lead:** CubyCloud's source is available on GitHub under the GNU Affero General Public License (AGPL-3.0-or-later).
-- **Supporting line:** Inspect how it works, review the documentation, and contribute through the project repository.
-- **Trust links:** `Source Code` · `License` · `Security Policy` · `Contributing` (only link confirmed destinations).
-- **Primary action here:** `View on GitHub`.
-- **Evidence policy:** No fabricated testimonials, customer logos, adoption figures, security certifications, or performance benchmarks.
+- Kicker: `WELCOME TO YOUR SPACE`
+- H1: `YOUR FILES. YOUR SPACE.`
+- Overline: `FILES BELONG WITH YOU.`
+- Copy: `Your files don’t need another bloated platform.`
+- Supporting copy: `Meet CubyCloud, a focused, self-hosted file drive for organizing, accessing, and sharing files on infrastructure you control.`
+- Actions: `GET STARTED`; `VIEW ON GITHUB`
+- Footer line: `YOUR FILES. YOUR SERVER. YOUR RULES.`
 
-### 04c · Practical FAQ (`#faq`)
-- **H2:** **A few questions before you make it yours.**
-- **Q: What do I need to run CubyCloud?**
-  **A:** A supported server or host that can run the published container, persistent storage, and the ability to configure network access. Check the installation guide for current requirements.
-- **Q: Can I use local disks and S3-compatible storage?**
-  **A:** Yes. CubyCloud supports local filesystem storage and optional S3-compatible storage configured by an administrator.
-- **Q: How can I share files?**
-  **A:** Share with registered users using Viewer or Editor permissions, or create public links with optional passwords.
-- **Q: Does the Organization drive support separate team permissions?**
-  **A:** Not currently. It is a shared tree with full access for all authenticated users; it is not group-based workspace access control.
-- **Q: Is CubyCloud open source?**
-  **A:** Yes. The source repository is publicly available, and the project is licensed under AGPL-3.0-or-later. See the repository for the license and contribution details.
-- **FAQ follow-up:** `More questions? Read the documentation.` → Documentation home.
+### Files
 
-### 05 · Get Started (`#get-started`)
-- **H2:** **Your files. Your rules. Start here.**
-- **Lead:** Ready for a simpler place to manage files? Follow the installation guide to set up CubyCloud on your own infrastructure.
-- **Primary CTA:** `Get Started` → verified, canonical Starlight installation article.
-- **Secondary CTA:** `Browse Documentation` → `/docs/`.
-- **Reassurance:** `Requirements, setup steps, and operational guidance are in the docs.`
-- **Avoid:** Claims such as `Install in 60 seconds` or `No configuration required` without current evidence.
+- H2: `OPEN A FOLDER. GET ON WITH YOUR WORK.`
+- Copy: `Give files a place to live. Browse folders, upload documents, and handle everyday file tasks from a familiar browser-based drive.`
 
-### Footer
-- **Signature:** `CubyCloud. Your files. Your server. Your rules.`
-- **Links:** `Documentation` · `GitHub` · `License` · `Security` · `Contributing` (verify links before launch).
-- **Footer note:** `Open-source, self-hosted file management.`
+### Sharing
 
-## 4. Navigation, CTA, and Microcopy
-- **Chapter names:** `01 Files` · `02 Sharing` · `03 Storage` · `04 Self-Hosting`.
-- **Progress label:** `Exploring CubyCloud` / `Chapter 02 of 04` (match actual chapter state).
-- **Navigation affordances:** `Jump to chapter` · `Skip to Get Started` · `Back to top`.
-- **Global links:** `Documentation` · `View on GitHub` · primary `Get Started`.
-- **Mobile navigation:** `Explore chapters` · `Close menu` · `Get Started`; never require hover or scroll effects to reveal core content.
-- **Feedback labels:** `Copied` · `Open documentation` · `External link` (only for actions that actually work).
-- **Documentation entry headline:** `Make CubyCloud yours.`
-- **Documentation entry intro:** `Install, use, share, and manage your self-hosted file drive, with guides for everyday users and administrators.`
-- **Documentation pathways:** `Install CubyCloud` · `Manage Files` · `Share Files` · `Configure Storage` · `Troubleshoot` · `API & Architecture`.
+- H2: `PICK A FILE. SHARE IT YOUR WAY.`
+- Copy: `Share with registered users using Viewer or Editor access, or create a public link with optional password protection.`
 
-## 5. SEO & Social Metadata (Homepage)
-- **SEO title:** `CubyCloud | Simple Self-Hosted File Drive`
-- **Meta description:** `CubyCloud is an open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server.`
-- **Primary search phrase:** `self-hosted file drive`.
-- **Secondary search phrases:** `open-source file drive`, `self-hosted file sharing`, `self-hosted cloud storage`, `local and S3 storage`, `team file management`.
-- **Open Graph title:** `CubyCloud — Your Files. Your Server. Your Rules.`
-- **Open Graph description:** Reuse the factual homepage meta description; create a real branded preview, not a fictional product screen.
-- **Search intent:** Installation guidance and practical file sharing for teams considering self-hosted storage.
-- **SEO implementation notes:** One visible H1; descriptive H2s, meaningful alt text, canonical URL when domain is confirmed, and distinct metadata for `/docs/`. Treat search phrases as writing guidance, not a keyword-stuffed meta tag.
+### Storage
 
-## 6. Verification, Links, and Document Sync
-- **Product facts:** Recheck `../cubycloud/README.md`, current application behavior, `LICENSE`, release artifacts, and relevant docs before publishing. PRD targets are not implemented-feature evidence.
-- **Permission boundary:** Do not depict role-based organizational groups or isolated team workspaces; only claim the supported sharing model.
-- **Security boundary:** Self-hosting does not mean end-to-end encryption, automatic protection, or maintenance-free operation.
-- **Performance boundary:** No unmeasured RAM, container-size, speed, capacity, scalability, setup-time, or competitor superiority claims.
-- **No future features:** Never imply native sync clients, version history, AI features, real-time office collaboration, or automatic storage replication without verification.
-- **Links:** `Get Started` must resolve to the *real* published installation article (candidate in `PAGES.md`: `/docs/getting-started/installation/`, not yet confirmed). GitHub: https://github.com/septian-padli/cubycloud.
-- **Required PAGES.md alignment:** Insert `04c · Practical FAQ (#faq)` after `04b · Open Source & Trust` and before `05 · Get Started` as a supporting region; add `#faq` to the sitemap if used. It is **not** an immersive chapter 05.
-- **Current phase:** Design and FigCraft prototyping only. This file approves content direction, not application, website, Starlight, or deployment implementation.
+- H2: `LOCAL DISKS. S3 STORAGE. YOUR CALL.`
+- Copy: `Choose local filesystem storage or connect S3-compatible object storage. Manage files through the same CubyCloud drive experience.`
+
+### Supporting highlights
+
+- `SEE BEFORE YOU OPEN.` Preview supported images, video, PDFs, and text files in the browser.
+- `PICK UP WHERE YOU LEFT OFF.` Resume supported uploads to My Storage instead of starting over.
+- `KEEP WHAT MATTERS CLOSE.` Star important files. Restore items moved to Trash.
+- `RUN THE SPACE.` Administrators manage storage nodes, user quotas, and system settings.
+
+### Self-hosting and source
+
+- H2: `RUN YOUR DRIVE. NOT ANOTHER STACK.`
+- Copy: `CubyCloud packages its Go backend and embedded web interface in a single container. SQLite stores application data without a separate database server.`
+- Open Source H2: `NO BLACK BOX. READ THE CODE.`
+- Copy: `CubyCloud's source is available on GitHub. Inspect how it works, review its license, and make it yours.`
+
+### FAQ and Get Started
+
+The FAQ copy is implemented as follows:
+
+- `What do I need to run CubyCloud?` A host that can run the published container, persistent storage, and the ability to configure network access. Check the product repository for current installation requirements.
+- `Can I use local disks and S3-compatible storage?` Yes. CubyCloud supports local filesystem storage and optional S3-compatible storage configured by an administrator. These are storage options, not automatic replication.
+- `How can I share files?` Share with registered users using Viewer or Editor access, or create public links with optional passwords.
+- `Does the Organization drive support separate team permissions?` No. The current Organization drive is one shared tree accessible to authenticated users, not separate group-based workspaces or granular team permissions.
+- `Is CubyCloud open source?` Yes. The source is available on GitHub. Review the repository license for the current AGPL-3.0-or-later terms.
+
+- FAQ H2: `BEFORE YOU MAKE IT YOURS.`
+- Get Started H2: `YOUR FILES. YOUR RULES. START HERE.`
+- Get Started copy: `Ready for a simpler place to manage files? Find the installation instructions in the CubyCloud product repository to set up your drive on your own infrastructure.`
+- CTA: `GET STARTED ON GITHUB`
+
+`src/config.ts` directs installation traffic to the product GitHub README. Keep that destination until verified installation instructions are available at a published guide; do not imply the Starlight target is live.
+
+## Product vocabulary
+
+Use implemented names and distinctions consistently:
+
+- **My Storage:** personal file area; resumable upload claim applies only to supported workflows.
+- **Organization:** one shared tree for authenticated users, not independent team or group workspaces.
+- **Viewer** and **Editor:** registered-user sharing access levels.
+- **Public link:** may use optional password protection.
+- **Local filesystem** and **S3-compatible storage:** available storage choices, not automatic replication or synchronization.
+- **Starred**, **Trash**, and **storage nodes:** use these labels as shown in product UI.
+
+The marketing demos use synthetic data and illustrate workflows. Never imply that interactions send invitations, create live public links, access a real account, or persist files. See `PROTOTYPE.md` for scenario-level limits.
+
+## Installation and technical content
+
+The documentation content strategy is **prototype-first**. Write useful article structure and explanations, but distinguish verified instructions from draft examples. Check the product repository before publishing commands or operational details.
+
+Do not invent container image names or tags, commands, environment variables, ports, volume mounts, configuration paths, CLI flags, credentials, authentication prerequisites, or platform support.
+Identify unavailable instructions clearly as draft material; polished layout must not imply they are production-ready.
+
+The approved documentation direction is English, task-oriented content for installers, users, and administrators. Keep paragraphs short, headings descriptive, steps ordered, code accurate, and warnings practical. Search labels and success messages must match implemented behavior. Do not claim full-text search if implementation only searches titles or headings.
+
+## SEO and metadata
+
+Current homepage title: `CubyCloud | Simple Self-Hosted File Drive`.
+
+Current description: `CubyCloud is an open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server.`
+
+Current HTML also uses this title and description for Open Graph metadata, plus `og:type=website`. Preserve existing metadata unless an approved replacement is implemented.
+
+For new or revised pages, use one meaningful H1, ordered headings, descriptive title and description, accurate image alt text, and working internal links. Add a canonical URL only after verifying the production domain. Add an Open Graph image only after its asset exists at a valid public URL.
+
+## Claims and review
+
+Verify product statements against current product source, tests, documentation, and license. Do not claim native synchronization, real-time co-editing, version history, AI, automatic replication or failover, granular Organization permissions, end-to-end encryption, security certification, performance superiority, or guaranteed installation times without direct evidence.
+Do not invent statistics, customer logos, reviews, testimonials, or integrations. Product claims and legal terms must reflect the current product version. For existing copy, verified website source is authoritative; historical copy proposals are references only.

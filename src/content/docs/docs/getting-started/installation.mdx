@@ -1,0 +1,83 @@
+---
+title: Installation
+description: A documentation design draft for deployment and first launch.
+---
+
+import { Aside, Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Documentation design draft">
+  This page demonstrates the installation-guide interface. Commands, image names, ports, environment variables, and mount paths have not been verified. Do not treat it as deployment instructions. Consult the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">product README</a> for current instructions.
+</Aside>
+
+## Before You Begin
+
+Prepare a host and decide who will operate it before you deploy. A self-hosted drive depends on infrastructure that you maintain.
+
+## Prerequisites
+
+- A host capable of running the published container, according to the product repository.
+- Persistent storage for application data and files.
+- A plan for network access, HTTPS, and backups.
+
+<Aside type="danger" title="Verify before deploying">
+  Exact runtime requirements and supported configuration values are intentionally omitted here until checked against the product source.
+</Aside>
+
+## Deployment Overview
+
+The application packages a Go backend and embedded web interface in a single container. SQLite stores application data; files use configured local filesystem storage or optional S3-compatible object storage.
+
+## Docker Setup
+
+<Steps>
+1. **Read the verified instructions**
+   
+   Start with the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">CubyCloud README</a> for the current container image and deployment procedure.
+
+2. **Prepare persistent storage**
+   
+   Plan where application data and file storage will persist. Check the verified volume and permission requirements before creating a deployment.
+
+3. **Review the configuration**
+   
+   Choose a supported storage option, then check the official configuration names and values.
+</Steps>
+
+<Tabs>
+  <TabItem label="Terminal">
+    ```sh
+    # Documentation draft — verified command will be added here
+    ```
+  </TabItem>
+  <TabItem label="Configuration">
+    ```yaml
+    # Documentation draft — verified configuration will be added here
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+This table separates known concepts from operational settings that still require verification.
+
+| Area | Purpose | Prototype status |
+| :--- | :--- | :--- |
+| SQLite | Application data | Exact persistence path unverified |
+| Local filesystem | File storage on your host | Mount paths unverified |
+| S3-compatible | Optional object storage | Configuration keys unverified |
+
+```yaml
+# Documentation draft — verified configuration will be added here
+```
+
+## First Launch
+
+After following the verified deployment instructions, open the web interface and complete the first-administrator setup in the browser. Confirm that persistent storage, access controls, HTTPS, and backups meet your own operational requirements.
+
+<Aside type="tip" title="Prototype boundary">
+  No command on this page starts a container or changes your host. The examples intentionally cannot be used as installation instructions.
+</Aside>
+
+## Next Steps
+
+Once the system is available, continue with [File Management](/docs/user-guide/file-management/) to see how the drive is organized.

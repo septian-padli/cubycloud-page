@@ -1,0 +1,61 @@
+---
+title: File Management
+description: Find, organize, and preview files in the browser.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Overview
+
+Use the browser interface to navigate folders and work with files in **My Storage** or the shared **Organization** area. This guide describes supported concepts rather than prescribing unverified button-by-button steps.
+
+## Navigating My Storage
+
+My Storage provides a place for your files and folders. Open a folder to browse its contents and use the visible navigation to return to a parent location. For example, a folder named `Project notes` might contain a file named `brief.txt`.
+
+## Understanding Organization Storage
+
+Organization is a single shared tree for authenticated users, not a set of separate team workspaces with granular group permissions.
+
+<Aside type="caution" title="Shared does not mean role-based teams">
+  Do not use the Organization area as a substitute for independently permissioned team spaces.
+</Aside>
+
+## Working with Files and Folders
+
+Files and folders can be organized in the drive. Keep related work together and use descriptive names so items remain easy to find. Available actions depend on the current product interface and your access.
+
+1. Navigate to the storage area you need.
+2. Browse into the relevant folder.
+3. Select an item to inspect the actions available to you.
+
+## Previewing Files
+
+Supported files can be previewed in the browser, avoiding an unnecessary download when you only need to inspect them.
+
+### Supported previews
+
+| Content | Browser preview |
+| :--- | :--- |
+| Images | Supported formats |
+| Video and PDFs | Supported formats |
+| Text files | Supported formats |
+
+Preview availability depends on the file format. This prototype does not define a complete format list or size limits.
+
+## Starred Items
+
+Star items you want to keep close at hand. Starred is a convenient way to find important files again; it is not a separate storage destination.
+
+## Trash
+
+Trash is where removed items appear in the drive. Check the product interface for available actions and retention behavior; this prototype does not specify recovery or deletion rules.
+
+<details>
+  <summary>Is Trash a backup?</summary>
+  <p>No. The server operator remains responsible for backups of the underlying data. Do not rely on the Trash view as your backup strategy.</p>
+</details>
+
+## Related Topics
+
+For infrastructure and storage choices, see the [Introduction](/docs/). Deployment details remain in the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">product README</a> until verified documentation is available.

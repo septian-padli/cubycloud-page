@@ -1,0 +1,142 @@
+/* CubyCloud Refined Editorial Tech theme for Starlight */
+
+:root {
+  /* Brand palette tokens */
+  --cc-bg: #f0eee3;
+  --cc-surface: #ffffff;
+  --cc-ink: #283618;
+  --cc-muted: #59644f;
+  --cc-line: #d9ddcc;
+  --cc-soft: #e8e9dc;
+  --cc-olive: #606c38;
+  --cc-sand: #dda15e;
+  --cc-accent: #a6571c;
+  --cc-code: #182017;
+  --cc-code-ink: #f0eee3;
+
+  /* Starlight theme overrides: Light mode */
+  --sl-color-accent-low: #e8e9dc;
+  --sl-color-accent: #a6571c;
+  --sl-color-accent-high: #606c38;
+  --sl-color-white: #283618;
+  --sl-color-gray-1: #3b4935;
+  --sl-color-gray-2: #59644f;
+  --sl-color-gray-3: #8a967f;
+  --sl-color-gray-4: #bcc6b1;
+  --sl-color-gray-5: #d9ddcc;
+  --sl-color-gray-6: #e8e9dc;
+  --sl-color-black: #f0eee3;
+
+  --sl-color-bg: #f0eee3;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #f0eee3;
+  --sl-color-hairline-light: #d9ddcc;
+  --sl-color-hairline: #d9ddcc;
+  --sl-color-border: #d9ddcc;
+
+  --sl-font: 'Montserrat', Arial, sans-serif;
+  --sl-font-mono: 'DM Mono', ui-monospace, monospace;
+}
+
+:root[data-theme='dark'] {
+  /* Brand palette tokens (dark) */
+  --cc-bg: #0f130e;
+  --cc-surface: #182017;
+  --cc-ink: #f0eee3;
+  --cc-muted: #bac8ad;
+  --cc-line: #3b4935;
+  --cc-soft: #202b1e;
+  --cc-olive: #adcb8a;
+  --cc-sand: #e1ab70;
+  --cc-accent: #e1ab70;
+  --cc-code: #0b100b;
+  --cc-code-ink: #f0eee3;
+
+  /* Starlight theme overrides: Dark mode */
+  --sl-color-accent-low: #202b1e;
+  --sl-color-accent: #e1ab70;
+  --sl-color-accent-high: #adcb8a;
+  --sl-color-white: #f0eee3;
+  --sl-color-gray-1: #d9ddcc;
+  --sl-color-gray-2: #bac8ad;
+  --sl-color-gray-3: #7b8c73;
+  --sl-color-gray-4: #4e5f46;
+  --sl-color-gray-5: #3b4935;
+  --sl-color-gray-6: #202b1e;
+  --sl-color-black: #0f130e;
+
+  --sl-color-bg: #0f130e;
+  --sl-color-bg-nav: #182017;
+  --sl-color-bg-sidebar: #0f130e;
+  --sl-color-hairline-light: #3b4935;
+  --sl-color-hairline: #3b4935;
+  --sl-color-border: #3b4935;
+}
+
+/* Base typography & reading surface */
+body {
+  font-family: var(--sl-font);
+  letter-spacing: -0.01em;
+}
+
+/* Headings font & letter-spacing */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', Arial, sans-serif;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+/* Links & interactive focus states */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--cc-accent);
+  outline-offset: 3px;
+}
+
+/* Refined callouts (Asides) */
+.starlight-aside {
+  border-radius: 6px;
+  border-left-width: 3px;
+}
+
+/* Tables styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid var(--sl-color-hairline);
+  padding: 8px 14px;
+}
+
+th {
+  background-color: var(--sl-color-accent-low);
+  font-weight: 600;
+}
+
+/* Code blocks DM Mono styling */
+code, kbd, pre {
+  font-family: var(--sl-font-mono) !important;
+}
+
+/* Details / Accordion */
+details {
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 6px;
+  padding: 12px 16px;
+  background-color: var(--sl-color-bg-nav);
+  margin: 1.5rem 0;
+}
+
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+details[open] summary {
+  margin-bottom: 8px;
+}

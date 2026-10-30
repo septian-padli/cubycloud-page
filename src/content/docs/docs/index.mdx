@@ -1,0 +1,42 @@
+---
+title: Introduction
+description: A practical overview of the self-hosted file drive.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## What is CubyCloud?
+
+CubyCloud is a lightweight, self-hosted file drive for keeping files on infrastructure you control. It brings familiar file and folder management into a browser interface without presenting itself as a synchronization or collaborative editing platform.
+
+## Core Capabilities
+
+Browse and organize files, preview supported formats in the browser, star important items, and move items to Trash. You can share files with registered users using Viewer or Editor access, or create public links with optional password protection.
+
+- Work with files and folders from a browser-based drive.
+- Use **My Storage** for your own files and **Organization** for a shared tree.
+- Choose a local filesystem or optional S3-compatible storage configuration.
+
+## How Storage Works
+
+Files can use a local filesystem or optional S3-compatible object storage configured by an administrator. These are storage configuration choices; they do not imply automatic replication, migration, or simultaneous writes.
+
+<Aside type="note" title="Infrastructure is yours">
+  The server operator is responsible for storage capacity, backups, network access, and HTTPS.
+</Aside>
+
+## My Storage and Organization
+
+**My Storage** is a personal file area. **Organization** is one shared storage tree accessible to authenticated users; it does not provide separate team workspaces or granular group permissions.
+
+> One shared tree is different from a collection of independently permissioned team workspaces.
+
+## Who Is CubyCloud For?
+
+CubyCloud is for people who want a focused file drive on infrastructure they manage, whether for their own files or a shared organizational space. It is not a native desktop sync client or a collaborative document editor.
+
+## Next Steps
+
+### Choose your path
+
+Explore the [File Management guide](/docs/user-guide/file-management/) for the everyday workflow. If you are preparing a deployment, read the [Installation design draft](/docs/getting-started/installation/) and verify operational details against the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">product repository README</a>.

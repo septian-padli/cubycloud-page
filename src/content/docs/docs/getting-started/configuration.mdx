@@ -1,0 +1,128 @@
+---
+title: Configuration & Reverse Proxy
+description: Configure environment variables, persistent volumes, and production reverse proxies.
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+CubyCloud is configured primarily through environment variables passed to the container at launch.
+
+## Environment Variables
+
+| Variable | Default | Purpose |
+| :--- | :--- | :--- |
+| `DATA_DIR_PATH` | `/app/data` | Root directory for application state: database, keys, temp uploads, and local storage. |
+| `PORT` | `8383` | Internal HTTP listening port for the web server. |
+| `TRUST_PROXY` | `false` | Must be set to `true` when running behind a reverse proxy (Nginx, Caddy, Cloudflare, Traefik). |
+| `COOKIE_SECURE` | `false` | Set to `true` in production when serving over HTTPS. Prevents session cookies from transmitting over plaintext HTTP. |
+| `ALLOWED_ORIGINS` | `""` | Comma-separated list of permitted origins for CORS requests, e.g., `https://drive.example.com`. |
+
+### Recommended Production Environment
+
+When deploying behind a reverse proxy with HTTPS, configure your compose environment as follows:
+
+```yaml
+environment:
+  - DATA_DIR_PATH=/app/data
+  - PORT=8383
+  - TRUST_PROXY=true
+  - COOKIE_SECURE=true
+  - ALLOWED_ORIGINS=https://drive.example.com
+```
+
+## Reverse Proxy Setup
+
+Running CubyCloud behind a reverse proxy is recommended for TLS/SSL certificates, domain routing, and handling large uploads.
+
+Two critical requirements apply to all proxies:
+1. **Unbuffered Server-Sent Events (SSE):** CubyCloud uses `/api/v1/events` for real-time file updates. Proxies must disable buffering on this route.
+2. **Generous request body limit:** Set client body limits to at least 10 GB so multi-gigabyte uploads are not prematurely severed by the proxy.
+
+<Tabs>
+  <TabItem label="Caddy">
+    Add the following site block to your `Caddyfile`:
+
+    ```txt
+    drive.example.com {
+        # Maximum upload size limit (10 GB)
+        request_body {
+            max_size 10GB
+        }
+
+        # Disable response buffering for Server-Sent Events
+        @sse {
+            path /api/v1/events
+        }
+        reverse_proxy @sse http://127.0.0.1:8383 {
+            flush_interval -1
+        }
+
+        # Proxy all other traffic
+        reverse_proxy http://127.0.0.1:8383
+    }
+    ```
+  </TabItem>
+
+  <TabItem label="Nginx">
+    Create a server block configuration for Nginx:
+
+    ```nginx
+    server {
+        listen 80;
+        server_name drive.example.com;
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl http2;
+        server_name drive.example.com;
+
+        ssl_certificate /etc/letsencrypt/live/drive.example.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/drive.example.com/privkey.pem;
+
+        # Allow uploads up to 10 GB
+        client_max_body_size 10G;
+
+        # Standard proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Real-time Server-Sent Events (SSE)
+        location /api/v1/events {
+            proxy_pass http://127.0.0.1:8383;
+            proxy_buffering off;
+            proxy_cache off;
+            proxy_read_timeout 24h;
+        }
+
+        # Web application and API
+        location / {
+            proxy_pass http://127.0.0.1:8383;
+            proxy_http_version 1.1;
+            proxy_read_timeout 600s;
+            proxy_send_timeout 600s;
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Health Check Endpoints
+
+CubyCloud provides two built-in health probes:
+
+- `GET /health`: Liveness probe. Returns HTTP 200 `OK` as long as the HTTP listener is operational.
+- `GET /api/health`: Readiness probe. Evaluates SQLite database connectivity and verifies that configured storage nodes are mounted and responsive.
+
+Example health check query:
+
+```sh
+curl -i http://127.0.0.1:8383/api/health
+```
+
+## Next Steps
+
+- [Backup and Recovery](/docs/administrator-guide/backup-restore/): Protect your SQLite database, master key, and storage data.
+- [Troubleshooting](/docs/troubleshooting/): Resolve proxy buffering, CORS errors, or TLS cookie issues.

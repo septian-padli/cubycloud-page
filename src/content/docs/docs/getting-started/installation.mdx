@@ -1,79 +1,129 @@
 ---
 title: Installation
-description: A documentation design draft for deployment and first launch.
+description: Deploy CubyCloud using Docker Compose and complete the initial setup wizard.
 ---
 
 import { Aside, Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components';
 
-<Aside type="caution" title="Documentation design draft">
-  This page demonstrates the installation-guide interface. Commands, image names, ports, environment variables, and mount paths have not been verified. Do not treat it as deployment instructions. Consult the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">product README</a> for current instructions.
-</Aside>
+CubyCloud is packaged as a single container image containing the Go server and embedded web interface. Deploying the container takes only Docker and a compose file.
 
-## Before You Begin
+## System Prerequisites
 
-Prepare a host and decide who will operate it before you deploy. A self-hosted drive depends on infrastructure that you maintain.
+- **Host architecture:** Linux `amd64` or `arm64`.
+- **System resources:** Minimum 512 MB RAM (1 GB recommended) and 1 vCPU.
+- **Runtime:** Docker Engine 24.0+ and Docker Compose v2.20+.
+- **Network ports:** Port `8383` available for HTTP traffic.
 
-## Prerequisites
+## Data Directory Layout
 
-- A host capable of running the published container, according to the product repository.
-- Persistent storage for application data and files.
-- A plan for network access, HTTPS, and backups.
+All application state is preserved inside the container path defined by `DATA_DIR_PATH` (default: `/app/data`). Ensure this directory points to a persistent volume:
 
-<Aside type="danger" title="Verify before deploying">
-  Exact runtime requirements and supported configuration values are intentionally omitted here until checked against the product source.
-</Aside>
-
-## Deployment Overview
-
-The application packages a Go backend and embedded web interface in a single container. SQLite stores application data; files use configured local filesystem storage or optional S3-compatible object storage.
-
-## Docker Setup
-
-<Steps>
-1. **Read the verified instructions**
-   
-   Start with the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">CubyCloud README</a> for the current container image and deployment procedure.
-
-2. **Prepare persistent storage**
-   
-   Plan where application data and file storage will persist. Check the verified volume and permission requirements before creating a deployment.
-
-3. **Review the configuration**
-   
-   Choose a supported storage option, then check the official configuration names and values.
-</Steps>
-
-<Tabs>
-  <TabItem label="Terminal">
-    <Code code="# Documentation draft — verified command will be added here" lang="sh" />
-  </TabItem>
-  <TabItem label="Configuration">
-    <Code code="# Documentation draft — verified configuration will be added here" lang="yaml" />
-  </TabItem>
-</Tabs>
-
-## Configuration
-
-This table separates known concepts from operational settings that still require verification.
-
-| Area | Purpose | Prototype status |
-| :--- | :--- | :--- |
-| SQLite | Application data | Exact persistence path unverified |
-| Local filesystem | File storage on your host | Mount paths unverified |
-| S3-compatible | Optional object storage | Configuration keys unverified |
-
-```yaml
-# Documentation draft — verified configuration will be added here
+```
+/app/data/
+├── db/
+│   └── cubycloud.db        # SQLite database in WAL mode
+├── secrets/
+│   ├── jwt.key             # Auto-generated JWT signing secret (64-char hex)
+│   └── master.key          # AES-256-GCM master encryption key for node secrets
+├── storage/                # Default local storage node mount point
+└── temp/                   # Temporary chunks for inflight TUS uploads
 ```
 
-## First Launch
-
-After following the verified deployment instructions, open the web interface and complete the first-administrator setup in the browser. Confirm that persistent storage, access controls, HTTPS, and backups meet your own operational requirements.
-
-<Aside type="tip" title="Prototype boundary">
-  No command on this page starts a container or changes your host. The examples intentionally cannot be used as installation instructions.
+<Aside type="danger" title="Critical backup requirement">
+  The file `secrets/master.key` encrypts storage node credentials. If you lose `master.key`, any configured S3 storage nodes become inaccessible and cannot be decrypted. Always back up `secrets/master.key` together with `db/cubycloud.db`.
 </Aside>
+
+## Docker Compose Deployment
+
+<Steps>
+1. **Create project directory**
+
+   Create a dedicated directory on your server and navigate into it:
+
+   ```sh
+   mkdir -p cubycloud && cd cubycloud
+   ```
+
+2. **Create the compose file**
+
+   Save the following configuration as `compose.yaml`:
+
+   ```yaml
+   services:
+     cubycloud:
+       image: ghcr.io/septian-padli/cubycloud:latest
+       container_name: cubycloud
+       restart: unless-stopped
+       ports:
+         - "8383:8383"
+       environment:
+         - DATA_DIR_PATH=/app/data
+         - TRUST_PROXY=false
+         - COOKIE_SECURE=false
+       volumes:
+         - cubycloud_data:/app/data
+       healthcheck:
+         test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8383/health || exit 1"]
+         interval: 30s
+         timeout: 5s
+         retries: 3
+         start_period: 10s
+
+   volumes:
+     cubycloud_data:
+   ```
+
+3. **Start the container**
+
+   Launch CubyCloud in detached mode:
+
+   ```sh
+   docker compose up -d
+   ```
+
+4. **Verify container health**
+
+   Check the status of the container and follow the logs:
+
+   ```sh
+   docker compose ps
+   docker compose logs -f cubycloud
+   ```
+</Steps>
+
+## First-Time Setup Wizard
+
+Once the container is healthy, visit `http://<your-server-ip>:8383/setup` in your browser. The initial setup wizard guides you through five essential steps:
+
+<Steps>
+1. **Welcome and prerequisites check**
+
+   The system verifies that the SQLite database is writable and file permissions are valid.
+
+2. **Create primary administrator account**
+
+   Provide an administrator username, email address, and a secure password. The password must contain at least 8 characters.
+
+3. **Storage node setup**
+
+   Select your primary storage backend:
+   - **Local Storage Node:** Enter a name and verify the local path (defaults to `/app/data/storage`).
+   - **S3-Compatible Storage:** Configure your S3 endpoint, bucket name, region, and access/secret credentials.
+
+4. **Save the recovery key**
+
+   The wizard generates a 32-character Crockford Base32 recovery key (e.g., `ABCD-EFGH-JKMN-PQRT-...`).
+
+   <Aside type="caution" title="Write down your recovery key">
+     Store this recovery key in a secure location (such as a password manager). If you lose access to your administrator account, this key is the only offline method to reset administrative access.
+   </Aside>
+
+5. **Finalize and sign in**
+
+   Confirm your settings. The setup wizard locks automatically, and the application redirects to the login screen at `/login`.
+</Steps>
 
 ## Next Steps
 
-Once the system is available, continue with [File Management](/docs/user-guide/file-management/) to see how the drive is organized.
+- [Configuration Guide](/docs/getting-started/configuration/): Set up production reverse proxies (Nginx or Caddy) with SSL/TLS and upload limits.
+- [Backup and Recovery](/docs/administrator-guide/backup-restore/): Learn how to back up your database, master key, and storage nodes.

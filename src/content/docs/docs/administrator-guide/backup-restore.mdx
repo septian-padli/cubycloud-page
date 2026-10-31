@@ -1,0 +1,135 @@
+---
+title: Backup & Disaster Recovery
+description: Protect your SQLite database, master encryption key, and storage nodes against data loss.
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+A comprehensive disaster recovery strategy for CubyCloud requires protecting three interdependent components:
+
+1. **SQLite Database (`cubycloud.db`):** Contains user accounts, permissions, folder structures, and file metadata.
+2. **Master Key (`secrets/master.key`):** The 256-bit AES key used to encrypt and decrypt S3 storage node secrets.
+3. **Storage Blobs:** The physical files saved in local directories or S3 buckets.
+
+<Aside type="danger" title="The master key rule">
+  Never back up `cubycloud.db` without `secrets/master.key`. Without the master key, any S3-compatible storage nodes registered in your database cannot be decrypted, permanently locking you out of those storage buckets.
+</Aside>
+
+## Cold Backup Procedure
+
+The safest way to create a consistent, complete snapshot is a cold backup while the container is temporarily stopped:
+
+<Steps>
+1. **Stop the CubyCloud service**
+
+   ```sh
+   docker compose down
+   ```
+
+2. **Archive the data volume**
+
+   Create a compressed archive of the entire data volume directory:
+
+   ```sh
+   tar -czvf cubycloud-backup-$(date +%Y%m%d).tar.gz /var/lib/docker/volumes/cubycloud_data/_data
+   ```
+
+3. **Restart the service**
+
+   ```sh
+   docker compose up -d
+   ```
+
+4. **Transfer offsite**
+
+   Copy the generated archive to secure external storage or an isolated offsite backup server.
+</Steps>
+
+## Hot Online Backup (Zero Downtime)
+
+If your instance requires 24/7 uptime, you can back up the SQLite database online using SQLite's native `VACUUM INTO` command, which guarantees ACID consistency without stopping the server.
+
+<Steps>
+1. **Create an online database snapshot**
+
+   Execute the vacuum snapshot inside the running container:
+
+   ```sh
+   docker compose exec cubycloud sqlite3 /app/data/db/cubycloud.db \
+     "VACUUM INTO '/app/data/db/backup-snapshot.db'"
+   ```
+
+2. **Copy the database and secret keys**
+
+   Extract the snapshot along with the critical keys:
+
+   ```sh
+   docker compose cp cubycloud:/app/data/db/backup-snapshot.db ./cubycloud-$(date +%Y%m%d).db
+   docker compose cp cubycloud:/app/data/secrets/master.key ./master.key
+   docker compose cp cubycloud:/app/data/secrets/jwt.key ./jwt.key
+   ```
+
+3. **Clean up the temporary container snapshot**
+
+   ```sh
+   docker compose exec cubycloud rm -f /app/data/db/backup-snapshot.db
+   ```
+
+4. **Back up storage files**
+
+   Synchronize physical files from your local storage directory or rely on native bucket versioning/snapshots if using cloud S3 storage.
+</Steps>
+
+## Restoring from Backup
+
+<Steps>
+1. **Prepare a fresh environment**
+
+   Deploy a new CubyCloud container with Docker Compose, ensuring the container is stopped before copying files:
+
+   ```sh
+   docker compose down
+   ```
+
+2. **Restore data and keys**
+
+   Copy your backed-up database and secret files into the data volume:
+
+   ```sh
+   # Copy database
+   cp cubycloud-backup.db /var/lib/docker/volumes/cubycloud_data/_data/db/cubycloud.db
+
+   # Restore master and JWT keys
+   mkdir -p /var/lib/docker/volumes/cubycloud_data/_data/secrets
+   cp master.key /var/lib/docker/volumes/cubycloud_data/_data/secrets/master.key
+   cp jwt.key /var/lib/docker/volumes/cubycloud_data/_data/secrets/jwt.key
+   ```
+
+3. **Verify file permissions**
+
+   Ensure the restored files are accessible to the container user:
+
+   ```sh
+   chmod 600 /var/lib/docker/volumes/cubycloud_data/_data/secrets/*.key
+   ```
+
+4. **Start the instance**
+
+   ```sh
+   docker compose up -d
+   docker compose logs -f cubycloud
+   ```
+
+5. **Verify health**
+
+   Test the readiness endpoint to verify that the database is loaded and storage nodes are detected:
+
+   ```sh
+   curl http://127.0.0.1:8383/api/health
+   ```
+</Steps>
+
+## Next Steps
+
+- [Configuration Guide](/docs/getting-started/configuration/): Learn environment options and reverse proxy parameters.
+- [Troubleshooting](/docs/troubleshooting/): Diagnose database locking or storage probe failures.

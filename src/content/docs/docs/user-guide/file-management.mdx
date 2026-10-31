@@ -1,61 +1,69 @@
 ---
 title: File Management
-description: Find, organize, and preview files in the browser.
+description: Manage files and folders, preview media, and handle resumable uploads in CubyCloud.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, Steps } from '@astrojs/starlight/components';
 
-## Overview
+CubyCloud provides a responsive, web-based file explorer for managing documents, media, and archives.
 
-Use the browser interface to navigate folders and work with files in **My Storage** or the shared **Organization** area. This guide describes supported concepts rather than prescribing unverified button-by-button steps.
+## Workspaces: My Storage vs. Organization
 
-## Navigating My Storage
+When navigating the file drive, you have access to two primary sections:
 
-My Storage provides a place for your files and folders. Open a folder to browse its contents and use the visible navigation to return to a parent location. For example, a folder named `Project notes` might contain a file named `brief.txt`.
+1. **My Storage (`/drive/my-storage`):** Your private workspace. Folders and files in My Storage count against your account quota. You control access by sharing individual items or creating public links.
+2. **Organization (`/drive/organization`):** A shared file repository accessible to all registered users on the server. Every authenticated user can read, write, and delete files in this tree. Organization files consume physical storage node capacity but do not deduct from personal user quotas.
 
-## Understanding Organization Storage
+## File & Folder Operations
 
-Organization is a single shared tree for authenticated users, not a set of separate team workspaces with granular group permissions.
+The file explorer toolbar and item context menus provide standard drive actions:
 
-<Aside type="caution" title="Shared does not mean role-based teams">
-  Do not use the Organization area as a substitute for independently permissioned team spaces.
+- **New Folder (`+ Tambah` / `Add`):** Create subdirectories to organize files.
+- **Upload Files & Folders:** Upload individual items or entire directory hierarchies.
+- **Rename (`Ganti nama`):** Change item names. If a conflicting name exists in the folder, CubyCloud presents a rename dialog with a suggested unique name.
+- **Move (`Pindahkan`):** Move items across directories using an interactive folder tree browser. Moving a folder into itself or its subdirectories is automatically prevented.
+- **Duplicate (`Salin`):** Creates an instant pointer copy in the database without duplicating physical storage bytes.
+- **Star / Unstar (`Bintangi`):** Pin frequently accessed files for quick retrieval under the **Starred** navigation view.
+- **Compress to ZIP (`Kompres ke ZIP`):** Queues an asynchronous background job to bundle selected files into a zip archive inside the current folder.
+- **Batch Download ZIP (`Unduh ZIP`):** Select multiple files and folders to download them bundled as a zip file on the fly.
+
+## Upload Mechanics & Resumption
+
+CubyCloud selects the optimal upload protocol based on file size:
+
+- **Direct Uploads (< 50 MB):** Single-request multipart form upload for swift transfers.
+- **Resumable Chunked Uploads (≥ 50 MB):** Uses the open TUS protocol with 5 MB chunks stored temporarily under `/app/data/temp/tus`.
+
+If your connection drops during a large upload:
+1. Re-add the same file to the upload queue.
+2. The browser calculates the file hash and client fingerprint.
+3. The server resumes the upload from the exact last uploaded chunk.
+
+## In-Browser File Previews
+
+Click any supported file in the list to open the full-screen preview modal without downloading the file:
+
+| Category | Supported Formats | Preview Capabilities |
+| :--- | :--- | :--- |
+| **Images** | PNG, JPEG, GIF, WebP, SVG | Full-resolution pan and zoom. |
+| **Video** | MP4, WebM | Native HTML5 video player with seek support. |
+| **Audio** | MP3, WAV, OGG | Inline audio playback. |
+| **Documents** | PDF | Paginated document viewer. |
+| **Code & Text** | TXT, MD, JSON, JS, TS, GO, PY, HTML, CSS | Formatted code viewer with syntax highlighting and line numbers. |
+
+## Trash & Retention
+
+When you delete an item from **My Storage**, it moves to the **Trash (`/drive/trash`)**:
+
+- **Restore (`Pulihkan`):** Restores the item to its original parent folder. If the parent folder was deleted in the interim, the item is restored to the root directory.
+- **Delete Permanently (`Hapus Selamanya`):** Immediately removes the database record and marks physical storage blobs for background pruning.
+- **Automatic Purge:** By default, items residing in the Trash for more than 30 days are automatically purged by a hourly background cleanup worker.
+
+<Aside type="note" title="Trash is not an offsite backup">
+  Trash protection shields users from accidental deletions, but it does not protect against disk failure or database corruption. Operators must maintain regular database and volume backups.
 </Aside>
 
-## Working with Files and Folders
+## Next Steps
 
-Files and folders can be organized in the drive. Keep related work together and use descriptive names so items remain easy to find. Available actions depend on the current product interface and your access.
-
-1. Navigate to the storage area you need.
-2. Browse into the relevant folder.
-3. Select an item to inspect the actions available to you.
-
-## Previewing Files
-
-Supported files can be previewed in the browser, avoiding an unnecessary download when you only need to inspect them.
-
-### Supported previews
-
-| Content | Browser preview |
-| :--- | :--- |
-| Images | Supported formats |
-| Video and PDFs | Supported formats |
-| Text files | Supported formats |
-
-Preview availability depends on the file format. This prototype does not define a complete format list or size limits.
-
-## Starred Items
-
-Star items you want to keep close at hand. Starred is a convenient way to find important files again; it is not a separate storage destination.
-
-## Trash
-
-Trash is where removed items appear in the drive. Check the product interface for available actions and retention behavior; this prototype does not specify recovery or deletion rules.
-
-<details>
-  <summary>Is Trash a backup?</summary>
-  <p>No. The server operator remains responsible for backups of the underlying data. Do not rely on the Trash view as your backup strategy.</p>
-</details>
-
-## Related Topics
-
-For infrastructure and storage choices, see the [Introduction](/docs/). Deployment details remain in the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">product README</a> until verified documentation is available.
+- [Sharing Guide](/docs/user-guide/sharing/): Learn how to share files with other users or create password-protected public links.
+- [Backup and Recovery](/docs/administrator-guide/backup-restore/): Disaster recovery runbooks for administrators.

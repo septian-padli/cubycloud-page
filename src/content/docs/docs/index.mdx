@@ -1,42 +1,57 @@
 ---
 title: Introduction
-description: A practical overview of the self-hosted file drive.
+description: Overview of CubyCloud self-hosted file drive architecture and concepts.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
 ## What is CubyCloud?
 
-CubyCloud is a lightweight, self-hosted file drive for keeping files on infrastructure you control. It brings familiar file and folder management into a browser interface without presenting itself as a synchronization or collaborative editing platform.
+CubyCloud is a lightweight, self-hosted file drive built for individuals and small teams who want full ownership of their files on their own infrastructure. It bundles a Go backend and an embedded web interface into a single container image.
+
+SQLite handles application metadata and directory state, while physical files reside on local filesystem paths or optional S3-compatible cloud storage buckets.
 
 ## Core Capabilities
 
-Browse and organize files, preview supported formats in the browser, star important items, and move items to Trash. You can share files with registered users using Viewer or Editor access, or create public links with optional password protection.
+- **Browser-based file management:** Upload, download, rename, move, star, and delete files with desktop-style folder navigation.
+- **Resumable and direct uploads:** Small files transfer directly, while large payloads use chunked TUS uploads that resume automatically after connection drops.
+- **Two storage spaces:** Use My Storage for personal files and Organization for an open shared team space.
+- **Flexible storage backends:** Store files on direct host mount paths or connect S3-compatible object storage nodes configured by an administrator.
+- **In-browser previews:** Inspect images, video, audio, PDFs, text, and source code files directly without downloading them.
+- **Sharing controls:** Share personal files with other registered accounts using Viewer or Editor permissions, or generate password-protected public links.
 
-- Work with files and folders from a browser-based drive.
-- Use **My Storage** for your own files and **Organization** for a shared tree.
-- Choose a local filesystem or optional S3-compatible storage configuration.
+## Storage Architecture
 
-## How Storage Works
+CubyCloud separates logical file trees from physical storage nodes:
 
-Files can use a local filesystem or optional S3-compatible object storage configured by an administrator. These are storage configuration choices; they do not imply automatic replication, migration, or simultaneous writes.
+1. **Logical directory tree:** Stored in SQLite (`cubycloud.db`). File metadata, ownership, folder structures, and share records live here.
+2. **Physical storage nodes:** Administrators register storage nodes where raw bytes are written. Nodes can be local filesystem directories or S3-compatible buckets.
+3. **Master encryption key:** Storage node credentials (such as S3 secret access keys) are encrypted using AES-256-GCM. The encryption key is stored on disk at `secrets/master.key` inside the data directory.
 
-<Aside type="note" title="Infrastructure is yours">
-  The server operator is responsible for storage capacity, backups, network access, and HTTPS.
+<Aside type="note" title="Infrastructure responsibility">
+  CubyCloud does not run automatic multi-node replication or automatic high availability failover. The host operator maintains storage capacity, volume backups, network firewalls, and TLS termination.
 </Aside>
 
-## My Storage and Organization
+## My Storage vs. Organization
 
-**My Storage** is a personal file area. **Organization** is one shared storage tree accessible to authenticated users; it does not provide separate team workspaces or granular group permissions.
+CubyCloud provides two distinct workspaces in the drive interface:
 
-> One shared tree is different from a collection of independently permissioned team workspaces.
+| Workspace | Purpose | Permissions | Quota Accounting |
+| :--- | :--- | :--- | :--- |
+| **My Storage** | Personal file area | Private to the account owner; items can be shared explicitly | Consumes the user's allocated storage quota |
+| **Organization** | Shared team tree | Every registered user can read, write, upload, and delete | Does not count against individual user quotas |
 
-## Who Is CubyCloud For?
+<Aside type="caution" title="Organization has no sub-group RBAC">
+  The Organization drive is a single shared directory tree for authenticated users. It does not provide isolated team silos, departemental boundaries, or granular group permissions.
+</Aside>
 
-CubyCloud is for people who want a focused file drive on infrastructure they manage, whether for their own files or a shared organizational space. It is not a native desktop sync client or a collaborative document editor.
+## Getting Started
 
-## Next Steps
+Follow these guides to set up and use your CubyCloud instance:
 
-### Choose your path
-
-Explore the [File Management guide](/docs/user-guide/file-management/) for the everyday workflow. If you are preparing a deployment, read the [Installation design draft](/docs/getting-started/installation/) and verify operational details against the <a href="https://github.com/septian-padli/cubycloud#readme" target="_blank" rel="noopener noreferrer">product repository README</a>.
+- [Installation Guide](/docs/getting-started/installation/): Deploy the official container using Docker Compose and complete first-time administrator initialization.
+- [Configuration Guide](/docs/getting-started/configuration/): Configure environment variables, persistent volumes, and reverse proxies (Caddy, Nginx).
+- [File Management](/docs/user-guide/file-management/): Learn navigation, file actions, preview support, and upload mechanics.
+- [Sharing Guide](/docs/user-guide/sharing/): Share files with internal accounts or create password-protected public download links.
+- [Backup and Recovery](/docs/administrator-guide/backup-restore/): Safe backup and disaster recovery procedures for SQLite and encryption keys.
+- [Troubleshooting](/docs/troubleshooting/): Diagnose startup errors, upload timeouts, and offline storage node issues.

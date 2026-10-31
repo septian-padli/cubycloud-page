@@ -1,0 +1,79 @@
+---
+title: Sharing & Permissions
+description: Share files with registered CubyCloud users or generate password-protected public download links.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+CubyCloud allows users to share files and folders from **My Storage** with registered colleagues or external recipients.
+
+<Aside type="note" title="Organization tree is already shared">
+  Files located in the **Organization** directory are accessible to all authenticated users on the instance. The sharing menu is available only for items stored in **My Storage**.
+</Aside>
+
+## Sharing Options
+
+When you open the **Share (`Bagikan`)** dialog on an item in My Storage, two distinct sharing modes are available:
+
+1. **User Shares (Internal):** Share with specific registered users on the same CubyCloud server.
+2. **Public Links (External):** Generate an external URL accessible to anyone, optionally secured with a password and expiration date.
+
+## Sharing with Registered Users
+
+You can grant granular permissions to other users registered on your instance:
+
+| Role | Permissions |
+| :--- | :--- |
+| **Viewer (`Viewer`)** | Can view in-browser previews and download the file. Cannot rename, move, edit, or delete the item. |
+| **Editor (`Editor`)** | Can download, rename, overwrite, move, and upload files into shared folders. |
+
+<Steps>
+1. **Open the item menu**
+
+   Right-click the file or click the three-dot action menu (`⋮`) and select **Bagikan (`Share`)**.
+
+2. **Select recipient and role**
+
+   Search for the user's username or email address and choose either **Viewer** or **Editor**.
+
+3. **Confirm access**
+
+   Click **Tambah (`Add`)**. The recipient will see the shared item under their **Shared with Me (`Dibagikan dengan Saya`)** drive view.
+</Steps>
+
+## Public Download Links
+
+Public links allow external parties to access and download files without creating an account on your server.
+
+### Security Controls
+
+- **Password Protection:** Optional password required before external visitors can preview or download the file. Passwords are hash-verified on the server.
+- **Expiration Date:** Set a date and time after which the link automatically becomes inactive.
+- **Download Limits:** Optional limit on the number of times a file can be downloaded before the link expires.
+
+<Steps>
+1. **Enable public link**
+
+   In the Share dialog, switch to the **Tautan Publik (`Public Link`)** tab and toggle the link active.
+
+2. **Configure optional protection**
+
+   Enter an access password and choose an expiration date if required.
+
+3. **Copy and distribute link**
+
+   Copy the generated public URL (e.g., `https://drive.example.com/share/abc123xyz`) and send it to your recipient.
+</Steps>
+
+## Managing and Revoking Shares
+
+You retain full ownership and control over shared items:
+
+- **Review active shares:** The Share dialog lists every user and public link currently granted access.
+- **Change permissions:** Switch an existing user between **Editor** and **Viewer** instantly.
+- **Revoke access:** Click **Hapus Akses (`Remove Access`)** or toggle off the public link. Access is revoked immediately; ongoing downloads are cut off.
+
+## Next Steps
+
+- [File Management](/docs/user-guide/file-management/): General folder navigation and file operations.
+- [Administration & User Management](/docs/administrator-guide/backup-restore/): How administrators manage users, roles, and quotas.

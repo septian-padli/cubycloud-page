@@ -1,0 +1,239 @@
+---
+// Custom ThemeSelect component for Starlight implementing a Shadcn-inspired Switch
+---
+
+<starlight-theme-select>
+	<div class="theme-switch-wrapper">
+		<button
+			type="button"
+			role="switch"
+			class="theme-switch"
+			aria-label="Toggle dark mode"
+			aria-checked="false"
+		>
+			<span class="theme-switch-thumb">
+				<!-- Sun Icon (Lucide/Shadcn style) -->
+				<svg
+					class="icon icon-sun"
+					xmlns="http://www.w3.org/2000/svg"
+					width="12"
+					height="12"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<circle cx="12" cy="12" r="4"></circle>
+					<path d="M12 2v2"></path>
+					<path d="M12 20v2"></path>
+					<path d="m4.93 4.93 1.41 1.41"></path>
+					<path d="m17.66 17.66 1.41 1.41"></path>
+					<path d="M2 12h2"></path>
+					<path d="M20 12h2"></path>
+					<path d="m6.34 17.66-1.41 1.41"></path>
+					<path d="m19.07 4.93-1.41 1.41"></path>
+				</svg>
+
+				<!-- Moon Icon (Lucide/Shadcn style) -->
+				<svg
+					class="icon icon-moon"
+					xmlns="http://www.w3.org/2000/svg"
+					width="12"
+					height="12"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+				</svg>
+			</span>
+		</button>
+	</div>
+</starlight-theme-select>
+
+{/* Inline picker update hook to avoid FOUC */}
+<script is:inline>
+	if (typeof StarlightThemeProvider !== 'undefined' && StarlightThemeProvider.updatePickers) {
+		StarlightThemeProvider.updatePickers();
+	}
+</script>
+
+<script>
+	type Theme = 'auto' | 'dark' | 'light';
+	type ResolvedTheme = 'dark' | 'light';
+
+	const storageKey = 'starlight-theme';
+
+	const parseTheme = (theme: unknown): Theme =>
+		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+
+	const loadTheme = (): Theme =>
+		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+
+	function storeTheme(theme: Theme): void {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
+		}
+	}
+
+	const getPreferredColorScheme = (): ResolvedTheme =>
+		matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+
+	function getCurrentResolvedTheme(): ResolvedTheme {
+		const stored = loadTheme();
+		if (stored === 'dark' || stored === 'light') return stored;
+		return getPreferredColorScheme();
+	}
+
+	function updateSwitchUI(resolvedTheme: ResolvedTheme): void {
+		const isDark = resolvedTheme === 'dark';
+		document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+			const btn = picker.querySelector<HTMLButtonElement>('.theme-switch');
+			if (btn) {
+				btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+				btn.dataset.state = isDark ? 'checked' : 'unchecked';
+				btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+			}
+		});
+	}
+
+	function onThemeChange(theme: Theme): void {
+		const resolvedTheme: ResolvedTheme = theme === 'auto' ? getPreferredColorScheme() : theme;
+		document.documentElement.dataset.theme = resolvedTheme;
+		storeTheme(theme);
+		updateSwitchUI(resolvedTheme);
+		if (typeof (window as any).StarlightThemeProvider !== 'undefined') {
+			(window as any).StarlightThemeProvider.updatePickers(theme);
+		}
+	}
+
+	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+		if (loadTheme() === 'auto') {
+			onThemeChange('auto');
+		}
+	});
+
+	class StarlightThemeSelect extends HTMLElement {
+		constructor() {
+			super();
+			const resolved = getCurrentResolvedTheme();
+			updateSwitchUI(resolved);
+
+			const btn = this.querySelector<HTMLButtonElement>('.theme-switch');
+			btn?.addEventListener('click', () => {
+				const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+				const next: Theme = current === 'dark' ? 'light' : 'dark';
+				onThemeChange(next);
+			});
+		}
+	}
+
+	if (!customElements.get('starlight-theme-select')) {
+		customElements.define('starlight-theme-select', StarlightThemeSelect);
+	}
+</script>
+
+<style>
+	.theme-switch-wrapper {
+		display: inline-flex;
+		align-items: center;
+		vertical-align: middle;
+	}
+
+	/* Shadcn Switch Root Styling modified for CubyCrate brand */
+	.theme-switch {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		box-sizing: border-box;
+		height: 24px;
+		width: 44px;
+		flex-shrink: 0;
+		cursor: pointer;
+		border-radius: 9999px;
+		border: 1px solid var(--cc-line, #d9ddcc);
+		background-color: var(--cc-soft, #e8e9dc);
+		padding: 2px;
+		transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+		outline: none;
+	}
+
+	.theme-switch:focus-visible {
+		box-shadow: 0 0 0 2px var(--sl-color-bg, #ffffff), 0 0 0 4px var(--cc-accent, #a6571c);
+	}
+
+	:root[data-theme='dark'] .theme-switch {
+		border-color: var(--cc-line, #3b4935);
+		background-color: var(--cc-soft, #202b1e);
+	}
+
+	.theme-switch[data-state='checked'] {
+		background-color: var(--cc-olive, #606c38);
+		border-color: var(--cc-olive, #606c38);
+	}
+
+	:root[data-theme='dark'] .theme-switch[data-state='checked'] {
+		background-color: var(--cc-accent, #e1ab70);
+		border-color: var(--cc-accent, #e1ab70);
+	}
+
+	/* Shadcn Switch Thumb */
+	.theme-switch-thumb {
+		pointer-events: none;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 18px;
+		width: 18px;
+		border-radius: 9999px;
+		background-color: #ffffff;
+		color: #283618;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+		transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, color 0.2s ease;
+		transform: translateX(0);
+	}
+
+	:root[data-theme='dark'] .theme-switch-thumb {
+		background-color: #182017;
+		color: #f0eee3;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+	}
+
+	.theme-switch[data-state='checked'] .theme-switch-thumb {
+		transform: translateX(20px);
+	}
+
+	.icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 0;
+	}
+
+	/* Sun shows in light mode (unchecked), Moon shows in dark mode (checked) */
+	.icon-sun {
+		display: inline-flex;
+		color: #a6571c;
+	}
+
+	.icon-moon {
+		display: none;
+		color: #f0eee3;
+	}
+
+	.theme-switch[data-state='checked'] .icon-sun {
+		display: none;
+	}
+
+	.theme-switch[data-state='checked'] .icon-moon {
+		display: inline-flex;
+	}
+</style>

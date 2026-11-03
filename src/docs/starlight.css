@@ -140,3 +140,53 @@ details summary {
 details[open] summary {
   margin-bottom: 8px;
 }
+
+/* Starlight docs logo container and image dimensions */
+.site-title :is(img, picture img) {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+:root[data-theme='light'] .site-title img.light\:sl-hidden {
+  display: none !important;
+}
+
+:root[data-theme='dark'] .site-title img.dark\:sl-hidden {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .site-title :is(img, picture img) {
+    height: 24px;
+  }
+}
+
+/* Social Icons (GitHub): default black/dark with brown hover */
+.social-icons a {
+  color: #182017 !important;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+:root[data-theme='dark'] .social-icons a {
+  color: #f0eee3 !important;
+}
+
+.social-icons a:hover,
+:root[data-theme='dark'] .social-icons a:hover {
+  color: #a6571c !important;
+}
+
+/* Mobile menu footer social icon color */
+.mobile-preferences .social-icons a {
+  color: #182017 !important;
+}
+
+:root[data-theme='dark'] .mobile-preferences .social-icons a {
+  color: #f0eee3 !important;
+}
+
+.mobile-preferences .social-icons a:hover,
+:root[data-theme='dark'] .mobile-preferences .social-icons a:hover {
+  color: #a6571c !important;
+}

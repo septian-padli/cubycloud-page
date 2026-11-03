@@ -78,7 +78,7 @@ export default function DocsApp() {
     <header className="docs-header"><div className="docs-header-inner">
       <button ref={menuTrigger} className="docs-menu-trigger docs-icon-button" type="button" onClick={() => setDrawerOpen(true)} aria-label="Open documentation menu" aria-expanded={drawerOpen}><Menu size={21} /></button>
       <DocsLink href="/docs" className="docs-logo" aria-label="CubyCrate documentation home">
-        <img src={theme === 'dark' ? '/logos/horizontal/default/cubycrate-horizontal-white.svg' : '/logos/horizontal/default/cubycrate-horizontal-color.svg'} alt="CubyCrate" height="24" style={{ height: '24px', width: 'auto', display: 'block' }} />
+        <img src={theme === 'dark' ? '/logos/horizontal/default/cubycrate-horizontal-white.webp' : '/logos/horizontal/default/cubycrate-horizontal-color.webp'} alt="CubyCrate" width="78" height="24" style={{ height: '24px', width: 'auto', display: 'block' }} />
       </DocsLink>
       <span className="docs-header-label">/ DOCS <small>PROTOTYPE</small></span>
       <div className="docs-header-tools">

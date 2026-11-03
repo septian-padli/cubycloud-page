@@ -16,7 +16,7 @@ export function SiteHeader() {
   }, [open]);
   return <header ref={header} className="site-header editorial-header">
     <a href="#top" className="wordmark" aria-label="CubyCrate, back to top" onClick={() => setOpen(false)}>
-      <img src="/logos/horizontal/default/cubycrate-horizontal-white.svg" alt="CubyCrate" height="32" style={{ height: '32px', width: 'auto', display: 'block' }} />
+      <img src="/logos/horizontal/default/cubycrate-horizontal-white.webp" alt="CubyCrate" width="105" height="32" style={{ height: '32px', width: 'auto', display: 'block' }} />
     </a>
     <nav className="editorial-links" aria-label="Main navigation"><a href="#files">EXPLORE <ArrowDownRight size={14} /></a><a href="/docs">DOCUMENTATION</a><a href={links.github} target="_blank" rel="noopener noreferrer">GITHUB <ArrowUpRight size={14} /></a></nav>
     <div className="header-actions"><a className="header-cta" href="#get-started" onClick={() => setOpen(false)}>GET STARTED <ArrowUpRight size={16} /></a><button ref={toggle} className="menu-toggle" type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button></div>

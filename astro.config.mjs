@@ -11,12 +11,15 @@ export default defineConfig({
     starlight({
       title: 'CubyCrate',
       logo: {
-        light: './public/logos/horizontal/default/cubycrate-horizontal-color.svg',
-        dark: './public/logos/horizontal/default/cubycrate-horizontal-white.svg',
-        replacesTitle: false,
+        light: './public/logos/horizontal/default/cubycrate-horizontal-color.webp',
+        dark: './public/logos/horizontal/default/cubycrate-horizontal-white.webp',
+        replacesTitle: true,
       },
       favicon: '/favicon.svg',
       customCss: ['./src/docs/starlight.css'],
+      components: {
+        ThemeSelect: './src/docs/ThemeSelect.astro',
+      },
       social: [
         {
           icon: 'github',

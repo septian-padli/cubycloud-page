@@ -1,5 +1,6 @@
 import { ArrowLeft, ChevronRight, FileImage, FileText, Folder, HardDrive, MoreHorizontal, RotateCcw, Search, Star, Trash2, Users, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 type Item = { name: string; type: 'folder' | 'text' | 'image' | 'unsupported'; detail: string; content?: string };
 const data: Record<string, Item[]> = {
@@ -25,7 +26,12 @@ export default function FileExplorerDemo() {
   const [error, setError] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => { if (preview) closeRef.current?.focus(); else opener.current?.focus(); }, [preview]);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (preview) closeRef.current?.focus();
+    else if (wasOpen.current) opener.current?.focus();
+    wasOpen.current = !!preview;
+  }, [preview]);
   useEffect(() => {
     if (!preview) return;
     const key = (e: KeyboardEvent) => {
@@ -35,6 +41,10 @@ export default function FileExplorerDemo() {
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, [preview]);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(frame);
+  }, [path, selected, error]);
   const current = path.at(-1) ?? 'root';
   const reset = () => { setPath([]); setSelected(null); setPreview(null); setError(false); };
   const openPreview = (item: Item) => { if (item.type === 'unsupported') { setError(true); return; } setPreview(item); setError(false); };
@@ -43,14 +53,15 @@ export default function FileExplorerDemo() {
     else { opener.current = button; setSelected(item); setError(false); }
   };
   return <div className="explorer" aria-label="Interactive file explorer illustration">
-    <div className="explorer-toolbar"><div className="explorer-logo"><span className="brand-mark mini"><i /><i /><i /></span>CubyCloud</div><span className="explorer-toolbar-right"><Search size={15} /><span className="explorer-avatar">CC</span></span></div>
+    <div className="explorer-toolbar"><div className="explorer-logo"><img src="/logos/icon/cubycrate-icon-color.webp" alt="" width="16" height="20" style={{ height: '16px', width: 'auto', display: 'inline-block' }} />CubyCrate</div><span className="explorer-toolbar-right"><Search size={15} /><span className="explorer-avatar">CC</span></span></div>
     <div className="explorer-layout"><aside className="explorer-sidebar"><small>WORKSPACE</small><div className="sidebar-item active"><HardDrive size={16} />My Storage</div><div className="sidebar-item"><Users size={16} />Organization</div><small>LIBRARY</small><div className="sidebar-item"><Star size={16} />Starred</div><div className="sidebar-item"><Trash2 size={16} />Trash</div><div className="sidebar-foot">DEMO WORKSPACE<br />NO LIVE FILES</div></aside>
       <div className="explorer-main">
         <div className="explorer-breadcrumb"><button onClick={() => { setPath([]); setSelected(null); setError(false); }} aria-label="Go to My Storage">My Storage</button>{path.map((segment, index) => <span key={segment} className="crumb"><ChevronRight size={13} /><button onClick={() => { setPath(path.slice(0, index + 1)); setSelected(null); setError(false); }}>{segment}</button></span>)}</div>
         <div className="explorer-title"><div><small>YOUR FILES / ORGANIZED</small><h3>{current === 'root' ? 'My Storage' : current}</h3></div><MoreHorizontal size={22} /></div>
         <div className="explorer-list-head"><span>NAME</span><span>DETAILS</span></div>
-        <div className="explorer-list">{data[current].length ? data[current].map(item => <button type="button" className={`file-row ${selected?.name === item.name ? 'selected' : ''}`} key={item.name} onClick={e => enter(item, e.currentTarget)} onDoubleClick={e => { if (item.type !== 'folder') { opener.current = e.currentTarget; openPreview(item); } }}><span className="file-name"><span className={`file-icon ${item.type}`}>{item.type === 'folder' ? <Folder size={20} fill="currentColor" /> : item.type === 'image' ? <FileImage size={20} /> : <FileText size={20} />}</span>{item.name}</span><span className="file-detail">{item.detail}{item.type === 'folder' && <ChevronRight size={15} />}</span></button>) : <div className="empty-folder"><Folder size={32} strokeWidth={1.2} /><b>Nothing here yet.</b><span>This demo folder is empty. Go back to keep exploring.</span><button onClick={() => setPath(path.slice(0, -1))}><ArrowLeft size={14} /> GO BACK</button></div>}</div>
-        {selected && <div className="file-action"><span>SELECTED / {selected.name}</span><button onClick={() => openPreview(selected)}>OPEN PREVIEW <ArrowLeft size={15} className="rotate-arrow" /></button></div>}
+        <span className="explorer-token-anchor" aria-hidden="true" />
+        <div className="explorer-list">{data[current].length ? data[current].map(item => <button type="button" className={`file-row ${selected?.name === item.name ? 'selected' : ''}`} key={item.name} aria-pressed={item.type !== 'folder' ? selected?.name === item.name : undefined} onClick={e => enter(item, e.currentTarget)} onDoubleClick={e => { if (item.type !== 'folder') { opener.current = e.currentTarget; openPreview(item); } }}><span className="file-name"><span className={`file-icon ${item.type}`}>{item.type === 'folder' ? <Folder size={20} fill="currentColor" /> : item.type === 'image' ? <FileImage size={20} /> : <FileText size={20} />}</span>{item.name}</span><span className="file-detail">{item.detail}{item.type === 'folder' && <ChevronRight size={15} />}</span></button>) : <div className="empty-folder"><Folder size={32} strokeWidth={1.2} /><b>Nothing here yet.</b><span>This demo folder is empty. Go back to keep exploring.</span><button onClick={() => { setPath(path.slice(0, -1)); setSelected(null); }}><ArrowLeft size={14} /> GO BACK</button></div>}</div>
+        {selected && <div className="file-action"><span>SELECTED / {selected.name}</span><button onClick={() => { opener.current = document.activeElement as HTMLButtonElement; openPreview(selected); }}>OPEN PREVIEW <ArrowLeft size={15} className="rotate-arrow" /></button></div>}
         {error && <div className="inline-error" role="alert">Preview unavailable for this archive. Choose a text or image file instead. <button onClick={() => setError(false)} aria-label="Dismiss error"><X size={15} /></button></div>}
         <div className="explorer-status"><span>{data[current].length} ITEMS · ILLUSTRATIVE DATA</span><button onClick={reset}><RotateCcw size={14} /> RESET DEMO</button></div>
       </div>

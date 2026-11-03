@@ -1,138 +1,124 @@
-# PROTOTYPE.md — CubyCloud Website Prototype & Acceptance Contract
+# PROTOTYPE.md — UX Regression and Acceptance Scenarios
 
-> **Status:** Approved prototype scope; test results and design sign-off are pending.
-> **Phase:** FigCraft design and prototyping only. No website or application implementation is authorized.
-> **Read with:** `BRIEF.md` (product truth), `PAGES.md` (routes/sections), `CONTENT.md` (copy), `DESIGN.md` (visual system), `MOTION.md` (motion), `FIGCRAFT.md` (verified tool workflow).
+## Scope
 
-## 1. Approved Decisions
+This register owns scenario identifiers, required results, severity, and evidence format.
+`MIGRATION_CONTRACT.md` owns migration phases and gates; `PAGES.md` owns route/IA requirements; `MOTION.md` owns motion behavior.
+Preserve PT-01–PT-12 identifiers and intent for traceability.
+Current baseline is React/Vite; Astro, React Islands, and Starlight remain migration targets.
 
-| Dimension | Final decision |
-| --- | --- |
-| Fidelity | **Tiered Hybrid Prototype** |
-| Product demonstrations | **Three Core Product Demos**: Files, Sharing, Storage |
-| States | **Realistic Interaction States**, scoped to meaningful behavior |
-| Documentation | **Core Documentation Templates** |
-| Responsive coverage | **Desktop + Mobile Interactive** |
-| Release gate | **Scenario-Based Acceptance Gate**, with explicit user sign-off |
+A build does not prove parity. A still image does not prove working interaction or motion. Compare against the latest owner-approved baseline and report pre-existing defects separately from regressions.
 
-## 2. Fidelity Levels and Deliverables
+## PT scenarios: preserve identifiers and intent
 
-| Tier | Required evidence | What it proves |
+| ID | Scenario | Required result |
 | --- | --- | --- |
-| **T1: Visual** | Editable high-fidelity desktop/mobile screens, named components, variants, and exported frames | Visual composition, copy, responsive design |
-| **T2: Interactive** | Wired FigCraft-supported navigation, menus, tabs, dialogs, demo steps, feedback, and reset | Click/tap state transitions and user flows |
-| **T3: Storyboard** | Numbered start/active/transition/end frames, trigger and fallback annotations | Intended motion, **not** working GSAP or continuous physics |
+| PT-01 | Open homepage on desktop/mobile | Correct sections, content, layout, no clipping. |
+| PT-02 | Navigate numbered chapters | Correct anchors, progress, active states, native scrolling. |
+| PT-03 | Use Files demo | Browse, select, preview, close, reset. |
+| PT-04 | Use Sharing demo | Internal/Public, Viewer/Editor, optional password, close/reset. |
+| PT-05 | Use Storage demo | Local/S3 selection, explanation, back/reset. |
+| PT-06 | Trigger relevant UI states | Empty, error, disabled, and success states behave correctly. |
+| PT-07 | Use mobile navigation and demos | Touch support, safe areas, no overflow. |
+| PT-08 | Use keyboard and focus navigation | Logical and visible focus; Escape closes relevant UI. |
+| PT-09 | Use FAQ and navigate to documentation | FAQ interaction and working documentation routes. |
+| PT-10 | Follow Get Started and GitHub links | Correct existing or approved destinations. |
+| PT-11 | Verify motion and reduced-motion alternatives | Runtime motion, fallback, and reversibility; storyboard is supplemental only. |
+| PT-12 | Audit design and content | Palette, typography, product truth, and language remain consistent. |
 
-- Include the full homepage, the four numbered chapter anchors, supporting highlights, Open Source, **Practical FAQ**, final CTA, and footer.
-- Maintain one reusable component library for CTAs, nav, chapter indicator, file card, dialogs, form controls, tabs, accordions, docs sidebar/search, and code blocks.
-- Frames must remain native and editable; screenshots of the real CubyCloud app may be embedded as factual references, not redrawn as fictitious capabilities.
-- Use synthetic sample filenames and storage data. No private files, passwords, API keys, live S3 credentials, or production backend calls.
-- Every nonfunctional control is explicitly marked **storyboard / illustrative / not implemented**, or given an honest disabled state; never disguise an inert control as tested.
-- Organize deliverables by `Design System / Desktop Home / Mobile Home / Desktop Docs / Mobile Docs / Prototype Flows / Motion Storyboards / Review`.
+## Migration and documentation scenarios
 
-## 3. Screens, Breakpoints, and Navigation
-
-| Group | Required screens / variants |
-| --- | --- |
-| **Desktop marketing (1440 px)** | Complete homepage, hero, chapters 01–04, sub-sections/FAQ, selected chapter/progress, menu/overlays, final CTA |
-| **Mobile marketing (390 px)** | Re-composed homepage, compact indicator, tap-to-jump menu, three touch demos, FAQ, docs/CTA paths |
-| **Docs desktop** | `/docs/` home, standard article with long content, install/code article, sidebar, search, table of contents |
-| **Docs mobile** | Docs home/article, menu open/closed, search states, readable callouts and scrollable code blocks |
-| **Cross-cutting** | Light/dark where applicable, keyboard focus, reduced/static scenes, empty/error/feedback examples |
-
-- Validate responsive constraints at intermediate/tablet widths and **320 px** narrow mobile; only 1440/390 px are mandatory primary design frames.
-- Keep the four real chapters `#files`, `#sharing`, `#storage`, `#self-hosting`; FAQ (`#faq`) and `#get-started` are supporting destinations, not chapter 05.
-- Chapter navigation exposes active chapter, progress, direct jump, and a stable way to skip to Docs/Get Started.
-- Navigation must remain possible by ordinary scroll, tap, keyboard, and direct anchors; **no forced snapping, pinning, scroll trap, or hover-only controls**.
-- Test `Get Started` toward the **verified** installation article; `/docs/getting-started/installation/` is a proposed route, not assumed to be published.
-- `View on GitHub` targets `https://github.com/septian-padli/cubycloud`; don't replace it with a fake community page.
-
-## 4. Interactive Product Demo Contracts
-
-### Demo A — File Management (`01 Files`)
-
-- **Path:** Explorer default → open a folder → select a file → preview or supported action → feedback → reset.
-- **States:** Folder/file selected, preview open/closed, no selection, empty folder, relevant unavailable/error state, reset.
-- **Acceptance:** Breadcrumb/context updates, selection is visible, preview and close return predictably, reset restores initial dataset.
-- **Truth:** Demo mirrors supported My Storage actions; a marketing animation is not evidence of real upload, save, or background sync.
-
-### Demo B — Sharing (`02 Sharing`)
-
-- **Path:** Selected file → choose `Internal` OR `Public link` → adjust supported options → simulated result → reset.
-- **States:** Viewer/Editor selection; public-link creation and optional password; disabled/validation state; success/feedback.
-- **Acceptance:** Branch choice updates only relevant controls; modal can close, keyboard focus is recoverable, reset removes fake link state.
-- **Truth:** Internal Viewer/Editor and optional password-protected public links are supported; **Organization is one shared tree for authenticated users**, not team/group RBAC.
-- **Do not:** Generate a working public URL or imply the visitor's files were shared.
-
-### Demo C — Local + S3 Storage (`03 Storage`)
-
-- **Path:** Storage overview → select `Local` or `S3-compatible` → inspect configuration explanation → back/reset.
-- **States:** Both selections, relevant explanatory panel, optional illustrative field validation, error/unavailable explanation.
-- **Acceptance:** The two options are distinguishable and reversible; the diagram accurately distinguishes local disk from object storage.
-- **Truth:** Present a conceptual configuration, **not** a live connection test, migration, replication, sync, or storage-write success.
-
-## 5. Realistic State Matrix
-
-| Component / scene | Must show and link where relevant |
-| --- | --- |
-| Navigation/CTA | Default, hover (fine pointer), focus-visible, active, disabled only when justified, destination |
-| Chapter indicator | Current, previous/next, progress, expanded/collapsed menu, anchor selection |
-| File UI | Default, hover/focus, selected, folder open, preview open/closed, empty, recoverable error |
-| Sharing dialog | Closed/open, internal/public branch, selected permission, validation, illustrative success, dismiss/reset |
-| Storage selector | Local/S3 selected, explanatory details, unavailable/error, back/reset |
-| FAQ | Collapsed/expanded, keyboard focus, accessible answer content |
-| Docs | Sidebar/search closed/open, active article, keyboard focus, code-copy feedback, code overflow |
-
-- Test only **applicable** states, not every Cartesian combination; document omitted states as `N/A` with a reason.
-- Error, loading, or success may be illustrated through static states if native FigCraft behavior is unavailable; label these honestly.
-- All demos include a clear `Reset demo` and a path to continue without completing the demonstration.
-
-## 6. Starlight Documentation Prototype
-
-- Build reusable **documentation home** and **article** templates, plus representative code-heavy installation and guide pages; **not** every documentation article.
-- Include header, sidebar hierarchy, search affordance, table of contents, callouts, link states, code blocks/copy, pagination where relevant, and mobile menu.
-- Wire Docs home ↔ representative article, search/menu presentation, and navigation controls wherever FigCraft supports actual interaction.
-- If true search or code-copy is unsupported, use named storyboard states and document the untested behavior; don't claim a working search index.
-- Keep documentation conventional and readable. No immersive parallax, cursor physics, or chapter morphing inside articles.
-- Follow `PAGES.md` documentation categories without claiming each planned page or route is already published.
-
-## 7. Motion Storyboards and Fallbacks
-
-- Use **normal fluid vertical scrolling**; product UI choreography combines with restrained layered depth and kinetic editorial type.
-- Define shared file token transitions: **Files → Sharing → conceptual Storage diagram**; preserve recognizable geometry while clearly labeling metaphor vs real UI.
-- Each complex motion has `Start → Trigger/Active → Transition → End`, source/target frame IDs, expected outcome, timing/easing or scroll relationship, and interrupt/reverse behavior.
-- Respect `MOTION.md` starting durations: micro 120–220 ms; UI 200–400 ms; morph 500–900 ms; scroll-linked motion follows progress rather than a fixed timer.
-- Pointer-reactive treatments are optional fine-pointer decoration; keyboard/touch equivalents are mandatory for meaningful actions.
-- Supply **Full / Light / Reduced** variants: lightweight touch-native movement on mobile; no essential information depends on animation, parallax, hover, or a shared-element journey.
-- If FigCraft cannot run continuous scroll scrubbing, real morphs, or pointer physics, create **named keyframes and annotations** rather than a counterfeit executable prototype.
-
-## 8. Scenario-Based Acceptance Checklist
-
-| ID | Scenario / action | Expected evidence and pass condition |
+| ID | Scenario | Required result |
 | --- | --- | --- |
-| **PT-01** | Open homepage at desktop/mobile | All sections readable, correct order/copy, true product visuals, no clipping/overflow |
-| **PT-02** | Jump to each numbered chapter and back | Correct anchors, indicator/progress, no trapped scroll, Docs and CTA reachable |
-| **PT-03** | Open Files demo; browse, select, preview, reset | Correct states/labels; reset returns default on mouse and touch |
-| **PT-04** | Switch Sharing internal/public options; close/reset | Viewer/Editor and optional password appear in correct branches; no fictitious RBAC |
-| **PT-05** | Switch Local/S3 options; back/reset | Explanations update; no implied connection, transfer, or replication |
-| **PT-06** | Trigger empty, error, disabled, success states | Relevant feedback distinguishable, recoverable, and labeled simulated as applicable |
-| **PT-07** | Use chapter menu and demo controls on mobile | Tap works without hover, controls fit safe areas, no horizontal overflow at 320 px |
-| **PT-08** | Use keyboard/focus navigation | Visible focus, logical traversal, close/escape where supported; no keyboard trap |
-| **PT-09** | Open FAQ and navigate to docs | Answers available without motion; Docs home/article/menu/search templates reviewable |
-| **PT-10** | Follow Get Started and GitHub paths | Correct actual destination or explicit not-published note; never dead-end silently |
-| **PT-11** | Review motion storyboard and static fallback | Every intended advanced effect has frames, trigger, mobile/reduced equivalent, truthful status |
-| **PT-12** | Audit visual system and copy | Brand palette, typography, product proof, language, and Organization rights match source documents |
+| MR-01 | Directly load `/` | Homepage renders. |
+| MR-02 | Compare Hero visual baseline | No unapproved layout or typography regression. |
+| MR-03 | Test Storage Core | WebGL scene and fallback work. |
+| MR-04 | Scroll Hero forward/backward | Stable progress and reversible animation. |
+| MR-05 | Test narrative token journey | Existing Hero→Files→Sharing→Storage transitions align; no assumed Self-Hosting leg. |
+| MR-06 | Resize during animation | No stranded or mispositioned elements. |
+| MR-07 | Reload while scrolled | Correct state after layout initialization. |
+| MR-08 | Navigate away and back | No duplicate triggers or stale listeners. |
+| MR-09 | Test reduced motion | Nonessential motion is reduced; content and controls remain available. |
+| MR-10 | Compare mobile layout | No new clipping, overflow, or lost controls. |
+| MR-11 | Test built website | Correct assets, routes, and runtime behavior. |
+| MR-12 | Review architecture | Astro/Starlight integration avoids unnecessary framework duplication. |
+| DOC-01 | Open `/docs/` | Introduction article appears directly. |
+| DOC-02 | Open Installation URL | Correct article and metadata. |
+| DOC-03 | Open File Management URL | Correct article and metadata. |
+| DOC-04 | Navigate sidebar | Correct active article and category. |
+| DOC-05 | Use On This Page | Correct heading anchors and scroll position. |
+| DOC-06 | Search published content | Search works and has useful no-results state. |
+| DOC-07 | Select search result | Correct article or heading destination. |
+| DOC-08 | Switch Light/Dark/System | Correct appearance and persisted preference. |
+| DOC-09 | Use mobile navigation | Drawer works and focus is managed. |
+| DOC-10 | Use code blocks | Highlighting, overflow, and copy behavior work. |
+| DOC-11 | Use links and pagination | No broken available-article routes or future dead links. |
+| DOC-12 | Refresh direct article URL | Article loads without client-side routing failure. |
 
-- Each test gets a **Desktop** and **Mobile** result where relevant: `PASS / FAIL / BLOCKED / N/A`, with notes and a proof-frame or prototype link.
-- **PASS** requires directly observable working FigCraft interaction or inspected visual evidence. `Storyboard approved` does **not** mean animation tested.
-- Keep a separate **not-testable-in-FigCraft** list for behaviors reserved for implementation QA; do not silently waive accessibility or functionality requirements.
-- Track defects by impact: **Blocker** = broken critical route/flow, false capability, missing essential content, or inaccessible key action; **Major** = substantive state/responsive issue; **Minor** = polish.
+These DOC scenarios describe Starlight target acceptance, not current implementation status. Current `/docs` paths render the React `DocsApp` prototype via `src/main.tsx`.
 
-## 9. Review Evidence and Explicit Sign-Off Gate
+Capture current baseline scenarios before migration. Run migrated scenarios on the integrated target; this register defines acceptance, not permission to accept a partial worker branch.
 
-- Store editable design location, version/date, desktop/mobile exports, scene/frame IDs, demo flow links, and storyboard links in the review handoff.
-- Maintain a compact acceptance register: `Test ID | Device | Result | Evidence | Issue/Owner | Retest`; link decisions/changes in `DECISIONS.md`.
-- Validate `DESIGN.md`, `BRIEF.md`, `PAGES.md`, `CONTENT.md`, `MOTION.md` consistency; **sync Practical FAQ into `PAGES.md` before final sign-off**.
-- Before approval, resolve all blockers, retest corrected flows, and explicitly identify untestable FigCraft interactions and future implementation checks.
-- Approval requires the user's **explicit** sign-off after reviewing evidence. Agent self-review, exports, or a successful MCP call **do not** count as approval.
-- **Hard stop:** No Astro, React, Tailwind, GSAP, Starlight, backend, hosting setup, deployment, or code implementation until the user authorizes development separately.
+For migration comparisons, use the same source content, browser settings, reduced-motion preference, and device conditions. If an environment cannot reproduce GPU output deterministically, record that limitation and inspect behavior with runtime traces or video.
+
+Report each status independently. A passing homepage build cannot stand in for DOC scenarios, and a passing documentation route cannot stand in for homepage motion or responsive checks.
+
+## Reporting threshold
+
+Do not call a scenario passed because its control is visible or its route is linked.
+Exercise the result: open route directly, operate the control, observe destination/state, and retain evidence.
+If the expected result cannot be observed, use BLOCKED or NOT TESTED and explain why.
+
+For defect reports, name affected scenario IDs, observed baseline and migrated results, severity, reproduction steps, and evidence location. Retest only affected scenarios plus dependent flows; link original and retest evidence.
+
+Retain the original PT identifier when an observed behavior differs from historical design intent. Record the mismatch as a baseline defect rather than quietly changing the expected scenario.
+
+## Visual regression
+
+Capture matched screenshots for Hero, Files, Sharing, Storage, Highlights, Self-Hosting, Open Source, FAQ, Get Started, Footer,
+key mobile layouts, and meaningful open/selected states.
+Compare font family/weight, wrapping, alignment, spacing, borders, shadows, colors, 3D placement, and responsive composition.
+Do not mask the entire Hero or 3D scene. Set image-difference tolerance for GPU/font noise without hiding meaningful defects.
+
+Compare both entry and meaningful state variants: open navigation, expanded FAQ, selected demo state, preview/dialog,
+and documented error/empty state where present.
+Keep screenshot crop, zoom, font readiness, viewport, and scroll position consistent.
+Treat visual thresholds as signals for review, not automatic proof of parity.
+
+## Functional, accessibility, and stability evidence
+
+Exercise demo browse/back/select/preview/close/reset flows; unavailable preview and empty folder; internal/public sharing, Viewer/Editor,
+optional password, validation, simulated result; Local/S3 selection and reset; FAQ, chapter links, CTA, and mobile menu.
+Check semantic landmarks, heading order, accessible names, keyboard operation, visible focus, dialog focus, Escape, contrast,
+reduced motion, touch, and no keyboard traps.
+Check console errors, exceptions, missing assets, repeated animation initialization, listener leaks, WebGL errors, and hydration/layout shifts.
+
+Use viewports 1440×900, 768×1024, 390×844, and 320px width.
+Match browser, zoom, font readiness, and scroll position where comparing. Test supported browsers where practical.
+Test direct URL entry, refresh, internal navigation, and back/forward.
+Preserve simulation disclosures; no scenario authorizes live backend actions.
+
+At 320px, inspect article tables and code horizontally without causing page-level overflow. At 390px, exercise drawers and search by touch and keyboard, including focus return.
+
+For documentation, verify search against article body content rather than only titles or heading keywords. Test theme persistence after reload and System after changing the OS preference.
+
+For the homepage, compare scroll-driven token positions at matched progress points, then reverse direction. Inspect the WebGL fallback with a controlled unsupported-context condition instead of assuming it appears.
+
+## Severity
+
+- **Blocker:** homepage or critical route fails; Storage Core or major motion missing; primary demo broken; unapproved significant redesign; fabricated product capability/instructions; critical accessibility regression. Do not approve with unresolved blockers.
+- **Major:** significant visual difference, responsive failure, incorrect TOC/search navigation, motion jump/duplicate trigger, important interaction regression. Resolve or obtain explicit owner acceptance.
+- **Minor:** small cosmetic inconsistency, noncritical spacing difference, or minor feedback issue.
+
+Record severity per defect; never downgrade impact merely to pass a gate. Record pre-existing issues separately and do not attribute them to migration without evidence.
+
+## Evidence record
+
+For each scenario, record ID, browser/version, exact viewport, baseline, migrated observation, status (`PASS`, `FAIL`, `BLOCKED`, `NOT TESTED`),
+evidence link (screenshot, trace, video, log, or test output), defect severity, and retest result.
+A PASS requires concrete observed evidence for that scenario. Keep generated artifacts outside production bundles and link them in handoff.
+Motion needs controlled forward and reverse runtime interaction; screenshots alone are insufficient.
+Do not invent measurements or claim unobserved results.
+
+
+If a scenario cannot run because an environment or device is unavailable, record `BLOCKED` with the missing prerequisite. `NOT TESTED` means no attempt was made; neither state counts as acceptance.

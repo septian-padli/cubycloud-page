@@ -1,112 +1,85 @@
-# DESIGN.md — CubyCloud Website Design System
+# CubyCloud Design System
 
-> Source of truth for **visual identity, composition, components, motion principles, and accessibility** across the marketing website and Starlight documentation. Use with `BRIEF.md` (positioning), `PAGES.md` (structure), `CONTENT.md` (copy), `MOTION.md` (animation specifications), `PROTOTYPE.md` (flows), and `FIGCRAFT.md` (tool workflow). Do not infer product features from this file.
+> **Purpose:** Preserve implemented visual identity and guide the approved documentation target.
+> **Current site:** React, TypeScript, and Vite.
+> **Target:** Astro, React Islands, and Starlight are approved, not implemented.
 
-## 1. Direction and boundaries
+## Direction
 
-- **Brand:** CubyCloud, a self-hosted file-drive product. Preserve its warm **Flat Earthy** roots while giving the website a distinctive editorial identity.
-- **Marketing direction — Creative Editorial / Immersive & Experimental:** bold scale, asymmetry, fullscreen compositions, layered scenes, depth, gradients, and expressive interactions are permitted when they serve product storytelling.
-- **Color direction — Strict Brand Palette:** no new brand hues; build all decorative colors, gradients, highlights, and illustrations from the approved palette and its opacity/tone variations.
-- **Documentation direction — Branded Starlight:** recognizable CubyCloud styling with conventional documentation usability; no immersive or distracting reading experience.
-- The app's explorer, quota, transfer, permission-badge, and Svelte-specific UI rules do **not** apply to this website. Never copy dashboard implementation paths into website design specifications.
-- **Current phase:** design and prototyping in FigCraft only. Astro, React/shadcn, Tailwind, GSAP, and Starlight are planned implementation technologies, not permission to begin coding.
+The marketing site uses cinematic, scroll-led storytelling with earthy color, large editorial type, and a recurring file-shaped token. Preserve its current appearance during architecture migration. A migration does not authorize a redesign.
 
-## 2. Color system
+Documentation uses **Refined Editorial Tech**: quiet reading surfaces, clear navigation, compact technical metadata, and restrained CubyCloud color. It shares the brand, not the marketing site's cinematic composition.
 
-Carry forward the existing CubyCloud colors and their light/dark mappings. Use semantic roles, not arbitrary one-off colors.
+Keep design decisions tied to hierarchy, readability, or product identity. Do not add decoration just to fill space. Page structure belongs to `PAGES.md`; motion to `MOTION.md`; demo behavior to `PROTOTYPE.md`.
 
-| Token | Light | Dark | Primary role |
-| --- | --- | --- | --- |
-| `bg-app` | `#F0EEE3` | `#0F130E` | Page/section background |
-| `surface` | `#FFFFFF` | `#182017` | Elevated content, overlays, docs panels |
-| `primary` | `#606C38` | `#99AB5E` | CTAs, active elements, brand graphics |
-| `primary-accent` | `#283618` | `#ADCB8A` | Display emphasis, headings, deep contrast |
-| `secondary` | `#DDA15E` | `#E1AB70` | Highlights, illustrations, secondary accents |
-| `secondary-accent` | `#BC6C25` | `#D78032` | Strong accents, focal points |
-| `text-main` | `#283618` | `#F0EEE3` | Primary copy |
-| `text-muted` | `#5A6B46` | `#9CA88F` | Supporting copy |
-| `border-subtle` | `rgba(0,0,0,0.06)` | `rgba(255,255,255,0.08)` | Dividers and quiet boundaries |
-| `danger` | `#EC003F` | `#FF3366` | Functional destructive/error states **only** |
+## Implemented palette
 
-- Treat the existing light/dark variants as approved colors, not as permission to invent additional hues. White, dark neutrals, alpha overlays, and gradients between approved palette values are allowed.
-- Gradients, soft lighting, transparent overlays, and restrained shadows are permitted on marketing pages; avoid generic neon, rainbow effects, and glassmorphism as the default design language.
-- Use olive/forest/cream as the recognizable anchors; sand and terracotta are accents, not competing primary CTA colors.
-- Every palette combination must retain readable text and discernible interactive states. Provide real light **and** dark variants where a section or component supports both.
+Values below are present in the current website CSS. Preserve exact values when maintaining the experience.
 
-## 3. Typography
+| Role | Light / marketing value | Dark / marketing value |
+| --- | --- | --- |
+| Main background | `#F0EEE3` | `#0F130E` |
+| Surface | `#FFFFFF` | `#182017` |
+| Main text | `#283618` | `#F0EEE3` |
+| Olive | `#606C38` | `#99AB5E` |
+| Sand accent | `#DDA15E` | `#E1AB70` |
+| Terracotta | `#BC6C25` | `#D78032` |
+| Muted text | `#5A6B46` | `#9CA88F` |
+| Green accent | n/a | `#ADCB8A` |
 
-- **Body, navigation, UI, and documentation:** `Montserrat`, sans-serif; keep legibility and consistent character with the product app.
-- **Marketing display headings:** a distinctive **display font + Montserrat** pairing. **Display family is not selected yet**; explore and approve it in FigCraft before locking a font asset or implementation token.
-- Recommended scale (adjust within the system, not per-component whims):
+The marketing site uses gradients, layered surfaces, and shadows as part of its existing composition. Preserve them. Do not apply effects indiscriminately or introduce unrelated brand hues.
 
-| Role | Desktop | Mobile | Notes |
-| --- | --- | --- | --- |
-| Hero display | 64–96 px | 40–56 px | Display font, tight but legible line-height |
-| Section display | 36–64 px | 28–40 px | Strong hierarchy; editorial wrapping |
-| Lead | 18–24 px | 16–20 px | Comfortable paragraph measure |
-| Body / docs | 16–18 px | 16 px | Montserrat, generous line-height |
-| Labels / metadata | 12–14 px | 12–14 px | Never rely on microtype for essential content |
+Current documentation CSS uses light tokens `#F0EEE3`, `#FFFFFF`, `#283618`, `#59644F`, `#D9DDCC`, `#E8E9DC`,
+`#606C38`, `#DDA15E`, `#A6571C`, `#182017`; dark tokens `#0F130E`, `#182017`, `#F0EEE3`, `#BAC8AD`,
+`#3B4935`, `#202B1E`, `#ADCB8A`, `#E1AB70`, `#0B100B`.
+Treat them as current documentation component values, not a second marketing palette.
 
-- Prefer purposeful text wrapping, variable scale, contrast, and whitespace over excessive decoration. Never sacrifice legibility for kinetic typography.
-- Document heading, body, code, and navigation typography separately; code blocks use an appropriate monospace system font.
+## Typography
 
-## 4. Layout and responsive composition
+The implemented marketing font stack loads Google Fonts and uses:
 
-- **Immersive & Experimental:** design full-bleed hero/feature scenes, selective fullscreen sections with native fluid scrolling (no pinning or scroll hijacking per MOT-01), large product visuals, overlapping layers, and deliberate asymmetry.
-- Preserve a coherent grid beneath the experimentation: use a consistent content container, alignment anchors, rhythm, and predictable CTA placement.
-- **FigCraft starting frames:** desktop **1440 px** wide, mobile **390 px** wide; validate intermediate/tablet and narrow-mobile layouts (down to 320 px). Treat heights as content-dependent, not fixed crops.
-- Use an 8 px spacing rhythm with 4 px subdivisions; define reusable spacing and grid tokens in FigCraft instead of arbitrary coordinates.
-- Desktop-to-mobile is an **intentional recomposition**, not merely proportional scaling. Reorder layers, simplify complex scenes, and avoid off-screen required content.
-- Use responsive constraints/auto layout for structural elements. Absolute positioning is reserved for intentional decorative/storytelling layers.
-- Support safe areas, readable line lengths, keyboard navigation, touch targets, and horizontal-overflow checks.
+- **Barlow Condensed**, weights 600–900, for major display headings and the footer wordmark.
+- **Montserrat**, weights 400–800, for body copy, interface labels, and navigation.
+- **DM Mono**, weights 400–500, for chapter metadata, technical labels, and compact interface text.
 
-## 5. Surface, depth, and imagery
+This is implementation fact, not a claim of separately recorded design approval. Keep families, weights, and wrapping stable during migration.
 
-- Cards and controls should inherit the app's simple geometry: rounded pills for prominent CTAs and modest rounded corners for panels; vary scale/shape only when editorial composition requires it.
-- Layering, blur, texture, subtle shadows, and palette-based gradients may communicate depth in marketing scenes; never obscure labels or fake interactive affordances.
-- **Show the real product:** screenshots, UI details, installation visuals, and storage diagrams must reflect verified CubyCloud capabilities. Do not fabricate screens, benchmarks, feature states, or promises.
-- Use crisp SVG diagrams and optimized image/video assets. Brand illustrations stay within the approved palette and should explain storage, ownership, sharing, or self-hosting.
-- Keep marketing visuals expressive; keep documentation screenshots factual, uncluttered, and annotated only where useful.
+The documentation prototype uses Montserrat for article text and headings, and DM Mono for code, breadcrumbs, navigation metadata, and compact labels. Barlow Condensed is not a default article heading face. Keep reading comfortable and code legible.
 
-## 6. Components and states
+## Composition and responsive behavior
 
-- **Marketing components:** navbar, hero, primary/secondary CTA, feature showcase, tabs, cards, animated diagrams, stats/proof blocks, FAQ, footer, and optional interactive product scenes.
-- **Documentation components:** header, sidebar, search, table of contents, code block, callout, tabs, cards, and mobile navigation; preserve familiar Starlight conventions.
-- Design reusable primitives and variants in FigCraft: default, hover, focus-visible, active, disabled, loading, and relevant open/selected states.
-- Primary CTA: strong olive/forest contrast and a clear action label. Secondary CTA: quieter surface/outline treatment. Destructive red stays functional, not promotional.
-- Future shadcn/ui (React) components are a **behavior/accessibility starting point**, not a visual ceiling; design source components and tokens rather than assuming unmodified defaults.
-- Hover-only cues must have keyboard-focus and touch equivalents; visible focus, semantic labels, and disabled-state clarity are mandatory.
+Preserve the current hero, Storage Core, four numbered chapters, file-token continuity, demonstrations, highlights, self-hosting visualization, Open Source, FAQ, Get Started, and footer. `PAGES.md` owns information architecture.
 
-## 7. Motion and interaction principles
+Keep normal vertical scrolling. Preserve intentional overlaps, full-bleed sections, layered 3D, and responsive chapter compositions. Do not flatten scenes or introduce scroll locking, snapping, or sticky scenes without approval.
 
-- **Fully Interactive & Experimental:** cinematic scroll storytelling, staggered text, fluid unpinned compositions (per MOT-01), morphing, layered transitions, magnetic/pointer-reactive elements, and interactive product demonstrations are allowed.
-- Motion should communicate hierarchy, progression, or product behavior. Never animate every element just because the library can.
-- Make transitions spatially coherent: preserve visual continuity between frames, use purposeful easing, and avoid unexpected content jumps.
-- Distinguish entrance, scroll-linked, hover, click, navigation, and ambient motion; specify detailed triggers, state changes, easing, and timing in `MOTION.md`.
-- **FigCraft reality:** prototype native interactions/transitions where supported; express unsupported GSAP-style scrub/pinning/continuous pointer effects as named key states, storyboard frames, and implementation notes, not fake working interactions.
-- On touch devices replace pointer-dependent interactions with tap/swipe or static equivalents; simplify costly scenes on mobile and reduced-power devices.
-- Honor `prefers-reduced-motion`: retain information and navigation without essential movement, scroll hijacking, or long forced transitions.
+The CSS supports layouts down to 320px. Treat desktop, tablet, and narrow mobile as distinct compositions, not one scaled layout. Keep content within the viewport, text readable, and controls usable by touch. Avoid page-level horizontal overflow.
 
-## 8. Starlight documentation theme
+## Accessibility
 
-- **Branded Documentation:** use the approved palette, Montserrat, logo, selected display accent where appropriate, custom header/sidebar/callouts, and consistent links to the marketing site.
-- Preserve Starlight's expected sidebar hierarchy, on-page contents, search, code-copy usability, keyboard navigation, and mobile menu patterns.
-- Prioritize readable text columns, accessible contrast, clear code highlighting, visible focus, and sensible sticky elements.
-- Motion is limited to subtle feedback and simple transitions. No parallax, pinned storytelling, custom cursors, or distracting ambient loops in reading areas.
-- Maintain light/dark themes and test long articles, code samples, tables, callouts, and small screens. Do not rebuild Starlight's navigation purely for cosmetic novelty.
+Maintain visible keyboard focus. Current marketing styles use a 2px sand outline with 4px offset; docs use a 2px accent outline with 3px offset. Preserve equivalent visibility on links, buttons, inputs, and disclosure controls.
 
-## 9. FigCraft production conventions
+Use semantic headings and landmarks, meaningful accessible names, and keyboard-operable controls. Do not use color alone to communicate selection or status. Check text and control contrast against actual surfaces; meet WCAG AA text contrast.
 
-- Create a **native editable design**, not a flattened marketing screenshot. Use named components, variants, variables, shared styles, auto layout, and reusable section patterns.
-- Organize the file into design system, desktop marketing, mobile marketing, desktop docs, mobile docs, and prototype flows; follow `FIGCRAFT.md` for actual MCP commands and saving/export rules.
-- Name screens by page, breakpoint, and state; keep approved frames immutable unless a revision is explicitly requested.
-- Prototype key flows: navbar/CTA navigation, feature tabs, dialogs or overlays, responsive menu, and major scroll-story states when representable.
-- Export desktop/mobile proof screenshots at milestone gates; inspect alignment, clipping, states, and continuity before marking work complete.
+Honor `prefers-reduced-motion`. Current styles disable or shorten animation and transitions and restore visible content. Preserve this behavior in any migrated implementation. See `MOTION.md` for motion details.
 
-## 10. Accessibility, performance, and review gates
+## Implementation boundary
 
-- Target **WCAG 2.2 AA** for contrast and interaction where applicable; ensure keyboard reachability, focus visibility, readable labels, and non-color-only indicators.
-- Plan animations for smooth rendering: favor transform/opacity, avoid layout-thrashing effects, optimize images/video, and load nonessential interactive assets lazily during implementation.
-- Review desktop **then** mobile, but validate both before approval. Check dark/light, touch, reduced motion, long copy, narrow screens, and documentation reading comfort.
-- Before handoff, verify brand consistency, editorial distinctiveness, component reuse, product claim accuracy, and whether every intended interaction is either prototyped or explicitly documented as an implementation-only effect.
-- This document defines design rules, not route behavior, feature scope, copy, MCP tool syntax, or production code. Use the corresponding project documents as their sources of truth.
+The current React/Vite rendering is the visual baseline. Keep CSS cascade and import order until equivalent appearance is demonstrated. Typography, color, dimensions, composition, mobile behavior, and effects must not drift incidentally during framework migration.
+
+Astro, React Islands, and Starlight are approved architecture only. Do not describe them as implemented or use the target system as a reason to redesign the experience.
+
+## Documentation layout
+
+The documentation prototype uses a compact header, left navigation, central reading column, and right On This Page navigation on wide screens. Reflow these regions instead of forcing three columns onto narrow screens.
+
+The header carries CubyCloud identity, a home route, search, theme selection, and GitHub.
+Article components include breadcrumbs, headings and anchors, callouts, code examples, tables, steps, and previous/next links.
+Prefer native Starlight components when implementing the approved target.
+
+At mobile widths, provide a compact header, operable navigation drawer, search dialog, expandable table of contents, and horizontally scrollable code and tables. Overlays need an accessible close action, Escape behavior, and predictable focus handling.
+
+The documentation prototype provides light, dark, and system appearance choices. Keep theme styling scoped to documentation so it cannot recolor the marketing site. Explicit selections persist across sessions; system mode follows the operating-system preference.
+
+Use short transitions for interface feedback. Article pages remain reading surfaces: no WebGL, parallax, scroll hijacking, or cinematic scene choreography. Refer to `MOTION.md` for shared motion rules.
+
+Colors and font families above match `src/styles.css` and `src/docs/docs.css` in the current website. These source files remain authoritative if implementation values change.

@@ -28,5 +28,5 @@ export default function App() {
     });
     return () => ctx.revert();
   }, [tier]);
-  return <><a className="skip-link" href="#main">Skip to content</a><SiteHeader /><ChapterNavigation /><main id="main"><HeroExperience tier={tier} /><NarrativeThread tier={tier} /><FilesSection /><SharingSection /><StorageSection /><SupportingHighlights /><SelfHostingSection /><OpenSourceSection /><PracticalFAQ /><GetStartedSection /></main><SiteFooter /></>;
+  return <><a className="skip-link" href="#main">Skip to content</a><SiteHeader /><ChapterNavigation /><main id="main" className={`motion-${tier}`}><HeroExperience tier={tier} /><NarrativeThread tier={tier} /><FilesSection /><SharingSection /><StorageSection /><SupportingHighlights /><SelfHostingSection /><OpenSourceSection /><PracticalFAQ /><GetStartedSection /></main><SiteFooter /></>;
 }

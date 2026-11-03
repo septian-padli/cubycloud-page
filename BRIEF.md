@@ -1,134 +1,72 @@
-# BRIEF.md — CubyCloud Website Product Brief
+# CubyCloud Website Brief
 
-> **Status:** Approved strategic direction; copy and page structure remain subject to review.
-> **Purpose:** Guide the official CubyCloud marketing website, Starlight documentation, and FigCraft design work.
-> **Scope:** Product positioning and communication, not UI specifications or implementation instructions.
-> **Companion documents:** `DESIGN.md`, `PAGES.md`, `CONTENT.md`, `MOTION.md`, `PROTOTYPE.md`, `FIGCRAFT.md`, `DECISIONS.md`.
+> **Purpose:** Record product, audience, and trust facts for the website.
+> **Scope:** Marketing website and public documentation.
+> **Status:** The current website is React, TypeScript, and Vite. Astro, React Islands, and Starlight are approved targets, not implemented architecture.
 
-## 1. Product Identity
+## Product
 
-- **Product:** CubyCloud.
-- **Category:** Open-source, self-hosted file drive.
-- **Positioning:** **Simple Self-Hosted File Drive**.
-- **Tagline:** **Your files. Your server. Your rules.**
-- **Core promise:** A straightforward place for small teams to organize, access, and share files on infrastructure they control.
-- **Open-source license:** AGPL-3.0-or-later, as stated in the product repository; verify current license text before publication.
-- **Product repository:** https://github.com/septian-padli/cubycloud
-- **Website workspace:** `cubycloud-page`, separate from the main application.
+CubyCloud is an open-source, self-hosted file drive. It gives people a browser interface for storing, organizing, accessing, previewing, and sharing files on infrastructure operated by them or their organization.
 
-## 2. Audience and Problem
+The marketing site belongs to the website repository. It is not the product application and does not provide managed hosting.
 
-### Primary audience: Small Teams & Organizations
+- Product: [CubyCloud](https://github.com/septian-padli/cubycloud)
+- Website: this repository
+- Product category: self-hosted file drive
+- Positioning: Simple Self-Hosted File Drive
+- Tagline: Your files. Your server. Your rules.
 
-- Small teams and organizations that want a shared, browser-based file drive operated on their own server.
-- **Technical decision-maker:** The person responsible for installation, storage configuration, maintenance, and access.
-- **Everyday user:** A colleague who needs familiar file organization, browsing, uploads, downloads, and sharing without learning infrastructure concepts.
-- Treat self-hosting knowledge as an installation requirement; do not imply CubyCloud is a managed cloud service.
+## Audience
 
-### Secondary audience
+### Operators
 
-- Homelab operators, developers, system administrators, and privacy-conscious individuals.
-- Include their technical concerns without allowing infrastructure jargon to dominate the homepage.
+Operators install and maintain CubyCloud, configure storage, manage accounts and quotas, and handle hosting responsibilities. They need accurate installation and administration information before choosing to run it.
 
-### Problems to address
+### Everyday users
 
-- File storage and sharing can become unnecessarily complicated for a small team.
-- Teams want familiar file-drive workflows while retaining control over where data is stored.
-- Managing local disks and optional object storage through separate interfaces adds friction.
-- These are positioning hypotheses, not quantified customer research findings.
+Users browse folders, upload and download files, preview supported content, and share files through available workflows. They should not need to understand the server architecture to use the drive.
 
-## 3. Value Proposition and Differentiation
+### Other evaluators
 
-**Primary value: Simple Team File Management**
+Developers, system administrators, homelab operators, privacy-conscious individuals, and small technical teams may evaluate the product. Do not suggest that CubyCloud hosts files for them.
 
-- Present CubyCloud first as an approachable way to store, organize, access, and share team files.
-- Lead with the experience, not framework names, database details, or deployment commands.
+## Product facts
 
-**Primary differentiator: Flexible Local + S3 Storage**
+- My Storage provides personal file and folder workflows.
+- Organization is one shared tree available to authenticated users. It is not a collection of independent team spaces, and it does not offer granular group-based permissions.
+- Sharing supports registered-user Viewer or Editor access and public links with optional passwords.
+- Operators can configure local filesystem storage or S3-compatible storage. These are storage choices, not automatic replication, failover, or synchronization.
+- Supported file previews, resumable uploads in supported My Storage workflows, Starred, and Trash are implemented product concepts.
+- Administrators manage storage nodes, user quotas, and system settings.
+- The current homepage describes a Go backend and embedded web interface in one container, with SQLite for application data. Verify product details against the current product repository before extending these claims.
 
-- Explain that CubyCloud supports local filesystem storage and optional S3-compatible object storage.
-- Show the storage flexibility through truthful product visuals and clear diagrams.
-- Do not imply automatic replication, cross-provider migration, file synchronization, or redundancy unless verified.
+## Website purpose
 
-**Supporting value pillars**
+Help visitors understand the drive, see representative workflows, and find truthful installation information. The existing homepage uses scroll-based product storytelling and interactive simulations. Label simulations clearly; do not present them as live product instances.
 
-1. **Self-hosted ownership:** Run the file drive on infrastructure controlled by its operator.
-2. **Focused experience:** File management, previews, sharing, and practical administration rather than an all-purpose productivity suite.
-3. **Simpler runtime architecture:** Go server with embedded SvelteKit frontend and SQLite; no separate database server is required for the standard deployment.
+Primary journey: homepage to Get Started to the product repository's installation information. Keep its current destination until a verified guide is published. Secondary journey: inspect the product source and license.
 
-## 4. Product Proof Points
+The homepage copy and section map belong to `CONTENT.md`. Information architecture belongs to `PAGES.md`; motion belongs to `MOTION.md`; prototype behavior belongs to `PROTOTYPE.md`.
 
-Use verified application behavior as evidence, subject to rechecking the current release:
+## Trust and limits
 
-| Area | Grounded capability | Safe presentation |
-| --- | --- | --- |
-| Personal files | My Storage, folders, uploads, file actions, trash, starred items | Show actual file-drive UI |
-| Shared files | Organization shared drive and internal Viewer/Editor sharing | Explain the current access model accurately |
-| External sharing | Public links with optional password protection | Demonstrate a real share flow |
-| Storage options | Local nodes plus optional S3-compatible storage | Show an accurate storage architecture diagram |
-| File experience | Browser previews and resumable My Storage uploads | Use real screenshots and supported workflows |
-| Administration | Storage nodes, user quotas, system settings, usage | Present genuine administrator views |
-| Deployment | Single-container packaging and browser-based initial setup | Link to tested installation instructions |
+Describe file workflows before implementation details. Use direct, verifiable language and state operator responsibilities plainly. Self-hosting still requires network security, updates, backups, and maintenance.
 
-**Important permission boundary:** The current Organization drive is a common shared tree for authenticated users, not isolated team workspaces with group-based permissions. Never imply fine-grained organizational roles, enterprise governance, or per-team access control.
+Do not claim native synchronization, real-time co-editing, version history, AI features, cross-node replication, failover,
+end-to-end encryption, granular Organization permissions, benchmark results, certifications, or guaranteed one-click deployment without direct product evidence.
 
-## 5. Website Objectives and Calls to Action
+Verify licensing against the product repository before publishing legal statements. Never invent users, customer logos, testimonials, performance figures, or integrations.
 
-**Primary goal:** Help a qualified visitor start installing CubyCloud on their own infrastructure.
+## Ownership and sources
 
-- **Primary CTA:** `Get Started` → official Starlight installation guide.
-- **Secondary CTA:** `View on GitHub` → product source repository.
-- **Supporting paths:** Explore features, understand storage choices, read architecture/requirements, and consult documentation.
-- Do not feature `Try Live Demo` as a primary action unless a working public demo exists.
-- Track meaningful outcomes later: installation-guide visits, GitHub clicks, and completion of the getting-started journey where measurable.
-- Do not invent conversion rates, download counts, testimonials, adoption figures, or customer logos.
+- `BRIEF.md`: audience, product facts, trust boundaries, shared Organization tree.
+- `DESIGN.md`: visual identity and accessibility requirements.
+- `CONTENT.md`: implemented copy, vocabulary, installation wording, and SEO.
+- `PAGES.md`: page and navigation structure.
+- `MOTION.md`: motion behavior.
+- `PROTOTYPE.md`: scenario behavior and acceptance.
+- `MIGRATION_CONTRACT.md`: migration restrictions.
 
-## 6. Messaging and Brand Voice
-
-**Voice: Bold & Disruptive.**
-
-- Be assertive, concise, memorable, and product-led.
-- Challenge unnecessary complexity, not users or competitors personally.
-- Favor short, high-impact headlines supported by precise explanatory copy.
-- Use direct verbs and specific benefits; avoid vague SaaS clichés and empty superlatives.
-- Be provocative in framing but conservative in factual claims.
-- Never state that CubyCloud is faster, lighter, safer, easier, or better than a named competitor without comparable evidence.
-- **Messaging hierarchy:** simple team file drive → local/S3 flexibility → ownership and operational simplicity → technical proof.
-- Preserve the tagline; final hero headline and all section-level copy belong in `CONTENT.md`.
-
-## 7. Language and Reach
-
-- **Launch language:** English for the marketing website and documentation.
-- **Future localization:** Indonesian, after the English experience is approved.
-- Use plain international English; explain necessary self-hosting terms clearly.
-- Design navigation, CTAs, layouts, and documentation structures so translated strings can expand.
-- Do not display a functioning Indonesian language switcher until translated content actually exists.
-
-## 8. Product Claims and Trust Rules
-
-- **Source of truth:** Confirm important claims against the current CubyCloud README, implementation, tests, release artifacts, and docs; the PRD describes requirements, not proof of delivery.
-- **No unsupported performance claims:** RAM usage, container size, speed, resource efficiency, scalability, and setup time require reproducible measurements and appropriate context before being promoted.
-- **No security exaggeration:** Self-hosting does not equal end-to-end encryption, automatic privacy, or protection against operator misconfiguration.
-- **No invented capabilities:** Do not advertise file version history, native desktop/mobile sync, real-time office co-editing, advanced team/group permissions, or AI features without verified delivery.
-- **No fictional UI:** Marketing illustrations can be conceptual, but product screenshots, dialogs, settings, and flows must accurately depict the application.
-- **No false launch status:** Validate current images, download paths, release versions, and installation instructions before publishing CTAs.
-- **Open-source transparency:** Link to the actual license, security policy, contribution guide, and source code when available.
-
-## 9. Design and Delivery Boundaries
-
-- **Visual source of truth:** `DESIGN.md` (Creative Editorial, strict CubyCloud brand palette, expressive display typography, immersive layout).
-- **Marketing motion:** Fully Interactive & Experimental, with reduced-motion, touch, and lower-power alternatives; detailed behavior belongs in `MOTION.md`.
-- **Documentation:** Branded Starlight, optimized for readability and navigation rather than immersive effects.
-- **Design workflow:** FigCraft desktop-first, then mobile; use editable native components and prototype supported interactions.
-- **Current phase:** UI/UX design and prototyping only. Do not initialize Astro, React, shadcn/ui, GSAP, Starlight, backend, or hosting until implementation is authorized.
-- **Future planned stack:** Astro + React islands + customized shadcn/ui + Tailwind CSS 4 + GSAP + Starlight, statically hosted.
-- **Out of scope for this brief:** Final sitemap, exact marketing copy, motion timelines, prototype wiring, and code architecture; define them in their dedicated documents.
-
-## 10. Source References
-
-- Product overview and features: `../cubycloud/README.md`
-- Product requirements and limitations: `../cubycloud/docs/prd.md`
-- Technical architecture: `../cubycloud/docs/architecture.md`
-- Product design language: `../cubycloud/apps/frontend/DESIGN.md`
-- Current license: `../cubycloud/LICENSE`
-- Website-specific visual decisions: `DESIGN.md`
+For existing homepage behavior and copy, current website source and captured runtime take precedence over historical proposals.
+For product features, consult the current product source, tests, documentation, and license.
+The approved Astro, React Islands, and Starlight architecture is a target, not evidence of implementation.

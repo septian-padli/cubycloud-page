@@ -1,138 +1,87 @@
-# PAGES.md — CubyCloud Website Structure
+# PAGES.md — Routes and Information Architecture
 
-> **Status:** Approved information architecture; individual copy, artwork, and motion require separate approval.
-> **Purpose:** Define the marketing sitemap, page/section responsibilities, navigation, documentation hierarchy, and required FigCraft screens.
-> **Read with:** `BRIEF.md` (positioning and claims), `DESIGN.md` (visual system), `CONTENT.md` (copy), `MOTION.md` (animation), `PROTOTYPE.md` (interactions), `FIGCRAFT.md` (workflow).
+## Scope and authority
 
-## 1. Confirmed Decisions
+This document owns homepage anchors, public routes, documentation information architecture, and navigation behavior. `MIGRATION_CONTRACT.md` owns the migration DAG, gates, and rollback.
+`DESIGN.md` owns palette and visual direction. `MOTION.md` owns animation behavior; `PROTOTYPE.md` owns regression scenarios.
 
-| Dimension | Decision |
+The current site is React + TypeScript + Vite. `src/main.tsx` routes `/docs` and every `/docs/*` path to the custom React `DocsApp`; all other paths render the homepage.
+Starlight is the approved target, not the current implementation. Do not describe target routes or Starlight behaviors as already implemented.
+
+## Homepage routes and anchors
+
+- `/` is the existing marketing homepage. Preserve its sections, order, destinations, and responsive behavior.
+- Preserve existing anchors: `#top`, `#files`, `#sharing`, `#storage`, `#self-hosting`, `#faq`, and `#get-started`. Verify each anchor against rendered baseline before migration; retain its location and function.
+- The four numbered chapters are Files, Sharing, Storage, and Self-Hosting. Hero, Highlights, Open Source, FAQ, Get Started, and Footer remain supporting sections.
+- Keep current chapter wayfinding, active chapter state, scroll progress, native anchor behavior, mobile navigation, wordmark, and GitHub destination.
+- Do not replace the checked navbar as a side effect of framework migration. A separately approved Hybrid Editorial Navbar applies only if it is already in the agreed baseline or separately authorized.
+- Preserve the current Get Started destination to the product GitHub README. Point GitHub to `https://github.com/septian-padli/cubycloud`. Change the primary CTA to Installation only after instructions are verified, route works, and destination change is authorized.
+
+## Documentation target routes
+
+The approved Starlight target is article-first: `/docs/` opens Introduction directly, never a promotional hub. Initial routes only:
+
+| Route | Initial article |
 | --- | --- |
-| Website scope | **Single Landing Page + Docs** |
-| Homepage narrative | **Product-First Storytelling** |
-| Feature coverage | **Core Features + Supporting Highlights** |
-| Documentation | **Complete User & Administrator Docs** |
-| Homepage navigation | **Immersive Chapter Navigation** |
-| Mobile experience | **Mobile-Native Storytelling** |
+| `/docs/` | Introduction |
+| `/docs/getting-started/installation/` | Installation |
+| `/docs/user-guide/file-management/` | File Management |
 
-## 2. Site Map and Route Contract
+Use canonical trailing-slash behavior configured by Astro/Starlight. Direct loads, internal links, and canonicalization must agree. Until Starlight migration lands, these are target routes; current React prototype routing is not proof the target works.
 
-```text
-/                              Marketing homepage (all marketing content)
-  #files                       Chapter 01: File Management
-  #sharing                     Chapter 02: File Sharing
-  #storage                     Chapter 03: Local + S3 Storage
-  #self-hosting                Chapter 04: Self-Hosting & Open Source
-  #get-started                 Final conversion section
-/docs/                         Branded Starlight documentation home
-/docs/getting-started/         Introduction, requirements, installation, first run
-/docs/deployment/              Hosting, HTTPS, upgrades, backups, operations
-/docs/user-guide/              File management and everyday workflows
-/docs/sharing/                 Internal/public sharing and Organization drive
-/docs/administration/          Storage nodes, quotas, users, system settings
-/docs/troubleshooting/         Common problems, diagnostics, FAQ
-/docs/reference/               Architecture, security guidance, API/OpenAPI
-```
+## Documentation navigation
 
-- The `/docs/` branches are planned content groups, **not** a claim that every article or route exists yet; finalize individual Starlight slugs with the actual documentation content.
-- **No separate** Features, Pricing, Download, About, Changelog, or Community marketing pages in this scope.
-- Product GitHub is an **external destination**: https://github.com/septian-padli/cubycloud.
-- Launch in English; prepare layouts for future Indonesian translation without displaying an inactive language selector.
+Use task-oriented categories: Getting Started (Introduction, Installation), User Guide (File Management), Administrator Guide, Deployment, and Reference.
+Only the three listed initial articles are published and linked. Do not create clickable future destinations or dead links.
+Future material may appear only as visibly noninteractive “Coming soon” text, not as a route promise.
 
-## 3. Homepage Content Map (Top to Bottom)
+Design for both audiences: newcomers need a clear Introduction-to-Installation path; existing users need direct task-oriented access to File Management and future guide categories.
+Keep category labels and article titles distinct and scannable. Do not imply unfinished categories contain published guidance.
+For the dual audience, keep Installation discoverable without forcing existing users through onboarding.
+Let task labels describe user goals, and keep product terms consistent with the homepage and verified product vocabulary.
 
-| Order / region | Visitor objective | Content and design responsibility | Action |
-| --- | --- | --- | --- |
-| 00 · Hero & product preview | Understand the product immediately | Bold positioning, real file-drive UI preview, brand tagline, accessible orientation to the page | **Get Started**, View on GitHub |
-| 01 · File Management `#files` | See how a team manages files | Immersive, credible explorer demonstration: folders, uploads, organization, everyday file actions | Explore workflow / jump ahead |
-| 02 · File Sharing `#sharing` | Understand collaboration and sharing | Internal Viewer/Editor sharing, public links with optional password, and accurately described shared Organization drive | Sharing docs |
-| 03 · Local + S3 Storage `#storage` | Understand the key differentiator | Diagram connecting one file-drive experience to local filesystem and optional S3-compatible storage; distinct but consistent visuals | Storage docs |
-| 03b · Supporting feature highlights | Discover useful breadth without feature overload | Compact grid or staged showcase: previews, resumable uploads, search/starred/trash, administrator essentials (verify each) | Relevant docs links |
-| 04 · Self-Hosting `#self-hosting` | Trust the deployment model | Single-container Go + embedded web UI + SQLite; browser-based first setup; operator-controlled hosting, honest operational requirements | Installation / architecture docs |
-| 04b · Open source & trust | Validate credibility | GitHub source, AGPL license, verified architecture and product screenshots; no fictitious testimonials or unmeasured benchmarks | View on GitHub |
-| 04c · Practical FAQ `#faq` | Clarify essentials before installing | Five practical questions (requirements, storage, sharing, organization access, license); accessible accordion | Relevant docs / FAQ |
-| 05 · Get Started `#get-started` | Take the next step | Clear install proposition, concise prerequisite overview, unmissable documentation CTA | **Get Started** |
-| Footer | Find reliable destinations | Documentation, GitHub, license, security and contribution references where verified | Navigate to resource |
+On desktop, ensure active item and disclosure state remain visible while navigating long lists. On small screens, opening a menu must preserve the reader's location and provide a clear way back to the article.
 
-- The sequence is **product → core capability → supporting value → storage flexibility → self-hosting proof → install**, not a long infrastructure-first pitch.
-- Chapters **01–04** are the main immersive navigation stops; hero, highlight sub-sections, final CTA, and footer are supporting regions rather than competing chapter entries.
-- The hero, three core showcases, and final CTA deserve the most visual attention. Supporting highlights must stay scannable.
-- Product screenshots and interactions must reflect actual CubyCloud behavior. The Organization drive is a shared tree for authenticated users; **do not depict granular team/group permissions**.
-- Every chapter must make sense as a static section when animation is disabled or skipped.
+Search and TOC are complementary: search discovers published articles; TOC moves within the current article. Neither may point to unavailable future content.
 
-## 4. Navigation and Conversion
+Keep default links functional without JavaScript where the framework permits. Hash links must retain useful behavior when opened directly or shared.
 
-### Desktop: Immersive Chapter Navigation
+Prefer Starlight-native sidebar, breadcrumbs, previous/next links, heading anchors, and TOC.
+Sidebar highlights the current article and exposes its category. Category disclosure must be operable and must not hide the current route.
+Keep side navigation independently usable on desktop, but avoid trapping readers in an independently scrolling region on narrow screens.
 
-- Provide a persistent, discoverable way to navigate chapters: numbered labels **01 Files / 02 Sharing / 03 Storage / 04 Self-Hosting**, current chapter state, and reading progress.
-- Chapter transitions may be expressive, but normal scroll, keyboard movement, and direct anchor navigation must remain functional.
-- Ensure direct access to **Get Started** and **Docs** regardless of scroll position; GitHub is secondary.
-- Support browser back/forward, reloadable anchor URLs, clear focus states, and sensible scroll offset for sticky UI.
-- Do not trap visitors in a chapter, force them to finish an animation, or replace basic navigation with gestures alone.
+TOC represents real headings, follows scroll position, and navigates to stable anchors. Hash changes and direct hash loads land at the intended heading.
+Search finds only published articles and leads to valid article or heading destinations, including a useful no-results state.
+Do not preserve the current prototype's limited title/heading search as the target full-text-search contract.
 
-### CTA Rules
+## Adaptive documentation chrome
 
-- **Primary:** `Get Started` → the canonical Starlight installation article (proposed `/docs/getting-started/installation/`; confirm when published).
-- **Secondary:** `View on GitHub` → https://github.com/septian-padli/cubycloud.
-- Contextual CTAs may lead to relevant docs sections, but must never compete visually with the primary installation action.
-- Do not add a demo, pricing, signup, or download CTA unless a matching real destination is available and approved.
+Use compact documentation navbar distinct in structure from marketing navigation. Include CubyCloud identity, a working route home, search, theme selection, and GitHub link. Do not duplicate marketing chapter links in the docs navbar.
 
-## 5. Mobile-Native Storytelling
+Desktop layout supports sticky header, left navigation, readable article column, and right On This Page navigation.
+Keep reading content dominant; side regions must not obscure article content or each other.
+Sticky elements need coordinated offsets and must not cover target headings.
 
-- Design mobile as its **own composition and pacing**, retaining the same product facts, section order, and CTA hierarchy.
-- Rebuild wide desktop scenes as stacked, swipe/tap-friendly cards, cropped-but-accurate product details, and legible storage diagrams.
-- Replace desktop chapter controls with a compact **chapter indicator + tap-to-jump menu**; keep a visible path to Docs and Get Started.
-- Use native vertical scrolling. Do not make horizontal swiping, hover, cursor motion, or scroll pinning necessary to understand content.
-- Give each main chapter a recognizable opening and completion state without forcing full-screen panels on short devices.
-- Keep interactive elements touch-accessible, maintain safe areas, prevent horizontal overflow, and validate narrow screens down to **320 px**.
-- Provide reduced-motion and lightweight-device alternatives with all content and actions still available.
+At mobile widths use compact header, accessible navigation drawer, responsive search, expandable/compact TOC, and usable code/table overflow.
+Drawer opens, closes, returns focus, supports keyboard operation, and does not leave page content blocked after dismissal.
+Avoid importing homepage cinematic storytelling into articles.
 
-## 6. Starlight Documentation Hierarchy
+Documentation supports light, dark, and system appearance. Explicit choice persists; system follows OS. Scope theme styles away from marketing pages. Follow palette and typography in `DESIGN.md`; do not establish a separate visual convention here.
 
-```text
-Getting Started
-  Overview · Requirements · Installation · First-Run Setup & Recovery
-Deployment & Operations
-  Docker Compose · Networking / Reverse Proxy / HTTPS · Upgrade · Backup & Restore
-User Guide
-  File Explorer & Folders · Upload & Download · Previews · Search / Starred / Trash
-Sharing & Organization
-  Internal Sharing (Viewer/Editor) · Public Links · Organization Drive & Access Model
-Storage & Administration
-  Local Storage · S3-Compatible Storage · Storage Nodes · Quotas · Users & Settings
-Troubleshooting
-  Common Errors · Health & Diagnostics · FAQ
-Reference
-  Architecture · Security & Limitations · API / OpenAPI
-```
+## Content and acceptance
 
-- Organize the sidebar by **reader task** (install, use, share, administer, troubleshoot), not by internal source-code modules.
-- Documentation homepage: explain the product briefly and offer prominent pathways for first-time installers, everyday users, and administrators.
-- Documentation article template: left sidebar, readable main content, on-page table of contents, breadcrumbs where helpful, search, code-copy, previous/next navigation, and contextual callouts.
-- Keep docs navigation conventional and accessible, including mobile menu and long-page reading states; **no immersive scroll story inside documentation**.
-- Each article should cite or translate verified material from the main repo; distinguish implemented behavior from planned PRD features.
-- External developer/contribution resources may link to the source repository rather than becoming separate marketing pages.
+Use product terminology and verified facts only. Do not invent installation commands, configuration values, controls, or features. Mark unverified operational guidance as draft; no draft instruction should appear executable or production-ready.
 
-## 7. Required FigCraft Screens and States
+Keep code samples, media, links, tables, and callouts usable on keyboard and touch. Use semantic headings and stable IDs. Do not add a future link merely to fill a category or previous/next slot.
+Keep sidebar order aligned with article sequence. Previous/next controls may connect only published routes and must not manufacture a route to fill an empty slot. GitHub and home links must retain their verified destinations.
 
-| Design group | Minimum deliverables |
-| --- | --- |
-| Desktop marketing (1440 px) | Full homepage; hero; chapters 01–04; supporting highlights; final CTA; chapter-navigation states; menu/overlay states |
-| Mobile marketing (390 px) | Re-composed full homepage; compact chapter navigation; tap-to-jump menu; key product/showcase states; mobile CTAs |
-| Desktop Starlight | Documentation home; installation article with code; regular feature guide; architecture/reference article; sidebar/search states |
-| Mobile Starlight | Documentation home; long article; menu open/closed; search; code overflow/copy and callout states |
-| Cross-cutting | Light/dark treatments, keyboard focus, reduced-motion storyboard, long-copy resilience, responsive constraints |
+When homepage and documentation share global CSS or assets, scope docs-specific rules to the docs shell. Navigation or theme changes for documentation must not alter marketing anchors, layout, or theme state.
+Maintain a clear return path from docs to homepage. Do not substitute a docs logo link with a prototype-only pathname or a marketing CTA to an unpublished article.
 
-- Check intermediate/tablet layouts and 320 px screens even if the primary editable frames are 1440 px and 390 px.
-- Use native, editable FigCraft frames/components/variants, not flattened images; use actual or verified product visuals.
-- Prototype links, menus, tab changes, basic navigation, and key scene-to-scene states where FigCraft supports them.
-- **Prototype limitation:** Continuous GSAP-style scroll scrubbing, real pinned timelines, cursor physics, and complex morphing may not be faithfully executable in FigCraft. Represent them as named keyframes, storyboards, and notes for `MOTION.md` / `PROTOTYPE.md`; never label a static transition as a working production effect.
-- Export and review both desktop and mobile proof frames before treating the information architecture as visually validated.
+The three initial routes define the full migration content scope for this register. Add further article routes only through an approved scope update and source-verified content.
 
-## 8. Ownership and Boundaries
+Check homepage anchors and destinations against the baseline. Test each initial documentation route by direct load and internal navigation.
+Confirm sidebar/category state, breadcrumbs, previous/next links, TOC/hash/scroll-spy, search results and empty state, theme persistence, mobile navigation, and no future dead links.
+Confirm canonical URLs resolve consistently.
 
-- `PAGES.md` owns **what pages/sections exist, their sequence, navigation, and destination relationships**.
-- `CONTENT.md` owns final headlines, body copy, labels, FAQ content, and SEO text.
-- `DESIGN.md` owns colors, typography, layout rules, responsiveness, and accessibility standards.
-- `MOTION.md` and `PROTOTYPE.md` own precise animation triggers, interaction mapping, and prototype acceptance criteria.
-- **Design phase only:** Do not scaffold or implement Astro, React, Tailwind, GSAP, Starlight, or deployment from this document.
+Use reference widths 1440, 768, 390, and 320 px. Check no unintended horizontal page overflow, readable long-form content, working sticky offsets, and accessible controls. See `PROTOTYPE.md` for scenario IDs, severity, and evidence requirements.

@@ -1,110 +1,86 @@
-# DECISIONS.md — CubyCloud Website Decision Lifecycle Register
+# CubyCloud Website Decision Register
 
-> **Scope:** `cubycloud-page` marketing site, Starlight documentation, FigCraft design, and prototype planning.
-> **Status:** Strategic directions and governance rules approved; artwork, tests, milestone approvals, and development authorization remain separate.
-> **Boundary:** `../cubycloud` is read-only product evidence. Do not change application code, scaffold the website, or deploy anything from this register.
+Scope: approved, superseded, and unresolved website decisions. A selected target is not an implemented or verified feature.
 
-## 1. Decision Governance
+## Lifecycle and authority
 
-- **Chosen model:** Decision Lifecycle Register; record **key strategic decisions and meaningful overrides**, not a duplicate of every source document.
-- **Statuses:** `Approved` (explicitly chosen), `Open` (proposal or unresolved choice), `Superseded` (previously valid rule replaced by an approved decision).
-- **Required record fields:** stable ID, concise decision/title, status, decision date, brief rationale, and source-document reference. `—` in the date column means **date not recorded**, not today's date.
-- **Authority:** Agents can identify issues, propose alternatives, and register `Open` entries; **only explicit user approval** can change a proposal to `Approved` or mark an old decision `Superseded`.
-- **No inferred approval:** File timestamps, polished designs, passing tool calls, agent consensus, and missing objections are not user sign-off. Cite an actual user instruction/decision reference when available; never fabricate evidence.
-- **Scope boundary:** Design decisions approve design direction only. **Final design sign-off and permission to start development are distinct approvals.**
+`Approved` means the owner selected a direction; `Superseded` retains the former rule and names its successor; `Open` requires a decision.
+`—` means no approval date was recorded. Do not infer approval from code, timestamps, agent reports, or FigCraft files.
+A new strategic change needs explicit owner approval and an updated record.
+Current source and captured browser behavior establish implementation facts; [MIGRATION_CONTRACT.md](MIGRATION_CONTRACT.md) governs migration execution.
 
-## 2. Source-of-Truth Domains
+## Approved historical decisions
 
-| Domain | Primary authority | Responsibility |
-| --- | --- | --- |
-| Product facts and availability | `../cubycloud/README.md`, implementation, tests, release/docs | Verify shipped behavior; a PRD is not delivery proof |
-| Positioning and claims | `BRIEF.md` | Audience, value, CTAs, truth boundaries |
-| Visual identity and accessibility | Website `DESIGN.md` | Palette, typography, layout, design rules; **not** the product app's `DESIGN.md` |
-| Pages and navigation | `PAGES.md` | Site map, four chapters, docs architecture and destinations |
-| Copy and SEO | `CONTENT.md` | Draft wording, FAQ, metadata and microcopy |
-| Animation behavior | `MOTION.md` | Scroll rules, motion tiers, choreography and fallbacks |
-| Prototype acceptance | `PROTOTYPE.md` | Interactive flows, state matrix, test IDs, evidence and QA |
-| FigCraft operations | `FIGCRAFT.md` | MCP preflight, master file, design workflow, exports and recovery |
-| Approval status and overrides | **This register** | Effective decisions and explicit lifecycle; does not replace domain specifications |
+These records preserve design-stage choices, not claims that FigCraft milestones or Starlight passed review.
 
-- **Conflict precedence:** Confirm explicit user-approved override → follow the relevant domain authority → if still substantively contradictory, log an `Open` conflict and request a decision before changing the affected rule.
-- A newer edit date alone never establishes precedence. Continue only unrelated, non-blocked design tasks while awaiting resolution.
-
-## 3. Approved Strategic Baseline
-
-The rows below summarize **explicitly selected planning directions**; their `Approved` status does **not** mean an implemented product, tested prototype, published copy, or approved final design. Historical selection dates were not preserved here.
-
-| ID | Decision / effective rule | Status | Date | Why / boundary | Source |
-| --- | --- | --- | --- | --- | --- |
-| BR-01 | **Simple Self-Hosted File Drive** for small teams and organizations | Approved | — | Lead with approachable file management, not infrastructure jargon | `BRIEF.md` |
-| BR-02 | **Local filesystem + optional S3-compatible storage** as differentiator | Approved | — | No implied replication, migration, or sync | `BRIEF.md` |
-| BR-03 | **Get Started → verified installation docs**; GitHub secondary | Approved | — | Installation is the conversion goal; no fictitious live demo | `BRIEF.md` |
-| BR-04 | English first; future Indonesian localization | Approved | — | Do not show an unusable language toggle | `BRIEF.md` |
-| BR-05 | Honest product claims; Organization is **one shared tree** | Approved | — | No fabricated group RBAC, benchmarks, AI, sync or versions | `BRIEF.md` |
-| VIS-01 | **Creative Editorial**, immersive compositions and strict earthy brand palette | Approved | — | Distinctive marketing; palette and accessibility remain controlled | `DESIGN.md` |
-| VIS-02 | Montserrat for UI/body/docs; separate marketing display font **to be selected** | Approved | — | Font pairing approved, specific display family not yet chosen | `DESIGN.md` |
-| VIS-03 | Branded, readable Starlight experience | Approved | — | Preserve conventional search/sidebar/code accessibility | `DESIGN.md` |
-| IA-01 | **Single marketing homepage + `/docs/`**; no extra marketing pages | Approved | — | Concentrate the experience and its documentation | `PAGES.md` |
-| IA-02 | Four chapters **Files / Sharing / Storage / Self-Hosting** | Approved | — | FAQ, highlights, open source and CTA are supporting regions | `PAGES.md`, `CONTENT.md` |
-| IA-03 | Immersive chapter navigation; mobile-native re-composition | Approved | — | Normal scroll, direct links, keyboard and touch remain usable | `PAGES.md` |
-| COPY-01 | Anti-Complexity hero; interactive product narrative; progressive technical detail | Approved | — | Bold but verifiable; **specific launch copy remains proposed** | `CONTENT.md` |
-| COPY-02 | Open-source transparency, practical FAQ, self-hosted file-drive SEO | Approved | — | FAQ is before Get Started, not chapter 05 | `CONTENT.md` |
-| MOT-01 | Fluid scroll storytelling with **no pinning, forced snapping or scroll hijack** | Approved | — | Native scrolling and accessible navigation take priority | `MOTION.md` |
-| MOT-02 | Product + editorial motion, hybrid interactivity, shared-element transitions | Approved | — | Adaptive rhythm and Full/Light/Reduced alternatives | `MOTION.md` |
-| PRO-01 | **Tiered Hybrid Prototype**: high-fidelity + critical clickable flows + storyboard | Approved | — | Do not portray storyboard as an executed interaction | `PROTOTYPE.md` |
-| PRO-02 | Three demos: Files, Sharing, Local/S3; realistic relevant states | Approved | — | Illustrative, not live writes, sharing or S3 connections | `PROTOTYPE.md` |
-| PRO-03 | Core docs templates; interactive desktop **and** mobile | Approved | — | Preserve touch behavior and readable documentation | `PROTOTYPE.md` |
-| PRO-04 | **Scenario-Based Acceptance Gate** using PT-01–PT-12 | Approved | — | Recorded evidence and explicit user sign-off required | `PROTOTYPE.md` |
-| FC-01 | **Single Master Design** `design/cubycloud-page.figcraft` | Approved | — | Editable native frames, not flattened screenshots | `FIGCRAFT.md` |
-| FC-02 | **Verified Hybrid Workflow**: desktop MCP first, tested CLI fallback | Approved | — | Discover live tools; historical endpoints are not guaranteed | `FIGCRAFT.md` |
-| FC-03 | **Hybrid Component Architecture** | Approved | — | Reusable UI foundations + freeform editable editorial scenes | `FIGCRAFT.md` |
-| FC-04 | **Milestone-Based Design Workflow** M1–M4 | Approved | — | Review each milestone before proceeding | `FIGCRAFT.md` |
-| FC-05 | **Structured Design Evidence** | Approved | — | Master, snapshots, desktop/mobile exports, review references | `FIGCRAFT.md` |
-| FC-06 | **Capability-Aware Fallback & Safe Recovery** | Approved | — | Checkpoint, inspect, rollback or honest storyboard/blocker | `FIGCRAFT.md` |
-| GOV-01 | Lifecycle register + key decisions/overrides + standard records | Approved | — | Compact history with ID, date, rationale and source | `DECISIONS.md` |
-| GOV-02 | Proposal first, explicit user approval; domain authority and escalation | Approved | — | No silent self-approval or conflict guessing | `DECISIONS.md` |
-| GOV-03 | **Separate Design & Development Gates** | Approved | — | Final visual approval never automatically authorizes coding | `DECISIONS.md`, `PROTOTYPE.md` |
-
-## 4. Open Decisions and Unverified Work
-
-| ID | Pending matter | Status | Date | Reason / next action | Source |
-| --- | --- | --- | --- | --- | --- |
-| OPEN-01 | Select the specific **marketing display font** | Open | — | Explore candidate pairings in M1 FigCraft; request user approval | `DESIGN.md`, `FIGCRAFT.md` |
-| OPEN-02 | Lock the actual canonical **installation-doc slug/destination** | Open | — | `/docs/getting-started/installation/` is only proposed; verify actual docs before approval | `PAGES.md`, `PROTOTYPE.md` |
-
-**Completed reconciliation:** The agreed **Practical FAQ** has been reconciled into `PAGES.md` (region 04c `#faq`) outside the four numbered chapters. `DESIGN.md`'s earlier pinned-section wording has been aligned with the approved **no-pinning / fluid scroll** motion rule (`MOT-01`). All public claims, license links, release-specific screenshots, installation paths and current FigCraft MCP capabilities are verified at the point of use.
-
-## 5. Superseded Rules and Overrides
-
-| ID | Former rule / status | Effective replacement | Date | Rationale and source |
+| ID | Selected direction | Status | Date | Boundary / owner |
 | --- | --- | --- | --- | --- |
-| OLD-VIS-01 | **Superseded:** legacy FigCraft instruction forbade all marketing shadows/depth | `VIS-01` and current website `DESIGN.md` allow restrained palette-based depth | — | Legacy `FIGCRAFT.md` flat-only rule applied too broadly |
-| OLD-TYP-01 | **Superseded:** legacy FigCraft prescribed Montserrat for every hero/display title | `VIS-02`: Montserrat + an as-yet-unselected display font | — | Current website `DESIGN.md` separates display typography |
+| BR-01 | Simple Self-Hosted File Drive for small teams and organizations | Approved | — | [BRIEF.md](BRIEF.md) |
+| BR-02 | Local filesystem and optional S3-compatible storage | Approved | — | No implied replication or sync; [BRIEF.md](BRIEF.md) |
+| BR-03 | Get Started should lead to verified installation instructions; GitHub secondary | Approved | — | Current GitHub README destination remains until a truthful guide is ready; [PAGES.md](PAGES.md) |
+| BR-04 | English first; Indonesian localization was considered later | Approved | — | Current docs target is English only; [CONTENT.md](CONTENT.md) |
+| BR-05 | Honest claims; Organization is one shared tree | Approved | — | No group RBAC claim; [BRIEF.md](BRIEF.md) |
+| VIS-01 | Creative Editorial marketing with restrained earthy depth | Approved | — | Existing CSS/render is migration baseline; [DESIGN.md](DESIGN.md) |
+| VIS-02 | Montserrat UI/body with separate marketing display treatment | Approved | — | Historical font choice was open; implemented Barlow Condensed must be preserved; [DESIGN.md](DESIGN.md) |
+| VIS-03 | Branded, readable Starlight documentation | Approved | — | Target, not the present custom React docs; [DESIGN.md](DESIGN.md) |
+| IA-01 | One marketing homepage and `/docs/` | Approved | — | No extra marketing pages; [PAGES.md](PAGES.md) |
+| IA-02 | Four chapters: Files, Sharing, Storage, Self-Hosting | Approved | — | FAQ is supporting content; [PAGES.md](PAGES.md) |
+| IA-03 | Chapter navigation and deliberate mobile composition | Approved | — | Preserve actual runtime rather than proposed navbar; [PAGES.md](PAGES.md) |
+| COPY-01 | Anti-Complexity, interactive narrative, progressive technical detail | Approved | — | Implemented copy wins over earlier proposals; [CONTENT.md](CONTENT.md) |
+| COPY-02 | Open-source transparency and practical FAQ before Get Started | Approved | — | [CONTENT.md](CONTENT.md) |
+| MOT-01 | Native fluid scroll; no pinning, snap, or hijack | Approved | — | [MOTION.md](MOTION.md) |
+| MOT-02 | Editorial/product motion with Full, Light, Reduced alternatives | Approved | — | Preserve actual GSAP/Three behavior; [MOTION.md](MOTION.md) |
+| PRO-01 | Tiered Hybrid FigCraft Prototype | Approved | — | Historical design scope, not runtime evidence; [FIGCRAFT.md](FIGCRAFT.md) |
+| PRO-02 | Files, Sharing, Local/S3 illustrative demos | Approved | — | Synthetic, no live operations; [PROTOTYPE.md](PROTOTYPE.md) |
+| PRO-03 | Desktop/mobile documentation templates | Approved | — | Migration target must be accessible; [DESIGN.md](DESIGN.md) |
+| PRO-04 | PT-01–PT-12 scenario review | Approved | — | Runtime migration requires new evidence; [PROTOTYPE.md](PROTOTYPE.md) |
+| FC-01 | Single editable FigCraft master | Approved | — | Historical design workflow; [FIGCRAFT.md](FIGCRAFT.md) |
+| FC-02 | Desktop MCP first; tested CLI fallback | Approved | — | Verify tools at point of use; [FIGCRAFT.md](FIGCRAFT.md) |
+| FC-03 | Reusable components plus freeform editable scenes | Approved | — | Design artifact policy; [FIGCRAFT.md](FIGCRAFT.md) |
+| FC-04 | M1–M4 milestone-based design reviews | Approved | — | Historical design-stage plan, not migration DAG; [FIGCRAFT.md](FIGCRAFT.md) |
+| FC-05 | Native master, snapshots, desktop/mobile exports | Approved | — | Design evidence only; [FIGCRAFT.md](FIGCRAFT.md) |
+| FC-06 | Capability-aware fallback and safe recovery | Approved | — | Storyboard is not executed motion; [FIGCRAFT.md](FIGCRAFT.md) |
+| GOV-01 | Lifecycle register with stable IDs and rationale | Approved | — | This document |
+| GOV-02 | Proposal before strategic overrides; explicit owner decision | Approved | — | This document |
+| GOV-03 | Separate design and development approvals in historical FigCraft process | Approved | — | Historical gate; later migration permission follows explicit owner run under [AGENTS.md](AGENTS.md) |
 
-- Superseded records remain readable; do not delete their history. A new override needs explicit approval, a successor ID, and updates to the owning source document.
-- **Specific approved motion behavior prevails:** `MOT-01` prohibits pinning even where older `DESIGN.md` language listed it as a possibility. Do not invent a new motion decision to resolve that documented specificity.
+## Approved migration and documentation direction
 
-## 6. Change Control Procedure
+The current owner instruction approves this target and documentation consolidation. It authorizes documentation work now, not migration code in this task. No approval date is inferred from file history.
 
-1. **Detect:** Identify a changed requirement, mismatch, outdated fact, unavailable capability, or user-requested revision; cite its source.
-2. **Propose:** Add an `Open` record containing ID, proposed rule, date if known, rationale, affected domain, alternatives/impact when useful; preserve existing `Approved` rules.
-3. **Decide:** Ask the user for explicit approval or rejection. Record the actual decision reference when available; do not manufacture a timestamp, quote or artifact.
-4. **Apply:** Update the entry to `Approved`; mark replaced entries `Superseded` only when the replacement is expressly approved. Align affected source documents.
-5. **Revalidate:** Re-render impacted desktop/mobile scenes, revisit relevant `PROTOTYPE.md` PT tests, and attach evidence to the FigCraft review index.
-6. **Escalate:** If approval or tool capability is missing, mark the relevant work `Open`/`BLOCKED`; never silently proceed with a guessed decision.
+| ID | Decision | Status | Date | Owner |
+| --- | --- | --- | --- | --- |
+| MIG-01 | Preserve current homepage UI, copy, motion, demos, and access; use preserve-first Astro + React Islands | Approved | — | [MIGRATION_CONTRACT.md](MIGRATION_CONTRACT.md) |
+| MIG-02 | Initially keep cohesive React landing island where cross-section dependencies need it | Approved | — | [MIGRATION_CONTRACT.md](MIGRATION_CONTRACT.md) |
+| MIG-03 | Supervised Orca/OMP worktrees, scoped tasks, independent gates, no automatic merge or deployment | Approved | — | [MIGRATION_CONTRACT.md](MIGRATION_CONTRACT.md) |
+| DOC-01 | Starlight at `/docs/`, Article First, initial Introduction/Installation/File Management | Approved | — | [PAGES.md](PAGES.md) |
+| DOC-02 | Refined Editorial Tech, adaptive navbar, dual-audience sidebar, smart TOC, accessible mobile | Approved | — | [DESIGN.md](DESIGN.md), [PAGES.md](PAGES.md) |
+| DOC-03 | English-only docs, Light/Dark/System persisted preference, native Starlight search/components | Approved | — | [CONTENT.md](CONTENT.md), [PAGES.md](PAGES.md) |
+| DOC-04 | Prototype-first articles; do not fabricate installation commands or operational facts | Approved | — | [CONTENT.md](CONTENT.md) |
 
-## 7. Milestone, Design and Development Gates
+## Open decisions and evidence gaps
 
-| Gate | Required for exit | Current recorded approval |
+| ID | State | Issue / required action |
 | --- | --- | --- |
-| **M1 · Foundation** | Tokens, components, hero, display-font choice; visual evidence and user review | **Not recorded** |
-| **M2 · Homepage** | Desktop/mobile chapters, supporting FAQ, CTAs, product-truth review | **Not recorded** |
-| **M3 · Starlight Docs** | Docs templates, readable responsive navigation, verified link intents | **Not recorded** |
-| **M4 · Prototype & QA** | PT-01–PT-12 evidence, defect retests, motion storyboards and limitations | **Not recorded** |
-| **Final Design Sign-Off** | User explicitly approves the consolidated FigCraft master and acceptance evidence | **Not granted in this register** |
-| **Development Authorization** | **Separate explicit user instruction to begin coding** after design approval | **Not granted** |
+| OPEN-01 | Open | Historical final brand approval of Barlow Condensed is unrecorded. Preserve its implemented appearance during migration; seek approval only before changing it. |
+| OPEN-02 | Open | Final switch of marketing Get Started from product GitHub README to `/docs/getting-started/installation/`: verify article, published route, and owner-approved destination change. Target route itself is approved by DOC-01. |
+| OPEN-03 | Open | Historical M1–M4 reviews and final FigCraft design sign-off are not recorded here. Do not claim they occurred; these design-stage gates do not negate later explicit website work. |
+| OPEN-04 | Open | Pre-existing working-tree deletions of design masters need owner review. This documentation task must not infer asset duplication or discard unrelated local work. |
 
-- `Not recorded` means no approval evidence is available **in this register**, not proof that no design work has occurred.
-- Milestone acceptance allows progression **to the next design milestone only**. It is never a development permission.
-- A completed prototype, MCP success, clean screenshot, or agent-written `PASS` is insufficient for final user sign-off.
-- **Hard stop:** No website scaffolding, application modifications, Astro/React/Tailwind/GSAP/Starlight code, hosting setup, or deployment until the separate **Development Authorization** gate is explicitly granted.
+## Superseded rules
+
+| ID | Former rule | Successor / reason | Date |
+| --- | --- | --- | --- |
+| OLD-VIS-01 | FigCraft flat-only/no-shadow prescription | VIS-01; current brand permits restrained depth | — |
+| OLD-TYP-01 | Montserrat on every hero/display title | VIS-02; separate display treatment, with Barlow Condensed implemented | — |
+| OLD-DOC-01 | Installation slug was only a proposal | DOC-01; target `/docs/getting-started/installation/` selected, publication not verified | — |
+| OLD-GOV-01 | Design-only hard stop prevented any later website code until FigCraft sign-off | MIG-03 and [AGENTS.md](AGENTS.md); later explicit migration run controls development. Historical approvals remain unverified | — |
+
+Older permissive pinned-section language yields to MOT-01. Earlier proposed homepage copy and navbar do not override rendered React behavior.
+Neither the present custom React documentation prototype nor historical storyboards count as implemented Starlight or verified animation parity.
+
+## Decision updates
+
+Record a concrete source and impact, propose an `Open` entry, obtain explicit owner approval, then update affected domain documents and mark replaced records `Superseded`.
+Retest affected behavior under [PROTOTYPE.md](PROTOTYPE.md). `Implemented` and `Verified` describe evidence, not decision statuses.
+A migration handoff is reviewable; it is never automatic authorization to merge into `main` or deploy.

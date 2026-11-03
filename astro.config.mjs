@@ -5,11 +5,21 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://cubycrate.com',
   integrations: [
     react(),
     starlight({
-      title: 'CubyCloud',
+      title: 'CubyCrate',
+      logo: {
+        light: './public/logos/horizontal/default/cubycrate-horizontal-color.webp',
+        dark: './public/logos/horizontal/default/cubycrate-horizontal-white.webp',
+        replacesTitle: true,
+      },
+      favicon: '/favicon.svg',
       customCss: ['./src/docs/starlight.css'],
+      components: {
+        ThemeSelect: './src/docs/ThemeSelect.astro',
+      },
       social: [
         {
           icon: 'github',

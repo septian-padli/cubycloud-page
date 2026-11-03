@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting & Operational Diagnostics
-description: Common error symptoms, log analysis, and solutions for CubyCloud administrators.
+description: Common error symptoms, log analysis, and solutions for CubyCrate administrators.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -24,7 +24,7 @@ docker compose logs cubycloud | grep -E "ERROR|WARN"
 ### 1. Storage Node Offline or Inactive
 
 - **Symptom:** Files appear marked with an **Offline** badge in the drive, or uploads fail with `Storage node unavailable`.
-- **Cause:** CubyCloud runs a storage node probe every 3 seconds. If a physical disk mount is missing, unmounted, or an S3 bucket is unreachable, the node is marked offline to prevent incomplete writes.
+- **Cause:** CubyCrate runs a storage node probe every 3 seconds. If a physical disk mount is missing, unmounted, or an S3 bucket is unreachable, the node is marked offline to prevent incomplete writes.
 - **Fix:**
   - For local disks: Ensure the host storage path is mounted into the container and has read/write permissions.
   - For S3 nodes: Verify your bucket endpoint, network egress, and IAM credentials. Check if your S3 provider requires path-style addressing.

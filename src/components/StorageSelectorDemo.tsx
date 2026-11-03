@@ -13,7 +13,7 @@ export default function StorageSelectorDemo() {
   return <div className={`storage-demo target-${target ?? 'idle'}`}>
     <div className="demo-head"><span>STORAGE TOPOLOGY / CONCEPTUAL</span><button onClick={() => setTarget(null)}><RotateCcw size={14} /> RESET DEMO</button></div>
     <div className="topology" aria-label="Conceptual storage options">
-      <div className="topology-source"><span className="topology-cross">+</span><span className="topology-source-icon">C<span>·</span></span><small>CUBYCLOUD<br />FILE DRIVE</small><span className="topology-file" aria-hidden="true" /></div>
+      <div className="topology-source"><span className="topology-cross">+</span><span className="topology-source-icon">C<span>·</span></span><small>CUBYCRATE<br />FILE DRIVE</small><span className="topology-file" aria-hidden="true" /></div>
       <div className="topology-trace"><span /></div>
       <div className="topology-targets">
         <button className={target === 'local' ? 'active' : ''} onClick={() => setTarget('local')} aria-pressed={target === 'local'}><span className="topology-node-index">01 / STORAGE NODE</span><HardDrive size={34} strokeWidth={1.3} /><b>LOCAL DISK</b><small>Filesystem managed on your server</small><ArrowUpRight className="node-arrow" size={18} /><span className="node-file" aria-hidden="true" /></button>

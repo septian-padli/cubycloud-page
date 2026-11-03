@@ -5,7 +5,7 @@ description: Configure environment variables, persistent volumes, and production
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-CubyCloud is configured primarily through environment variables passed to the container at launch.
+CubyCrate is configured primarily through environment variables passed to the container at launch.
 
 ## Environment Variables
 
@@ -32,10 +32,10 @@ environment:
 
 ## Reverse Proxy Setup
 
-Running CubyCloud behind a reverse proxy is recommended for TLS/SSL certificates, domain routing, and handling large uploads.
+Running CubyCrate behind a reverse proxy is recommended for TLS/SSL certificates, domain routing, and handling large uploads.
 
 Two critical requirements apply to all proxies:
-1. **Unbuffered Server-Sent Events (SSE):** CubyCloud uses `/api/v1/events` for real-time file updates. Proxies must disable buffering on this route.
+1. **Unbuffered Server-Sent Events (SSE):** CubyCrate uses `/api/v1/events` for real-time file updates. Proxies must disable buffering on this route.
 2. **Generous request body limit:** Set client body limits to at least 10 GB so multi-gigabyte uploads are not prematurely severed by the proxy.
 
 <Tabs>
@@ -111,7 +111,7 @@ Two critical requirements apply to all proxies:
 
 ## Health Check Endpoints
 
-CubyCloud provides two built-in health probes:
+CubyCrate provides two built-in health probes:
 
 - `GET /health`: Liveness probe. Returns HTTP 200 `OK` as long as the HTTP listener is operational.
 - `GET /api/health`: Readiness probe. Evaluates SQLite database connectivity and verifies that configured storage nodes are mounted and responsive.

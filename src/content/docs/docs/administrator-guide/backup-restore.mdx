@@ -5,7 +5,7 @@ description: Protect your SQLite database, master encryption key, and storage no
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-A comprehensive disaster recovery strategy for CubyCloud requires protecting three interdependent components:
+A comprehensive disaster recovery strategy for CubyCrate requires protecting three interdependent components:
 
 1. **SQLite Database (`cubycloud.db`):** Contains user accounts, permissions, folder structures, and file metadata.
 2. **Master Key (`secrets/master.key`):** The 256-bit AES key used to encrypt and decrypt S3 storage node secrets.
@@ -20,7 +20,7 @@ A comprehensive disaster recovery strategy for CubyCloud requires protecting thr
 The safest way to create a consistent, complete snapshot is a cold backup while the container is temporarily stopped:
 
 <Steps>
-1. **Stop the CubyCloud service**
+1. **Stop the CubyCrate service**
 
    ```sh
    docker compose down
@@ -85,7 +85,7 @@ If your instance requires 24/7 uptime, you can back up the SQLite database onlin
 <Steps>
 1. **Prepare a fresh environment**
 
-   Deploy a new CubyCloud container with Docker Compose, ensuring the container is stopped before copying files:
+   Deploy a new CubyCrate container with Docker Compose, ensuring the container is stopped before copying files:
 
    ```sh
    docker compose down

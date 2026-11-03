@@ -1,11 +1,11 @@
 ---
 title: File Management
-description: Manage files and folders, preview media, and handle resumable uploads in CubyCloud.
+description: Manage files and folders, preview media, and handle resumable uploads in CubyCrate.
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-CubyCloud provides a responsive, web-based file explorer for managing documents, media, and archives.
+CubyCrate provides a responsive, web-based file explorer for managing documents, media, and archives.
 
 ## Workspaces: My Storage vs. Organization
 
@@ -20,7 +20,7 @@ The file explorer toolbar and item context menus provide standard drive actions:
 
 - **New Folder (`+ Tambah` / `Add`):** Create subdirectories to organize files.
 - **Upload Files & Folders:** Upload individual items or entire directory hierarchies.
-- **Rename (`Ganti nama`):** Change item names. If a conflicting name exists in the folder, CubyCloud presents a rename dialog with a suggested unique name.
+- **Rename (`Ganti nama`):** Change item names. If a conflicting name exists in the folder, CubyCrate presents a rename dialog with a suggested unique name.
 - **Move (`Pindahkan`):** Move items across directories using an interactive folder tree browser. Moving a folder into itself or its subdirectories is automatically prevented.
 - **Duplicate (`Salin`):** Creates an instant pointer copy in the database without duplicating physical storage bytes.
 - **Star / Unstar (`Bintangi`):** Pin frequently accessed files for quick retrieval under the **Starred** navigation view.
@@ -29,7 +29,7 @@ The file explorer toolbar and item context menus provide standard drive actions:
 
 ## Upload Mechanics & Resumption
 
-CubyCloud selects the optimal upload protocol based on file size:
+CubyCrate selects the optimal upload protocol based on file size:
 
 - **Direct Uploads (< 50 MB):** Single-request multipart form upload for swift transfers.
 - **Resumable Chunked Uploads (≥ 50 MB):** Uses the open TUS protocol with 5 MB chunks stored temporarily under `/app/data/temp/tus`.

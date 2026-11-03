@@ -1,11 +1,15 @@
 ---
 title: Installation
-description: Deploy CubyCloud using Docker Compose and complete the initial setup wizard.
+description: Deploy CubyCrate using Docker Compose and complete the initial setup wizard.
 ---
 
 import { Aside, Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components';
 
-CubyCloud is packaged as a single container image containing the Go server and embedded web interface. Deploying the container takes only Docker and a compose file.
+CubyCrate is packaged as a single container image containing the Go server and embedded web interface. Deploying the container takes only Docker and a compose file.
+
+<Aside type="note" title="Compatibility notice">
+  During the brand transition, technical identifiers (container image `ghcr.io/septian-padli/cubycloud`, compose service `cubycloud`, and volume `cubycloud_data`) retain legacy names for upgrade compatibility.
+</Aside>
 
 ## System Prerequisites
 
@@ -75,7 +79,7 @@ All application state is preserved inside the container path defined by `DATA_DI
 
 3. **Start the container**
 
-   Launch CubyCloud in detached mode:
+   Launch CubyCrate in detached mode:
 
    ```sh
    docker compose up -d

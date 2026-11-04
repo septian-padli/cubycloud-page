@@ -1,0 +1,107 @@
+{
+  "label": "baseline",
+  "summary": {
+    "desktop": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcp": "0.47s",
+      "lcp": "0.47s",
+      "cls": "0.000",
+      "tbt": "0ms",
+      "si": "0.67s",
+      "inp": "N/A (Field metric / no user interactions)"
+    },
+    "mobile": {
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "fcp": "1.42s",
+      "lcp": "1.42s",
+      "cls": "0.004",
+      "tbt": "2ms",
+      "si": "2.04s",
+      "inp": "N/A (Field metric / no user interactions)"
+    }
+  },
+  "raw": {
+    "desktop": [
+      {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "fcp": 469.0417,
+        "lcp": 469.0417,
+        "cls": 0,
+        "tbt": 0,
+        "si": 667.042208295652,
+        "inp": "N/A (Field metric / no user interactions)"
+      },
+      {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "fcp": 429.90325000000007,
+        "lcp": 429.90325000000007,
+        "cls": 0,
+        "tbt": 0,
+        "si": 641.7742532409211,
+        "inp": "N/A (Field metric / no user interactions)"
+      },
+      {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "fcp": 545.5503,
+        "lcp": 545.5503,
+        "cls": 0,
+        "tbt": 0,
+        "si": 727.7196465731486,
+        "inp": "N/A (Field metric / no user interactions)"
+      }
+    ],
+    "mobile": [
+      {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "fcp": 1422.0877999999998,
+        "lcp": 1422.0877999999998,
+        "cls": 0.003809674342337858,
+        "tbt": 1.5,
+        "si": 2041.5653746512694,
+        "inp": "N/A (Field metric / no user interactions)"
+      },
+      {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "fcp": 1422.41455,
+        "lcp": 1422.41455,
+        "cls": 0.003809674342337858,
+        "tbt": 2,
+        "si": 2043.2491050716649,
+        "inp": "N/A (Field metric / no user interactions)"
+      },
+      {
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100,
+        "fcp": 1425.9212,
+        "lcp": 1425.9212,
+        "cls": 0.003809674342337858,
+        "tbt": 3,
+        "si": 1862.385681399454,
+        "inp": "N/A (Field metric / no user interactions)"
+      }
+    ]
+  }
+}

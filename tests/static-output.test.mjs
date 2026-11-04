@@ -15,14 +15,37 @@ test('dist/robots.txt exists and contains valid production policy', () => {
   assert.match(content, /Sitemap: https:\/\/cubycrate\.com\/sitemap-index\.xml/);
 });
 
-test('dist/index.html exists and contains canonical and metadata', () => {
+test('dist/index.html exists and contains canonical, metadata, and static SSR SEO content', () => {
   const indexPath = path.join(distDir, 'index.html');
   assert.ok(fs.existsSync(indexPath), 'dist/index.html must exist');
 
   const content = fs.readFileSync(indexPath, 'utf8');
   assert.match(content, /<link rel="canonical" href="https:\/\/cubycrate\.com\/"/);
-  // Note: App is client:only="react", so navbar renders in client bundle
+  assert.match(content, /<meta property="og:image" content="https:\/\/cubycrate\.com\/og-image\.png"/);
+  assert.match(content, /<meta property="og:image:width" content="1200"/);
+  assert.match(content, /<meta property="og:image:height" content="630"/);
+  assert.match(content, /<meta name="twitter:image" content="https:\/\/cubycrate\.com\/og-image\.png"/);
+
+  // Structured Data Schema.org
+  assert.match(content, /"applicationCategory":\s*"BusinessApplication"/);
+  assert.match(content, /"operatingSystem":\s*"Linux,\s*Docker"/);
+  assert.match(content, /"@type":\s*"SoftwareApplication"/);
+
+  // Verify Static SSR SEO content: H1, headings, FAQ, CTA in initial HTML payload
+  assert.match(content, /<h1[^>]*>[\s\S]*?YOUR FILES[\s\S]*?YOUR SPACE/i);
+  assert.match(content, /OPEN A FOLDER/);
+  assert.match(content, /PICK A FILE/);
+  assert.match(content, /LOCAL DISKS/);
+  assert.match(content, /BEFORE YOU[\s\S]*?MAKE IT[\s\S]*?YOURS/i); // FAQ
+  assert.match(content, /YOUR FILES\.[\s\S]*?YOUR RULES\.[\s\S]*?START HERE/i); // Get Started CTA
   assert.ok(content.includes('<div id="root">'), 'Expected #root mount target for React island');
+});
+
+test('dist/og-image.png exists and meets 1200x630 dimension requirement', () => {
+  const ogPath = path.join(distDir, 'og-image.png');
+  assert.ok(fs.existsSync(ogPath), 'dist/og-image.png must exist');
+  const stats = fs.statSync(ogPath);
+  assert.ok(stats.size > 10000, 'dist/og-image.png must be non-empty valid image asset');
 });
 
 test('dist/404.html exists and contains branded page title and return actions', () => {
@@ -59,6 +82,10 @@ test('All 7 Starlight documentation pages exist in dist/ with canonical tags', (
       `Expected canonical tag ${expectedCanonical} in ${relPath}`
     );
     assert.match(content, /\| CubyCrate<\/title>/);
+    assert.ok(
+      content.includes('content="https://cubycrate.com/og-image.png"'),
+      `Expected og:image meta tag in ${relPath}`
+    );
   }
 });
 

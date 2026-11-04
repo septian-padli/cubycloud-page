@@ -75,6 +75,7 @@ The current owner instruction approves this target and documentation consolidati
 | OLD-TYP-01 | Montserrat on every hero/display title | VIS-02; separate display treatment, with Barlow Condensed implemented | — |
 | OLD-DOC-01 | Installation slug was only a proposal | DOC-01; target `/docs/getting-started/installation/` selected, publication not verified | — |
 | OLD-GOV-01 | Design-only hard stop prevented any later website code until FigCraft sign-off | MIG-03 and [AGENTS.md](AGENTS.md); later explicit migration run controls development. Historical approvals remain unverified | — |
+| OLD-ARCH-01 | Standalone Vite SPA entrypoint (`src/main.tsx` + `DocsApp.tsx`) with client-only rendering | MIG-01 and DOC-01; Astro 7 SSG + React Islands + Starlight docs implemented with prerendered static SEO HTML | — |
 
 Older permissive pinned-section language yields to MOT-01. Earlier proposed homepage copy and navbar do not override rendered React behavior.
 Neither the present custom React documentation prototype nor historical storyboards count as implemented Starlight or verified animation parity.

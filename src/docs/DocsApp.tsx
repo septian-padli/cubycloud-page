@@ -1,6 +1,6 @@
-import { ArrowLeft, ArrowUpRight, Check, ChevronDown, ChevronRight, Eye, Folder, Layers, Lock, Monitor, Moon, Search, Sun, Users, X, Menu } from 'lucide-react';
-import { Fragment, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
-import { articles, groups, navigateDocs, type Article, type Heading } from './content';
+import { ArrowUpRight, Check, ChevronDown, Monitor, Moon, Search, Sun, X, Menu } from 'lucide-react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { articles, groups, navigateDocs, type Article } from './content';
 import { Introduction, Installation, FileManagement } from './Articles';
 import { links } from '../config';
 import './docs.css';
@@ -31,7 +31,7 @@ export default function DocsApp() {
   const url = useDocsLocation();
   const pathname = url.split('#')[0].replace(/\/$/, '') || '/docs';
   const article = articles.find(item => item.path === pathname) ?? articles[0];
-  const [active, setActive] = useState(article.headings[0]?.id ?? '');
+  const [active] = useState(article.headings[0]?.id ?? '');
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     'Getting Started': true,
     'User Guide': true,
@@ -46,7 +46,6 @@ export default function DocsApp() {
   const [mobileTocOpen, setMobileTocOpen] = useState(false);
   const drawer = useRef<HTMLDivElement>(null);
   const menuTrigger = useRef<HTMLButtonElement>(null);
-  const prevDrawerOpen = useRef(drawerOpen);
 
   useEffect(() => {
     const sync = () => {

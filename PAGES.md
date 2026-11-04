@@ -5,8 +5,8 @@
 This document owns homepage anchors, public routes, documentation information architecture, and navigation behavior. `MIGRATION_CONTRACT.md` owns the migration DAG, gates, and rollback.
 `DESIGN.md` owns palette and visual direction. `MOTION.md` owns animation behavior; `PROTOTYPE.md` owns regression scenarios.
 
-The current site is React + TypeScript + Vite. `src/main.tsx` routes `/docs` and every `/docs/*` path to the custom React `DocsApp`; all other paths render the homepage.
-Starlight is the approved target, not the current implementation. Do not describe target routes or Starlight behaviors as already implemented.
+> **Implementation status update:** The site has been migrated to Astro 7 SSG, React Islands, and Starlight. The historical React + Vite SPA routing described below is superseded. All 7 Starlight routes are implemented at `/docs/`.
+
 
 ## Homepage routes and anchors
 

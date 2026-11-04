@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowRight, ArrowUpRight, ChevronDown, CircleHelp, Database, FileText, Folder, HardDrive, Layers3, RotateCcw, ShieldCheck, Star, Trash2, UploadCloud } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, ChevronDown, CircleHelp, Database, FileText, Folder, HardDrive, Layers3, ShieldCheck, Star, Trash2, UploadCloud } from 'lucide-react';
 import { useState } from 'react';
 import { links } from '../config';
 import FileExplorerDemo from './FileExplorerDemo';

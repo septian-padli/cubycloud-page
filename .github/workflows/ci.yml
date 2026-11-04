@@ -40,3 +40,6 @@ jobs:
           test -f dist/404.html || (echo "Missing dist/404.html" && exit 1)
           test -f dist/docs/index.html || (echo "Missing dist/docs/index.html" && exit 1)
           pnpm exec wrangler deploy --dry-run
+
+      - name: Run automated regression tests
+        run: pnpm test

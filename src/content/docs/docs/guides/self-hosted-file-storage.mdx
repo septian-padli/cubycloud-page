@@ -1,0 +1,138 @@
+---
+title: Self-Hosted File Storage Architecture & Guide
+description: Architecture guide for self-hosted file storage comparing CubyCrate's single-container design against monolithic cloud suites.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Self-hosting file storage gives organizations and home-lab operators complete sovereignty over their data, eliminating subscription fees, proprietary lock-in, and opaque cloud telemetry. However, conventional self-hosted solutions often introduce significant operational friction—requiring multi-container stacks, dedicated relational database servers, external cache layers, and heavy runtime overhead.
+
+CubyCrate takes an alternative engineering approach: a high-performance, single-container self-hosted file drive engineered in Go and Svelte 5 with an embedded SQLite Write-Ahead Logging (WAL) database. This guide details CubyCrate's architectural design, operational model, and workspace paradigms.
+
+## The Architecture Problem: Monoliths vs. Purpose-Built Drives
+
+Most self-hosted file platforms evolved from enterprise collaboration suites. They bundle calendar engines, contacts synchronization, document suites, task boards, and app stores into multi-container topologies. While feature-dense, this architecture imposes distinct burdens:
+
+1. **High Infrastructure Overhead:** Running Redis, PostgreSQL/MariaDB, background job workers, and PHP/Node runtimes consumes 1–4 GB of RAM at idle.
+2. **Maintenance Fatigue:** Maintaining database migrations, cache flushes, version compatibility matrices, and background cron services increases administration downtime.
+3. **Complex Backup Boundaries:** Backing up distributed stacks requires synchronizing database dumps with object store snapshots or active filesystem mounts, creating points of failure during restoration.
+
+CubyCrate is purpose-built strictly for file storage, streaming, and sharing. By focusing exclusively on file drive capabilities, it strips away microservice overhead while delivering production-grade performance.
+
+## Architectural Comparison
+
+The table below contrasts CubyCrate's single-container architecture with traditional multi-container self-hosted stacks and proprietary public clouds:
+
+| Architectural Metric | CubyCrate | Multi-Container Stacks (e.g., Nextcloud) | Public Cloud Drives (Google Drive, Dropbox) |
+| :--- | :--- | :--- | :--- |
+| **Container Count** | **1 container** | 3–6 containers (App, DB, Redis, Cron) | Proprietary / Hosted |
+| **Baseline Idle RAM** | **30–50 MB** | 1–4 GB | N/A (Client-only footprint) |
+| **Container Image Size** | **< 150 MB** | 800 MB–2 GB across images | N/A |
+| **Database Engine** | Embedded SQLite WAL (Pure Go) | External MariaDB, MySQL, or PostgreSQL | Proprietary distributed DB |
+| **External Dependencies** | None (Zero external DB or cache) | DB server, Redis cache, web server | Proprietary infrastructure |
+| **Backend Runtime** | Go 1.25 compiled binary | PHP-FPM, Node.js, or Python | Proprietary services |
+| **Frontend Framework** | Svelte 5 (Embedded SPA via `embed.FS`) | Server-rendered templates + Vue/React | Web React / Custom SPA |
+| **Supported CPU Arches** | `linux/amd64`, `linux/arm64` | Varies by sub-image | Client packages |
+| **Storage Targets** | Local filesystem or S3-compatible | Local, NFS, S3, WebDAV | Vendor proprietary storage |
+| **Data Format on Disk** | Standard POSIX files / S3 blobs | Custom filesystem structure / DB records | Proprietary chunked blocks |
+| **Software License** | GNU AGPL-3.0 | AGPL-3.0 or GPL-3.0 | Proprietary commercial |
+
+## The Single-Container Runtime Model
+
+CubyCrate packs its entire application layer into a single Alpine Linux container.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   CubyCrate Alpine Container                │
+│                                                             │
+│  ┌───────────────────────────┐  ┌────────────────────────┐  │
+│  │   Embedded Svelte 5 SPA   │  │   Go 1.25 API Engine   │  │
+│  │   (Compiled Web UI)       │◄─┼─► (Echo HTTP & TUS)    │  │
+│  └───────────────────────────┘  └───────────┬────────────┘  │
+│                                             │               │
+│                    ┌────────────────────────┴────────┐      │
+│                    ▼                                 ▼      │
+│        ┌───────────────────────┐         ┌────────────────┐ │
+│        │  Embedded SQLite WAL  │         │ Storage Driver │ │
+│        │  (Metadata & Shares)  │         │ (Local / S3)   │ │
+│        └───────────────────────┘         └────────────────┘ │
+└───────────────────────────────┬──────────────────────┬──────┘
+                                │                      │
+                                ▼                      ▼
+                     /app/data (Volume)     Target Storage (Disk/S3)
+```
+
+### Go 1.25 Binary Engine
+The backend is written in Go 1.25 using the Echo HTTP framework. Because Go compiles directly to native machine code, requests execute with minimal latency and high concurrency efficiency. The binary handles API routing, authentication, TUS resumable uploads, batch ZIP streaming, and storage node operations without an intermediate WSGI or FastCGI process manager.
+
+### Embedded Svelte 5 Web Interface
+The web client is built with SvelteKit and Svelte 5. During the build pipeline, the compiled frontend assets are embedded directly into the Go binary using Go's `embed.FS`. The server serves these assets directly from memory with optimal cache-control headers. No separate Nginx or Node.js container is required to host the web interface.
+
+### Pure-Go SQLite in WAL Mode
+CubyCrate uses a pure-Go SQLite driver (`modernc.org/sqlite` / `github.com/glebarez/go-sqlite`) that compiles without CGO dependencies. SQLite runs in Write-Ahead Logging (WAL) mode with explicit pragmas:
+
+```sql
+PRAGMA journal_mode = WAL;
+PRAGMA busy_timeout = 5000;
+PRAGMA foreign_keys = ON;
+PRAGMA synchronous = NORMAL;
+```
+
+WAL mode permits concurrent readers to query the database while a writer commits transactions, eliminating read locks during file browsing and uploads.
+
+<Aside type="note" title="Data separation invariant">
+  CubyCrate never stores file contents inside SQLite. SQLite stores only metadata (paths, permissions, tags, shares, storage node IDs). File payloads are written to local disk directories or S3-compatible buckets.
+</Aside>
+
+## Workspace Model: My Storage vs. Organization
+
+CubyCrate provides two distinct workspace environments to balance personal privacy with collective collaboration:
+
+### 1. My Storage
+* **Personal Scoping:** Each registered user receives a private root directory.
+* **Quota Enforcement:** Administrators assign individual storage limits (e.g., 50 GB) to each user. Uploads in My Storage consume the user's allocated quota.
+* **Access Control:** Files and folders remain completely private until the owner explicitly shares them.
+* **Sharing Engine:** Owners can grant Viewer or Editor permissions to other registered users or generate password-protected public download links with optional expiration dates.
+
+### 2. Organization Tree
+* **Shared Virtual Tree:** A single, unified folder hierarchy visible to all authenticated users across the instance.
+* **Team Collaboration:** Ideal for shared media, reference documents, templates, and company assets.
+* **Quota Exempt:** Files uploaded to the Organization workspace do not count against any individual user's personal quota. However, they do consume physical storage node capacity.
+* **Security Model:** Organization is a shared drive for authenticated users. It is designed for organizational transparency rather than segmented department access control.
+
+<Aside type="caution" title="Organization permissions boundary">
+  The Organization drive is a single virtual filesystem shared by all registered users. It does not provide isolated team partitions or nested group access control lists (ACLs).
+</Aside>
+
+## Operational Requirements
+
+Deploying CubyCrate in production requires three core operational elements:
+
+### 1. Named Persistent Storage
+All persistent state is anchored to `/app/data` inside the container:
+* SQLite database files: `/app/data/db/cubycrate.db` and WAL journals.
+* Master encryption keys: `/app/data/secrets/master.key`.
+* Session signing keys: `/app/data/secrets/jwt.key`.
+* Default local storage payload: `/app/data/storage/default/`.
+
+Operators must map this path to a Docker named volume (e.g., `cubycrate_data:/app/data`) or a dedicated host mount.
+
+### 2. HTTPS Reverse Proxy
+CubyCrate exposes HTTP on container port `8383`. In production, a reverse proxy (Caddy, Nginx, or Traefik) must terminate TLS, enforce HTTPS, and proxy requests:
+* **Server-Sent Events:** Proxy configurations must disable response buffering for `/api/v1/events` (`proxy_buffering off;`) to allow real-time UI updates.
+* **Secure Cookies:** When served over HTTPS, operators must set `COOKIE_SECURE=true` in the environment so session cookies require TLS.
+
+### 3. Backup Strategy
+Because file data and SQLite metadata are decoupled:
+* Backups must capture both the database file (`cubycrate.db`) and the active storage nodes.
+* Cold volume backups using an ephemeral container with a read-only (`:ro`) mount prevent file corruption during backups.
+
+## Next Steps
+
+Explore the installation and operational guides to deploy CubyCrate:
+
+- [Installation Guide](/docs/getting-started/installation/): Step-by-step setup using Docker Compose.
+- [Production Deployment Checklist](/docs/guides/docker-deployment-checklist/): Verification, security hardening, and upgrade runbooks.
+- [Local Filesystem vs. S3 Storage](/docs/guides/local-vs-s3-storage/): Deep dive into storage backends and direct upload flows.
+- [Backup & Disaster Recovery](/docs/administrator-guide/backup-restore/): Safe backup procedures for SQLite and file volumes.
+- [Configuration Reference](/docs/getting-started/configuration/): Full environment variable reference and proxy examples.

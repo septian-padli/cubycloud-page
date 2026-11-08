@@ -1,0 +1,96 @@
+---
+title: CubyCrate Changelog & Release History
+description: Release notes, version history, and migration guides across CubyCrate versions.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This document tracks official release history, technical enhancements, security fixes, and version compatibility across all published versions of CubyCrate.
+
+## Release Summary
+
+| Version | Release Channel | Release Date | Target Image | Multi-Arch |
+| :--- | :--- | :--- | :--- | :--- |
+| **`v0.0.1-alpha.2`** | `alpha` (Current) | Initial Official Release | `ghcr.io/septian-padli/cubycrate:v0.0.1-alpha.2` | `linux/amd64`, `linux/arm64` |
+| **`v0.0.1-alpha.1`** | Deprecated | Historical Pre-Release | `cubycloud:v0.0.1-alpha.1` | Historical single-arch |
+
+---
+
+## v0.0.1-alpha.2 (Current Official Release)
+
+`v0.0.1-alpha.2` is the first official release published under the canonical **CubyCrate** name. It establishes the stable baseline architecture, multi-architecture container distribution, and unified storage engine.
+
+### Key Enhancements
+
+#### 1. Official Canonical Rebrand to CubyCrate
+- **Canonical Repository:** [github.com/septian-padli/cubycrate](https://github.com/septian-padli/cubycrate)
+- **Container Distribution:** `ghcr.io/septian-padli/cubycrate:v0.0.1-alpha.2`
+- **Go Backend Module:** `github.com/septian-padli/cubycrate/apps/backend`
+- **Default Database Path:** `/app/data/db/cubycrate.db` (SQLite in WAL mode)
+- **Default Named Volume:** `cubycrate_data`
+- **Session Authentication Cookie:** `cubycrate_token`
+- **Uniform Storage Namespace:** `cubycrate/{instance_id}/{node_id}/blobs/{blob_id}`
+
+#### 2. Multi-Architecture Container Support
+- Official container images published simultaneously for:
+  * **`linux/amd64`** (standard 64-bit x86 servers)
+  * **`linux/arm64`** (Raspberry Pi 4/5, AWS Graviton, Apple Silicon servers, Ampere Altra)
+- Built on minimal Alpine Linux base images with a compressed image footprint under **150 MB** and **30–50 MB** baseline idle memory usage.
+
+#### 3. S3-Compatible Object Storage Driver
+- Integration with AWS Go SDK v2 for full S3-compliant object store compatibility (AWS S3, Cloudflare R2, MinIO, Backblaze B2, Ceph RADOS Gateway).
+- **Direct Presigned Browser Uploads:** Generates 15-minute presigned PUT URLs allowing client browsers to stream files directly into S3 buckets, bypassing application server CPU and bandwidth.
+- **Envelope Encryption:** S3 access credentials stored in SQLite are protected with authenticated AES-256-GCM encryption using a 256-bit master key (`/app/data/secrets/master.key` or `CUBYCRATE_MASTER_KEY`).
+
+#### 4. Asynchronous Storage Node Detachment & Migration
+- Added background migration engine (`node_migration` task).
+- Non-empty storage nodes can be detached via administrator API (`POST /api/v1/admin/storage-nodes/:id/detach`), safely streaming blobs to another configured node.
+- Validates SHA-256 checksums and exact byte counts with a strict zero-deletion safety invariant on errors.
+
+#### 5. Streaming ZIP Batch Downloads
+- Download multiple files or entire folder trees as a single, dynamically streamed ZIP archive.
+- Archive streaming writes directly to the HTTP response stream without creating intermediate archive files on disk.
+
+#### 6. SQLite WAL Mode Optimization
+- Embedded SQLite configured with `PRAGMA journal_mode=WAL` and `PRAGMA busy_timeout=5000`.
+- Concurrent readers do not block write operations, ensuring responsive UI browsing during heavy uploads.
+
+#### 7. Dual Health Checks
+- Standardized probe endpoints at `GET /health` and `GET /api/health`.
+- Both endpoints execute comprehensive SQLite pings and verify all configured storage nodes, returning `503 Service Unavailable` if any node is offline.
+
+---
+
+## Clean Break Notice: Upgrading from v0.0.1-alpha.1
+
+<Aside type="danger" title="In-place upgrades from v0.0.1-alpha.1 are unsupported">
+  CubyCrate `v0.0.1-alpha.2` enforces a **clean break** from the historical `v0.0.1-alpha.1` pre-release (formerly CubyCloud).
+</Aside>
+
+### Why a Clean Break?
+`v0.0.1-alpha.1` was an experimental proof-of-concept release that used legacy database schemas, differing blob directory conventions, and old environment variable keys. To guarantee long-term schema stability and cryptographic integrity, `v0.0.1-alpha.2` establishes a fresh baseline.
+
+### Migration Procedure for v0.0.1-alpha.1 Operators
+1. **Do not point `v0.0.1-alpha.2` at existing `cubycloud_data` volumes.**
+2. Deploy `v0.0.1-alpha.2` with a fresh `cubycrate_data` volume.
+3. Complete the first-run administrator setup at `/setup`.
+4. Export or download existing files from your `v0.0.1-alpha.1` deployment.
+5. Upload files into the new CubyCrate instance via the web interface or TUS resumable uploads.
+
+---
+
+## Historical Releases
+
+### v0.0.1-alpha.1 (Historical Pre-Release)
+- Initial proof-of-concept release under historical working name *CubyCloud*.
+- Single-architecture container deployment.
+- Basic local filesystem storage and preliminary file browsing interface.
+- *Status:* Deprecated and superseded by `v0.0.1-alpha.2`.
+
+---
+
+## Next Steps
+
+- [Installation Guide](/docs/getting-started/installation/): Deploy `v0.0.1-alpha.2` with Docker Compose.
+- [Production Deployment Checklist](/docs/guides/docker-deployment-checklist/): Actionable deployment runbook.
+- [About CubyCrate](/docs/about/): Project vision, license details, and architectural principles.

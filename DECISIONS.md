@@ -63,7 +63,7 @@ The current owner instruction approves this target and documentation consolidati
 | ID | State | Issue / required action |
 | --- | --- | --- |
 | OPEN-01 | Open | Historical final brand approval of Barlow Condensed is unrecorded. Preserve its implemented appearance during migration; seek approval only before changing it. |
-| OPEN-02 | Open | Final switch of marketing Get Started from product GitHub README to `/docs/getting-started/installation/`: verify article, published route, and owner-approved destination change. Target route itself is approved by DOC-01. |
+| OPEN-02 | Settled | Switched marketing Get Started and installation links to verified article at `/docs/getting-started/installation/`. |
 | OPEN-03 | Open | Historical M1–M4 reviews and final FigCraft design sign-off are not recorded here. Do not claim they occurred; these design-stage gates do not negate later explicit website work. |
 | OPEN-04 | Open | Pre-existing working-tree deletions of design masters need owner review. This documentation task must not infer asset duplication or discard unrelated local work. |
 

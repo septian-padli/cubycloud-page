@@ -3,8 +3,8 @@
 Website and documentation for [CubyCrate](https://cubycrate.com) — a lightweight, open-source, self-hosted file drive for teams.
 
 > **Repository:** `septian-padli/cubycloud-page`  
-> **Product Repository (Read-Only):** [`septian-padli/cubycloud`](https://github.com/septian-padli/cubycloud)  
-> **Brand Identity:** Public presentation uses **CubyCrate**. Existing runtime identifiers (`cubycloud`, `ghcr.io/septian-padli/cubycloud`, `cubycloud_data`, `cubycloud.db`) remain preserved per [`BRAND.md`](BRAND.md) for backward compatibility.
+> **Product Repository (Read-Only):** [`septian-padli/cubycrate`](https://github.com/septian-padli/cubycrate)  
+> **Brand Identity:** Public presentation uses **CubyCrate**. Preserve `cubycloud-page` as the website repository and Worker identifier. Product runtime identifiers follow the current application source and may differ from historical CubyCloud names.
 
 ---
 

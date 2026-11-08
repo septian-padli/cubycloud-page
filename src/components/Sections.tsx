@@ -42,18 +42,17 @@ export function OpenSourceSection() {
 }
 
 const faqs = [
-  ['What do I need to run CubyCrate?', 'A host that can run the published container, persistent storage, and the ability to configure network access. Check the product repository for current installation requirements.'],
-  ['Can I use local disks and S3-compatible storage?', 'Yes. CubyCrate supports local filesystem storage and optional S3-compatible storage configured by an administrator. These are storage options, not automatic replication.'],
-  ['How can I share files?', 'Share with registered users using Viewer or Editor access, or create public links with optional passwords.'],
-  ['Does the Organization drive support separate team permissions?', 'No. The current Organization drive is one shared tree accessible to authenticated users, not separate group-based workspaces or granular team permissions.'],
-  ['Is CubyCrate open source?', 'Yes. The source is available on GitHub. Review the repository license for the current AGPL-3.0-or-later terms.'],
+  ['What do I need to run CubyCrate?', 'Docker, a supported host architecture, persistent storage, and a way to configure network access. Follow the installation guide for the published image and current Compose settings.'],
+  ['Can I use local disks and S3-compatible storage?', 'Yes. Administrators can configure local filesystem or S3-compatible storage. These are storage choices, not automatic replication.'],
+  ['How can I share files?', 'Share My Storage items with registered users as Viewer or Editor, or create public links with optional password protection.'],
+  ['Does Organization have separate team permissions?', 'No. Organization is one shared tree for authenticated users, without separate team spaces or granular group permissions.'],
+  ['What license does CubyCrate use?', 'CubyCrate is distributed under GNU AGPL version 3. Review the product repository license for its terms.'],
 ];
 export function PracticalFAQ() {
   return <section id="faq" className="faq light-section" aria-labelledby="faq-heading"><div className="chapter-shell faq-layout"><div className="faq-left"><span className="eyebrow">THE PRACTICAL QUESTIONS / 05</span><h2 id="faq-heading">BEFORE YOU<br /><em>MAKE IT</em><br />YOURS.</h2><p>A few questions before you make it yours.</p><CircleHelp size={84} strokeWidth={.75} /></div><div className="faq-list">{faqs.map(([question, answer], i) => <details key={question}><summary><span>{String(i + 1).padStart(2, '0')}</span><b>{question}</b><ChevronDown size={20} /></summary><div className="faq-answer">{answer}</div></details>)}</div></div></section>;
 }
-
 export function GetStartedSection() {
-  return <section id="get-started" className="get-started dark-section" aria-labelledby="get-started-heading"><div className="chapter-shell"><div className="get-started-top"><span>THE SPACE IS YOURS.</span><span>[ END / BEGINNING ]</span></div><div className="get-started-center"><div className="final-form" aria-hidden="true"><Folder size={100} strokeWidth={.7} /><span>+</span></div><h2 id="get-started-heading">YOUR FILES.<br /><em>YOUR RULES.</em><br />START HERE.</h2><p>Ready for a simpler place to manage files? Find the installation instructions in the CubyCrate product repository to set up your drive on your own infrastructure.</p><a href={links.installation} target="_blank" rel="noopener noreferrer" className="final-cta">GET STARTED ON GITHUB <ArrowUpRight size={29} /></a><span className="get-started-note">INSTALLATION GUIDE DESTINATION: PRODUCT REPOSITORY README</span></div></div></section>;
+  return <section id="get-started" className="get-started dark-section" aria-labelledby="get-started-heading"><div className="chapter-shell"><div className="get-started-top"><span>THE SPACE IS YOURS.</span><span>[ END / BEGINNING ]</span></div><div className="get-started-center"><div className="final-form" aria-hidden="true"><Folder size={100} strokeWidth={.7} /><span>+</span></div><h2 id="get-started-heading">YOUR FILES.<br /><em>YOUR RULES.</em><br />START HERE.</h2><p>Install the published CubyCrate image with Docker Compose and create your first administrator.</p><a href={links.installation} className="final-cta">INSTALL CUBYCRATE <ArrowUpRight size={29} /></a><span className="get-started-note">DOCKER COMPOSE / CURRENT PUBLISHED ALPHA</span></div></div></section>;
 }
 
 export function SiteFooter() {

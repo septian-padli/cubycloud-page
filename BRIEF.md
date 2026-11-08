@@ -10,7 +10,7 @@ CubyCloud is an open-source, self-hosted file drive. It gives people a browser i
 
 The marketing site belongs to the website repository. It is not the product application and does not provide managed hosting.
 
-- Product: [CubyCloud](https://github.com/septian-padli/cubycloud)
+- Product: [CubyCrate](https://github.com/septian-padli/cubycrate)
 - Website: this repository
 - Product category: self-hosted file drive
 - Positioning: Simple Self-Hosted File Drive

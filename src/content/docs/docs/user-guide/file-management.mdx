@@ -1,69 +1,33 @@
 ---
 title: File Management
-description: Manage files and folders, preview media, and handle resumable uploads in CubyCrate.
+description: Manage files and folders, use supported previews, and understand upload and trash behavior.
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-CubyCrate provides a responsive, web-based file explorer for managing documents, media, and archives.
+CubyCrate provides a browser-based file manager for personal and shared files.
 
-## Workspaces: My Storage vs. Organization
+## Workspaces
 
-When navigating the file drive, you have access to two primary sections:
+- **My Storage** is each user's personal file area. Its files count toward that user's quota. Users can share selected items.
+- **Organization** is one shared tree for authenticated users. Its files use physical storage capacity but do not count against an individual user's quota. Organization does not provide group-level permission boundaries.
 
-1. **My Storage (`/drive/my-storage`):** Your private workspace. Folders and files in My Storage count against your account quota. You control access by sharing individual items or creating public links.
-2. **Organization (`/drive/organization`):** A shared file repository accessible to all registered users on the server. Every authenticated user can read, write, and delete files in this tree. Organization files consume physical storage node capacity but do not deduct from personal user quotas.
+Administrators configure storage-node capacity separately from user quotas. Physical free space may limit uploads even when a user's quota has room.
 
-## File & Folder Operations
+## File operations
 
-The file explorer toolbar and item context menus provide standard drive actions:
+Available workflows include creating folders, uploading and downloading files, renaming, moving, duplicating, starring, and sending My Storage items to Trash. Available actions depend on the current workspace and the user's permissions.
 
-- **New Folder (`+ Tambah` / `Add`):** Create subdirectories to organize files.
-- **Upload Files & Folders:** Upload individual items or entire directory hierarchies.
-- **Rename (`Ganti nama`):** Change item names. If a conflicting name exists in the folder, CubyCrate presents a rename dialog with a suggested unique name.
-- **Move (`Pindahkan`):** Move items across directories using an interactive folder tree browser. Moving a folder into itself or its subdirectories is automatically prevented.
-- **Duplicate (`Salin`):** Creates an instant pointer copy in the database without duplicating physical storage bytes.
-- **Star / Unstar (`Bintangi`):** Pin frequently accessed files for quick retrieval under the **Starred** navigation view.
-- **Compress to ZIP (`Kompres ke ZIP`):** Queues an asynchronous background job to bundle selected files into a zip archive inside the current folder.
-- **Batch Download ZIP (`Unduh ZIP`):** Select multiple files and folders to download them bundled as a zip file on the fly.
+The product supports image, video, audio, PDF, and text/code previews. The exact preview behavior depends on the file type and browser support.
 
-## Upload Mechanics & Resumption
+## Uploads
 
-CubyCrate selects the optimal upload protocol based on file size:
+CubyCrate supports direct uploads and resumable transfer flows. Network interruptions, configured storage capacity, and reverse-proxy limits can affect large uploads. If uploads fail behind a proxy, check its request-size and timeout settings in [Configuration & Reverse Proxy](/docs/getting-started/configuration/).
 
-- **Direct Uploads (< 50 MB):** Single-request multipart form upload for swift transfers.
-- **Resumable Chunked Uploads (≥ 50 MB):** Uses the open TUS protocol with 5 MB chunks stored temporarily under `/app/data/temp/tus`.
+## Trash
 
-If your connection drops during a large upload:
-1. Re-add the same file to the upload queue.
-2. The browser calculates the file hash and client fingerprint.
-3. The server resumes the upload from the exact last uploaded chunk.
+My Storage items moved to Trash can be restored or permanently deleted. The application purges items kept in Trash beyond its retention period. Trash is not a backup. Maintain a separate backup of application data and physical files.
 
-## In-Browser File Previews
+## Sharing
 
-Click any supported file in the list to open the full-screen preview modal without downloading the file:
-
-| Category | Supported Formats | Preview Capabilities |
-| :--- | :--- | :--- |
-| **Images** | PNG, JPEG, GIF, WebP, SVG | Full-resolution pan and zoom. |
-| **Video** | MP4, WebM | Native HTML5 video player with seek support. |
-| **Audio** | MP3, WAV, OGG | Inline audio playback. |
-| **Documents** | PDF | Paginated document viewer. |
-| **Code & Text** | TXT, MD, JSON, JS, TS, GO, PY, HTML, CSS | Formatted code viewer with syntax highlighting and line numbers. |
-
-## Trash & Retention
-
-When you delete an item from **My Storage**, it moves to the **Trash (`/drive/trash`)**:
-
-- **Restore (`Pulihkan`):** Restores the item to its original parent folder. If the parent folder was deleted in the interim, the item is restored to the root directory.
-- **Delete Permanently (`Hapus Selamanya`):** Immediately removes the database record and marks physical storage blobs for background pruning.
-- **Automatic Purge:** By default, items residing in the Trash for more than 30 days are automatically purged by a hourly background cleanup worker.
-
-<Aside type="note" title="Trash is not an offsite backup">
-  Trash protection shields users from accidental deletions, but it does not protect against disk failure or database corruption. Operators must maintain regular database and volume backups.
-</Aside>
-
-## Next Steps
-
-- [Sharing Guide](/docs/user-guide/sharing/): Learn how to share files with other users or create password-protected public links.
-- [Backup and Recovery](/docs/administrator-guide/backup-restore/): Disaster recovery runbooks for administrators.
+My Storage items can be shared with registered users using Viewer or Editor access. Public links may use password protection. See [Sharing](/docs/user-guide/sharing/) for details.

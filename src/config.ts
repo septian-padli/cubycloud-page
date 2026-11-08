@@ -1,8 +1,9 @@
 export const links = {
-  github: 'https://github.com/septian-padli/cubycloud',
-  installation: 'https://github.com/septian-padli/cubycloud#readme',
-  license: 'https://github.com/septian-padli/cubycloud',
+  github: 'https://github.com/septian-padli/cubycrate',
+  installation: 'https://cubycrate.com/docs/getting-started/installation/',
+  license: 'https://github.com/septian-padli/cubycrate/blob/main/LICENSE',
 } as const;
+
 
 export const chapters = [
   { id: 'files', number: '01', label: 'Files' },

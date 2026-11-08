@@ -1,82 +1,45 @@
 ---
 title: Troubleshooting & Operational Diagnostics
-description: Common error symptoms, log analysis, and solutions for CubyCrate administrators.
+description: Diagnose common CubyCrate startup, storage, proxy, and health-check issues.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+## Inspect service status and logs
 
-This guide addresses common error states and operational problems encountered during deployment and daily operation.
-
-## Inspecting Logs
-
-Start by reviewing container logs for error entries:
+Run these commands from the directory containing the instance's Compose file and environment:
 
 ```sh
-# Follow latest container logs
-docker compose logs -f cubycloud
-
-# Filter specifically for errors or warnings
-docker compose logs cubycloud | grep -E "ERROR|WARN"
+docker compose ps
+docker compose logs --tail=100 cubycrate
+curl -i http://127.0.0.1:8383/health
+curl -i http://127.0.0.1:8383/api/health
 ```
 
-## Common Symptoms and Fixes
+`/health` is the container liveness check. `/api/health` checks SQLite and configured storage-node availability.
 
-### 1. Storage Node Offline or Inactive
+## Container does not become healthy
 
-- **Symptom:** Files appear marked with an **Offline** badge in the drive, or uploads fail with `Storage node unavailable`.
-- **Cause:** CubyCrate runs a storage node probe every 3 seconds. If a physical disk mount is missing, unmounted, or an S3 bucket is unreachable, the node is marked offline to prevent incomplete writes.
-- **Fix:**
-  - For local disks: Ensure the host storage path is mounted into the container and has read/write permissions.
-  - For S3 nodes: Verify your bucket endpoint, network egress, and IAM credentials. Check if your S3 provider requires path-style addressing.
+Check `docker compose ps` and inspect the service logs. Confirm the published port is available and the image reference resolves. The official Compose file defaults to the local image `cubycrate:local`; set `CUBYCRATE_IMAGE` and `CUBYCRATE_VERSION` for the published image as shown in [Installation](/docs/getting-started/installation/).
 
-### 2. Uploads Fail on Large Files (HTTP 413 or Timed Out)
+## Setup keeps appearing
 
-- **Symptom:** Small files upload immediately, but files above a certain size fail with `413 Request Entity Too Large` or connection timeouts.
-- **Cause:** The upstream reverse proxy (Nginx or Caddy) has a default body size limit or proxy timeout that cuts off long-running uploads.
-- **Fix:**
-  - In Nginx, set `client_max_body_size 10G;` and increase `proxy_read_timeout 600s;`.
-  - In Caddy, configure `request_body { max_size 10GB }`.
-  - Ensure the temporary chunk path `/app/data/temp/` has adequate free disk space to store inflight TUS chunks.
+The setup wizard remains active until the initial administrator and storage configuration are saved. Check that `/app/data` is writable and persisted in the expected volume. Do not switch volume names while diagnosing; a new volume contains a separate installation state.
 
-### 3. Real-Time File Updates Not Appearing (SSE Disconnected)
+## Storage node or readiness probe is unavailable
 
-- **Symptom:** Changes made by colleagues (such as new uploads in the Organization folder) do not reflect automatically without a manual page refresh.
-- **Cause:** The reverse proxy is buffering responses from the Server-Sent Events endpoint at `/api/v1/events`.
-- **Fix:**
-  - In Nginx, ensure buffering is disabled for the SSE route:
-    ```nginx
-    location /api/v1/events {
-        proxy_pass http://127.0.0.1:8383;
-        proxy_buffering off;
-        proxy_cache off;
-    }
-    ```
-  - In Caddy, set `flush_interval -1` on the reverse proxy handler for `@sse`.
+`/api/health` can report unavailable when SQLite or a configured storage node cannot be reached. Check that local host paths are mounted into the container and writable. For S3-compatible nodes, check the configured endpoint, bucket access, network connectivity, and encryption key availability.
 
-### 4. Database Busy or Locked Errors (`SQLITE_BUSY`)
+Configured capacity limits are separate from actual filesystem free space. Review both before increasing a quota or retrying an upload.
 
-- **Symptom:** Server logs show `database is locked` or `SQLITE_BUSY`.
-- **Cause:** SQLite runs in WAL (Write-Ahead Logging) mode and expects a single active writer connection pool (`MaxOpenConns=1`). Mounting `/app/data` over network-attached filesystems (such as NFS or SMB) can break SQLite POSIX advisory locking.
-- **Fix:**
-  - Always store `cubycloud.db` on a local host filesystem (ext4, XFS, APFS), never directly over network mounts like NFS or CIFS.
+## Upload fails behind a proxy
 
-### 5. Setup Wizard Keeps Prompting (`/setup`)
+Review the proxy request-body limit and timeouts. Ensure event-stream requests at `/api/v1/events` are not buffered. A proxy's body-size limit does not raise the application's storage capacity.
 
-- **Symptom:** Accessing the website always redirects to `/setup` instead of the login page.
-- **Cause:** The initial setup wizard has not finished writing the administrator account and storage node configuration to the database, or file permissions prevented creating `cubycloud.db`.
-- **Fix:**
-  - Verify that the directory permissions on `/app/data` allow the container process to write files.
-  - Complete all 5 steps of the setup wizard and confirm the final submission.
+## SQLite reports a busy or locked database
 
-### 6. Lost Administrator Password
+Keep SQLite data on a local filesystem that supports its locking requirements. Do not place the live database directly on NFS or SMB mounts. Preserve the volume and inspect logs before attempting recovery.
 
-- **Symptom:** The administrator cannot sign in and email recovery is not configured.
-- **Cause:** Forgotten password or locked account.
-- **Fix:**
-  - Use the 32-character Crockford Base32 recovery key generated during the initial setup wizard.
-  - Navigate to `/login`, select **Forgot password / Reset with recovery key**, and enter your recovery key to define a new administrator password.
+## Related guides
 
-## Next Steps
-
-- [Backup and Recovery](/docs/administrator-guide/backup-restore/): Protect database and secret keys before performing maintenance.
-- [Configuration Guide](/docs/getting-started/configuration/): Review reverse proxy templates and environment variables.
+- [Configuration & Reverse Proxy](/docs/getting-started/configuration/)
+- [Backup & Disaster Recovery](/docs/administrator-guide/backup-restore/)
+- [Installation](/docs/getting-started/installation/)

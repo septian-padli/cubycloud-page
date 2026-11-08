@@ -1,55 +1,40 @@
 ---
 title: Introduction
-description: Overview of CubyCrate self-hosted file drive architecture and concepts.
+description: Overview of CubyCrate, its storage model, and supported workflows.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
 ## What is CubyCrate?
 
-CubyCrate is a lightweight, self-hosted file drive built for individuals and small teams who want full ownership of their files on their own infrastructure. It bundles a Go backend and an embedded web interface into a single container image.
+CubyCrate is a self-hosted file drive. A Go server provides the API and embedded web interface in one container. SQLite stores application metadata, while file data lives on local filesystem or S3-compatible storage nodes.
 
-SQLite handles application metadata and directory state, while physical files reside on local filesystem paths or optional S3-compatible cloud storage buckets.
+## Core capabilities
 
-## Core Capabilities
+- Manage files and folders in My Storage and the shared Organization tree.
+- Upload, download, rename, move, duplicate, star, and restore files from Trash.
+- Resume supported uploads in My Storage and Organization.
+- Preview supported images, video, audio, PDF, and text files in the browser.
+- Share My Storage items with registered users as Viewer or Editor, or create public links with optional password protection.
+- Configure local and S3-compatible storage nodes through the administrator interface.
 
-- **Browser-based file management:** Upload, download, rename, move, star, and delete files with desktop-style folder navigation.
-- **Resumable and direct uploads:** Small files transfer directly, while large payloads use chunked TUS uploads that resume automatically after connection drops.
-- **Two storage spaces:** Use My Storage for personal files and Organization for an open shared team space.
-- **Flexible storage backends:** Store files on direct host mount paths or connect S3-compatible object storage nodes configured by an administrator.
-- **In-browser previews:** Inspect images, video, audio, PDFs, text, and source code files directly without downloading them.
-- **Sharing controls:** Share personal files with other registered accounts using Viewer or Editor permissions, or generate password-protected public links.
+## Storage and capacity
 
-## Storage Architecture
+CubyCrate separates file metadata in SQLite from physical file data on storage nodes. Administrators can configure local filesystem paths or S3-compatible storage.
 
-CubyCrate separates logical file trees from physical storage nodes:
+My Storage uses personal quota limits. Organization is one shared tree available to authenticated users and is not charged against individual user quotas. Both workspaces still consume physical storage-node capacity. Configured capacity limits and actual free space are distinct measures.
 
-1. **Logical directory tree:** Stored in SQLite (`cubycloud.db`). File metadata, ownership, folder structures, and share records live here.
-2. **Physical storage nodes:** Administrators register storage nodes where raw bytes are written. Nodes can be local filesystem directories or S3-compatible buckets.
-3. **Master encryption key:** Storage node credentials (such as S3 secret access keys) are encrypted using AES-256-GCM. The encryption key is stored on disk at `secrets/master.key` inside the data directory.
-
-<Aside type="note" title="Infrastructure responsibility">
-  CubyCrate does not run automatic multi-node replication or automatic high availability failover. The host operator maintains storage capacity, volume backups, network firewalls, and TLS termination.
+<Aside type="caution" title="Organization permissions">
+  Organization is a shared tree for authenticated users. It does not provide separate team spaces or granular group permissions.
 </Aside>
 
-## My Storage vs. Organization
+Local and S3 storage are choices, not automatic replication, synchronization, or high availability. Operators manage backups for application data, external mounts, and object storage.
 
-CubyCrate provides two distinct workspaces in the drive interface:
+## Getting started
 
-| Workspace | Purpose | Permissions | Quota Accounting |
-| :--- | :--- | :--- | :--- |
-| **My Storage** | Personal file area | Private to the account owner; items can be shared explicitly | Consumes the user's allocated storage quota |
-| **Organization** | Shared team tree | Every registered user can read, write, upload, and delete | Does not count against individual user quotas |
-
-<Aside type="caution" title="Organization has no sub-group RBAC">
-  The Organization drive is a single shared directory tree for authenticated users. It does not provide isolated team silos, departemental boundaries, or granular group permissions.
-</Aside>
-
-## Getting Started
-
-Follow these guides to set up and use your CubyCrate instance:
-
-- [Installation Guide](/docs/getting-started/installation/): Deploy the official container using Docker Compose and complete first-time administrator initialization.
-- [Configuration Guide](/docs/getting-started/configuration/): Configure environment variables, persistent volumes, and reverse proxies (Caddy, Nginx).
-- [File Management](/docs/user-guide/file-management/): Learn navigation, file actions, preview support, and upload mechanics.
-- [Sharing Guide](/docs/user-guide/sharing/): Share files with internal accounts or create password-protected public download links.
+- [Installation](/docs/getting-started/installation/): Run the published Docker image and complete first-time setup.
+- [Configuration & Reverse Proxy](/docs/getting-started/configuration/): Configure environment and HTTPS access.
+- [File Management](/docs/user-guide/file-management/): Use workspaces, upload files, and restore items.
+- [Sharing](/docs/user-guide/sharing/): Manage user shares and public links.
+- [Backup & Disaster Recovery](/docs/administrator-guide/backup-restore/): Protect application and external storage data.
+- [Troubleshooting](/docs/troubleshooting/): Diagnose startup and storage issues.

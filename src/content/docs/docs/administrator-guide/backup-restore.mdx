@@ -1,135 +1,72 @@
 ---
 title: Backup & Disaster Recovery
-description: Protect your SQLite database, master encryption key, and storage nodes against data loss.
+description: Back up CubyCrate's SQLite database, secrets, local files, and external storage safely.
 ---
 
-import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-A comprehensive disaster recovery strategy for CubyCrate requires protecting three interdependent components:
+CubyCrate stores application state in `/app/data`. A complete recovery also needs any storage outside that directory and any externally supplied secrets.
 
-1. **SQLite Database (`cubycloud.db`):** Contains user accounts, permissions, folder structures, and file metadata.
-2. **Master Key (`secrets/master.key`):** The 256-bit AES key used to encrypt and decrypt S3 storage node secrets.
-3. **Storage Blobs:** The physical files saved in local directories or S3 buckets.
+## What to protect
 
-<Aside type="danger" title="The master key rule">
-  Never back up `cubycloud.db` without `secrets/master.key`. Without the master key, any S3-compatible storage nodes registered in your database cannot be decrypted, permanently locking you out of those storage buckets.
+- SQLite database at `/app/data/db/cubycrate.db`, including its WAL state.
+- Generated secrets in `/app/data/secrets/`, including `jwt.key` and `master.key` when present.
+- Local file data under `/app/data/storage/`.
+- Any host directories mounted as secondary storage nodes.
+- S3-compatible buckets and externally supplied keys such as `CUBYCRATE_MASTER_KEY` or `CUBYCRATE_MASTER_KEY_FILE`.
+
+<Aside type="danger" title="A database download is not a full backup">
+  The administrator database backup contains SQLite metadata only. It excludes file blobs and secrets. Do not treat it as a disaster recovery archive.
 </Aside>
 
-## Cold Backup Procedure
+## Create a cold full-volume backup
 
-The safest way to create a consistent, complete snapshot is a cold backup while the container is temporarily stopped:
+The application runbook recommends stopping the service before archiving the named volume. Run from the directory containing the same `compose.yaml` and environment used by the instance. The container restarts on exit from the script, including when archive validation fails after the stop succeeds.
 
-<Steps>
-1. **Stop the CubyCrate service**
+```bash
+set -Eeuo pipefail
 
-   ```sh
-   docker compose down
-   ```
+BACKUP_DIR="${HOME}/cubycrate-backups"
+mkdir -p "${BACKUP_DIR}"
+TEMP_DIR="$(mktemp -d "${BACKUP_DIR}/.backup-XXXXXX")"
+BACKUP_FILE="${BACKUP_DIR}/cubycrate-backup-$(date +%Y%m%d-%H%M%S)-$(basename "${TEMP_DIR}").tar.gz"
+CONTENTS_FILE="${TEMP_DIR}/contents.txt"
 
-2. **Archive the data volume**
+docker compose stop cubycrate
+trap 'docker compose start cubycrate; rm -f "${CONTENTS_FILE}"; rmdir "${TEMP_DIR}"' EXIT
 
-   Create a compressed archive of the entire data volume directory:
+docker run --rm \
+  -v "${CUBYCRATE_VOLUME_NAME:-cubycrate_data}:/data:ro" \
+  -v "${BACKUP_DIR}:/backup" \
+  alpine tar -czf "/backup/$(basename "${BACKUP_FILE}")" -C /data .
 
-   ```sh
-   tar -czvf cubycloud-backup-$(date +%Y%m%d).tar.gz /var/lib/docker/volumes/cubycloud_data/_data
-   ```
+tar -tzf "${BACKUP_FILE}" > "${CONTENTS_FILE}"
+grep -Eq '^(.*/)?db/cubycrate\.db$' "${CONTENTS_FILE}"
+grep -Eq '^(.*/)?storage/' "${CONTENTS_FILE}"
+echo "Cold full-volume backup created and verified: ${BACKUP_FILE}"
+```
 
-3. **Restart the service**
+Keep the archive encrypted and off the host. Inspect the archive listing carefully because it can contain authentication keys. Separately back up host-mounted storage, S3 buckets, and keys supplied outside the volume.
 
-   ```sh
-   docker compose up -d
-   ```
+## Restore safely
 
-4. **Transfer offsite**
+Test restores only in a newly created isolated volume. Do not overwrite, reuse, or delete an existing production volume. Do not connect an isolated test container to production buckets, external storage mounts, or production credentials.
 
-   Copy the generated archive to secure external storage or an isolated offsite backup server.
-</Steps>
+The application runbook supplies an isolated-volume restore procedure. Follow that procedure against the exact archive and release you intend to restore. Do not extract an archive over a mounted production data directory. Verify the database, secrets, and local storage before starting an isolated container, and keep the restored volume until an operator confirms it is disposable.
 
-## Hot Online Backup (Zero Downtime)
+For production recovery, use a new target volume and restore only after isolated validation. Reconnect required external storage and the matching externally supplied keys before routing users to the instance.
 
-If your instance requires 24/7 uptime, you can back up the SQLite database online using SQLite's native `VACUUM INTO` command, which guarantees ACID consistency without stopping the server.
+## Updates and rollback
 
-<Steps>
-1. **Create an online database snapshot**
+Before an update, take and verify a full backup. Use a published exact image tag, keep the existing data volume, and review that release's compatibility notes. Do not use `docker compose down -v` for routine updates or backups.
 
-   Execute the vacuum snapshot inside the running container:
+Direct in-place upgrade or rollback between historical CubyCloud `v0.0.1-alpha.1` data and CubyCrate `v0.0.1-alpha.2` is unsupported. Preserve historical volumes and backups separately. A future rollback requires a compatible CubyCrate image and a matching consistent backup of database, storage, and secrets.
 
-   ```sh
-   docker compose exec cubycloud sqlite3 /app/data/db/cubycloud.db \
-     "VACUUM INTO '/app/data/db/backup-snapshot.db'"
-   ```
+## External storage coverage
 
-2. **Copy the database and secret keys**
+- A volume archive includes local files inside the volume only.
+- Back up secondary host-mounted paths separately.
+- Back up S3-compatible objects using the provider's own backup or versioning facilities.
+- Keep the master key needed to decrypt configured storage credentials. Losing it can make those credentials unusable.
 
-   Extract the snapshot along with the critical keys:
-
-   ```sh
-   docker compose cp cubycloud:/app/data/db/backup-snapshot.db ./cubycloud-$(date +%Y%m%d).db
-   docker compose cp cubycloud:/app/data/secrets/master.key ./master.key
-   docker compose cp cubycloud:/app/data/secrets/jwt.key ./jwt.key
-   ```
-
-3. **Clean up the temporary container snapshot**
-
-   ```sh
-   docker compose exec cubycloud rm -f /app/data/db/backup-snapshot.db
-   ```
-
-4. **Back up storage files**
-
-   Synchronize physical files from your local storage directory or rely on native bucket versioning/snapshots if using cloud S3 storage.
-</Steps>
-
-## Restoring from Backup
-
-<Steps>
-1. **Prepare a fresh environment**
-
-   Deploy a new CubyCrate container with Docker Compose, ensuring the container is stopped before copying files:
-
-   ```sh
-   docker compose down
-   ```
-
-2. **Restore data and keys**
-
-   Copy your backed-up database and secret files into the data volume:
-
-   ```sh
-   # Copy database
-   cp cubycloud-backup.db /var/lib/docker/volumes/cubycloud_data/_data/db/cubycloud.db
-
-   # Restore master and JWT keys
-   mkdir -p /var/lib/docker/volumes/cubycloud_data/_data/secrets
-   cp master.key /var/lib/docker/volumes/cubycloud_data/_data/secrets/master.key
-   cp jwt.key /var/lib/docker/volumes/cubycloud_data/_data/secrets/jwt.key
-   ```
-
-3. **Verify file permissions**
-
-   Ensure the restored files are accessible to the container user:
-
-   ```sh
-   chmod 600 /var/lib/docker/volumes/cubycloud_data/_data/secrets/*.key
-   ```
-
-4. **Start the instance**
-
-   ```sh
-   docker compose up -d
-   docker compose logs -f cubycloud
-   ```
-
-5. **Verify health**
-
-   Test the readiness endpoint to verify that the database is loaded and storage nodes are detected:
-
-   ```sh
-   curl http://127.0.0.1:8383/api/health
-   ```
-</Steps>
-
-## Next Steps
-
-- [Configuration Guide](/docs/getting-started/configuration/): Learn environment options and reverse proxy parameters.
-- [Troubleshooting](/docs/troubleshooting/): Diagnose database locking or storage probe failures.
+See [Installation](/docs/getting-started/installation/) and [Configuration & Reverse Proxy](/docs/getting-started/configuration/) before planning maintenance.

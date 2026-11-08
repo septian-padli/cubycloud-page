@@ -18,7 +18,7 @@ curl -i http://127.0.0.1:8383/api/health
 
 ## Container does not become healthy
 
-Check `docker compose ps` and inspect the service logs. Confirm the published port is available and the image reference resolves. The official Compose file defaults to the local image `cubycrate:local`; set `CUBYCRATE_IMAGE` and `CUBYCRATE_VERSION` for the published image as shown in [Installation](/docs/getting-started/installation/).
+Check `docker compose ps` and inspect the service logs. Confirm the published port is available and the image reference resolves. The official Compose file defaults to the official multi-architecture image `ghcr.io/septian-padli/cubycrate:v0.0.1-alpha.2`. Verify network access to GHCR or check if custom `CUBYCRATE_IMAGE` / `CUBYCRATE_VERSION` overrides are correctly specified as shown in [Installation](/docs/getting-started/installation/).
 
 ## Setup keeps appearing
 

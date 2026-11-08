@@ -22,8 +22,9 @@ The official Compose file sets `ENV=production` and `PORT=8383`. It persists app
 | `CUBYCRATE_MASTER_KEY_FILE` | Unset | Path to externally supplied master key. Back up the referenced file separately. |
 | `CUBYCRATE_STORAGE_CLEANUP_DRY_RUN` | `true` | Keeps orphan cleanup in audit-only mode unless explicitly changed. Review application guidance before enabling deletion. |
 | `CUBYCRATE_PORT` | `8383` in Compose | Host port mapped to container port `8383`. |
-| `CUBYCRATE_VERSION` | `local` in Compose | Image tag. Set it to a published exact release such as `v0.0.1-alpha.2`. |
-| `CUBYCRATE_IMAGE` | `cubycrate` in Compose | Image name. Set it to `ghcr.io/septian-padli/cubycrate` for published images. |
+| `CUBYCRATE_CONTAINER_NAME` | `cubycrate` in Compose | Container name. Set to run multiple instances on the same host. |
+| `CUBYCRATE_VERSION` | `v0.0.1-alpha.2` in Compose | Image tag. Set it to pin another published release or `local` for dev builds. |
+| `CUBYCRATE_IMAGE` | `ghcr.io/septian-padli/cubycrate` in Compose | Image repository. Override with `cubycrate` for local source builds. |
 | `CUBYCRATE_VOLUME_NAME` | `cubycrate_data` | Named volume used for `/app/data`. Changing it selects a separate data state. |
 
 The image also accepts `TEMP_TUS_PATH` or `TUS_TEMP_PATH` to override temporary TUS upload storage. Keep temporary uploads on persistent storage if they must survive container replacement.

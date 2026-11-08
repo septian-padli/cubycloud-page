@@ -20,40 +20,22 @@ CubyCrate runs as one container with a Go backend and embedded web interface. Th
 
 ## Install the published image
 
-The application repository's Compose file defaults to `cubycrate:local`. Set both image variables before running Compose so it pulls the official published image instead.
+The official `compose.yaml` defaults to the published multi-architecture image `ghcr.io/septian-padli/cubycrate:v0.0.1-alpha.2`. You do not need to clone the repository, compile Go or Bun code, or export environment variables for standard installation.
 
 <Steps>
-1. **Create an installation directory**
+1. **Download and start CubyCrate**
 
-   ```sh
+   Create an installation directory, download the official Compose file, and start the service:
+
+   ```bash
    mkdir -p cubycrate && cd cubycrate
-   ```
-
-2. **Download the official Compose file**
-
-   ```sh
    curl -fsSLO https://raw.githubusercontent.com/septian-padli/cubycrate/main/compose.yaml
-   ```
-
-3. **Select the published release**
-
-   ```sh
-   export CUBYCRATE_IMAGE=ghcr.io/septian-padli/cubycrate
-   export CUBYCRATE_VERSION=v0.0.1-alpha.2
-   ```
-
-   These variables apply to the current shell. Keep them set for later Compose commands, or place them in a local `.env` file in this directory. Do not commit `.env` files.
-
-4. **Pull and start CubyCrate**
-
-   ```sh
-   docker compose pull
    docker compose up -d
    ```
 
-   The service publishes host port `8383` to container port `8383`. The named volume `cubycrate_data` persists `/app/data` across container replacements. Do not run `docker compose down -v` during normal updates.
+   Docker automatically downloads the official multi-architecture image and starts the container in the background. The service publishes host port `8383` to container port `8383`. The named volume `cubycrate_data` persists `/app/data` across container replacements. Do not run `docker compose down -v` during normal updates or shutdowns.
 
-5. **Check startup and open setup**
+2. **Check startup and open setup**
 
    ```sh
    docker compose ps
@@ -63,6 +45,16 @@ The application repository's Compose file defaults to `cubycrate:local`. Set bot
 
    The Compose healthcheck probes `/health`. When the server is reachable, open `http://localhost:8383/setup` on the host or `http://<server-ip>:8383/setup` from a trusted network. Create the first administrator and configure a local or S3-compatible storage node.
 </Steps>
+
+## Configuration overrides
+
+Advanced deployments can override defaults by setting environment variables in the shell or a local `.env` file:
+
+- `CUBYCRATE_PORT`: Host port mapped to container port `8383` (default: `8383`).
+- `CUBYCRATE_VOLUME_NAME`: Named volume for `/app/data` (default: `cubycrate_data`).
+- `CUBYCRATE_CONTAINER_NAME`: Container name (default: `cubycrate`).
+- `CUBYCRATE_VERSION`: Image tag override (default: `v0.0.1-alpha.2`).
+- `CUBYCRATE_IMAGE`: Image repository override (default: `ghcr.io/septian-padli/cubycrate`).
 
 For remote access, restrict direct HTTP access with a firewall. Configure HTTPS termination before exposing the service publicly. See [Configuration & Reverse Proxy](/docs/getting-started/configuration/).
 
@@ -84,8 +76,12 @@ Keep the same named volume. A Compose file with a different volume name starts w
 
 ## Development versus self-hosting
 
-The instructions above use the published GHCR image. Building `cubycrate:local` requires cloning the application source and is a development workflow, not a prerequisite for self-hosting.
+The instructions above use the published GHCR image. Building `cubycrate:local` requires cloning the application source and is a development workflow, not a prerequisite for self-hosting. To test local container builds, override the image variables:
 
+```bash
+docker build -t cubycrate:local .
+CUBYCRATE_IMAGE=cubycrate CUBYCRATE_VERSION=local docker compose up -d
+```
 ## Clean break from historical CubyCloud
 
 Direct in-place upgrade from historical CubyCloud `v0.0.1-alpha.1` data is unsupported. A fresh CubyCrate installation uses a separate `cubycrate_data` volume and data layout. Keep historical CubyCloud volumes and backups intact if their data may be needed. Do not point a CubyCrate installation at an old volume.

@@ -66,6 +66,7 @@
 </script>
 
 <script>
+	import { trackEvent } from '../analytics/dataLayer';
 	type Theme = 'auto' | 'dark' | 'light';
 	type ResolvedTheme = 'dark' | 'light';
 
@@ -112,6 +113,12 @@
 		if (typeof (window as any).StarlightThemeProvider !== 'undefined') {
 			(window as any).StarlightThemeProvider.updatePickers(theme);
 		}
+		trackEvent({
+			name: 'docs_theme_change',
+			payload: {
+				selection: resolvedTheme,
+			},
+		});
 	}
 
 	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {

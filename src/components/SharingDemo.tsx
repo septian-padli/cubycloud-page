@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowUpRight, Check, FileText, KeyRound, Link2, RotateCcw, ShieldCheck, Users, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
+import { trackEvent } from '../analytics/dataLayer';
 type Mode = 'internal' | 'public' | null;
 
 export default function SharingDemo() {
@@ -29,11 +29,35 @@ export default function SharingDemo() {
     return () => window.removeEventListener('keydown', key);
   }, [mode]);
 
-  const reset = () => { setMode(null); setPermission('Viewer'); setProtectedLink(false); setPassword(''); setConfirmed(false); setError(false); };
+  const reset = () => {
+    setMode(null);
+    setPermission('Viewer');
+    setProtectedLink(false);
+    setPassword('');
+    setConfirmed(false);
+    setError(false);
+    trackEvent({ name: 'demo_reset', payload: { demo_name: 'sharing' } });
+  };
   const confirm = () => {
-    if (mode === 'public' && protectedLink && !password.trim()) { setError(true); return; }
+    if (mode === 'public' && protectedLink && !password.trim()) {
+      setError(true);
+      trackEvent({
+        name: 'demo_interaction',
+        payload: { demo_name: 'sharing', action: 'validation_failure', result: 'missing_password' },
+      });
+      return;
+    }
     setError(false);
     setConfirmed(true);
+    trackEvent({
+      name: 'demo_complete',
+      payload: {
+        demo_name: 'sharing',
+        action: 'simulation_confirmed',
+        selection: mode ?? 'internal',
+        result: 'success',
+      },
+    });
   };
 
   return <div className={`share-demo mode-${mode ?? 'idle'}`}>
@@ -46,18 +70,18 @@ export default function SharingDemo() {
       <div className="route-result public-result" aria-hidden="true"><Link2 size={22} /><span>DEMO LINK<br /><b>{protectedLink ? 'PASSWORD SETTING ON' : 'OPEN SETTING'}</b></span><span className="route-status">{confirmed ? '✓' : '○'}</span></div>
     </div>
     <div className="share-options">
-      <button className={mode === 'internal' ? 'active' : ''} aria-pressed={mode === 'internal'} onClick={e => { previous.current = e.currentTarget; setMode('internal'); setConfirmed(false); setError(false); }}><Users size={22} /><span><b>Internal sharing</b><small>Registered users · Viewer / Editor</small></span><ArrowUpRight size={18} /></button>
-      <button className={mode === 'public' ? 'active' : ''} aria-pressed={mode === 'public'} onClick={e => { previous.current = e.currentTarget; setMode('public'); setConfirmed(false); setError(false); }}><Link2 size={22} /><span><b>Public link</b><small>Optional password protection</small></span><ArrowUpRight size={18} /></button>
+      <button className={mode === 'internal' ? 'active' : ''} aria-pressed={mode === 'internal'} onClick={e => { previous.current = e.currentTarget; setMode('internal'); setConfirmed(false); setError(false); trackEvent({ name: 'demo_interaction', payload: { demo_name: 'sharing', action: 'mode_select', selection: 'internal' } }); }}><Users size={22} /><span><b>Internal sharing</b><small>Registered users · Viewer / Editor</small></span><ArrowUpRight size={18} /></button>
+      <button className={mode === 'public' ? 'active' : ''} aria-pressed={mode === 'public'} onClick={e => { previous.current = e.currentTarget; setMode('public'); setConfirmed(false); setError(false); trackEvent({ name: 'demo_interaction', payload: { demo_name: 'sharing', action: 'mode_select', selection: 'public' } }); }}><Link2 size={22} /><span><b>Public link</b><small>Optional password protection</small></span><ArrowUpRight size={18} /></button>
     </div>
     {mode && <div className="share-panel" role="region" aria-label={`${mode} sharing settings`}>
       <div className="share-panel-top"><button ref={first} onClick={() => { setMode(null); setConfirmed(false); }}><ArrowLeft size={15} /> BACK</button><button onClick={() => setMode(null)} aria-label="Close sharing settings"><X size={18} /></button></div>
       <h3>{mode === 'internal' ? 'Choose access.' : 'Create a public link.'}</h3>
       {mode === 'internal' ? <>
         <p>Illustrate access for a registered user. Nothing is actually shared.</p>
-        <div className="permission-picks" role="group" aria-label="Permission">{(['Viewer', 'Editor'] as const).map(p => <button key={p} className={permission === p ? 'active' : ''} aria-pressed={permission === p} onClick={() => { setPermission(p); setConfirmed(false); }}>{p}<small>{p === 'Viewer' ? 'Can view files' : 'Can edit files'}</small></button>)}</div>
+        <div className="permission-picks" role="group" aria-label="Permission">{(['Viewer', 'Editor'] as const).map(p => <button key={p} className={permission === p ? 'active' : ''} aria-pressed={permission === p} onClick={() => { setPermission(p); setConfirmed(false); trackEvent({ name: 'demo_interaction', payload: { demo_name: 'sharing', action: 'permission_change', selection: p.toLowerCase() } }); }}>{p}<small>{p === 'Viewer' ? 'Can view files' : 'Can edit files'}</small></button>)}</div>
       </> : <>
         <p>This demonstration does not create a working URL.</p>
-        <label className="toggle-line"><span><KeyRound size={18} /> Password protection</span><input type="checkbox" checked={protectedLink} onChange={e => { setProtectedLink(e.target.checked); setError(false); setConfirmed(false); }} /></label>
+        <label className="toggle-line"><span><KeyRound size={18} /> Password protection</span><input type="checkbox" checked={protectedLink} onChange={e => { setProtectedLink(e.target.checked); setError(false); setConfirmed(false); trackEvent({ name: 'demo_interaction', payload: { demo_name: 'sharing', action: 'password_toggle', selection: e.target.checked ? 'enabled' : 'disabled' } }); }} /></label>
         {protectedLink && <label className="password-field">EXAMPLE PASSWORD<input type="text" value={password} autoComplete="off" onChange={e => { setPassword(e.target.value); setError(false); setConfirmed(false); }} placeholder="Enter a demo-only value" />{error && <span role="alert">Enter a demo value before continuing.</span>}</label>}
       </>}
       {confirmed ? <div className="share-success" role="status"><ShieldCheck size={20} /><span>{mode === 'internal' ? `${permission} access selected. No real invitation was sent.` : 'Public-link settings illustrated. No link was created.'}</span></div> : <button className="share-confirm" onClick={confirm}>SHOW SIMULATED RESULT <Check size={17} /></button>}

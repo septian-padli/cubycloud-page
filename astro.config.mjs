@@ -61,7 +61,7 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/septian-padli/cubycloud',
+          href: 'https://github.com/septian-padli/cubycrate',
         },
       ],
       sidebar: [

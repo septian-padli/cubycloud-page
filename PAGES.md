@@ -15,7 +15,7 @@ This document owns homepage anchors, public routes, documentation information ar
 - The four numbered chapters are Files, Sharing, Storage, and Self-Hosting. Hero, Highlights, Open Source, FAQ, Get Started, and Footer remain supporting sections.
 - Keep current chapter wayfinding, active chapter state, scroll progress, native anchor behavior, mobile navigation, wordmark, and GitHub destination.
 - Do not replace the checked navbar as a side effect of framework migration. A separately approved Hybrid Editorial Navbar applies only if it is already in the agreed baseline or separately authorized.
-- Preserve the current Get Started destination to the product GitHub README. Point GitHub to `https://github.com/septian-padli/cubycloud`. Change the primary CTA to Installation only after instructions are verified, route works, and destination change is authorized.
+- Point GitHub to `https://github.com/septian-padli/cubycrate`. With verified installation instructions published at `/docs/getting-started/installation/`, the primary CTA routes to the installation guide.
 
 ## Documentation target routes
 

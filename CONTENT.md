@@ -22,7 +22,7 @@ Text below matches inspected React source, not a proposed replacement or indepen
 - H1: `YOUR FILES. YOUR SPACE.`
 - Overline: `FILES BELONG WITH YOU.`
 - Copy: `Your files don’t need another bloated platform.`
-- Supporting copy: `Meet CubyCloud, a focused, self-hosted file drive for organizing, accessing, and sharing files on infrastructure you control.`
+- Supporting copy: `Meet CubyCrate, a focused, self-hosted file drive for organizing, accessing, and sharing files on infrastructure you control.`
 - Actions: `GET STARTED`; `VIEW ON GITHUB`
 - Footer line: `YOUR FILES. YOUR SERVER. YOUR RULES.`
 
@@ -39,7 +39,7 @@ Text below matches inspected React source, not a proposed replacement or indepen
 ### Storage
 
 - H2: `LOCAL DISKS. S3 STORAGE. YOUR CALL.`
-- Copy: `Choose local filesystem storage or connect S3-compatible object storage. Manage files through the same CubyCloud drive experience.`
+- Copy: `Choose local filesystem storage or connect S3-compatible object storage. Manage files through the same CubyCrate drive experience.`
 
 ### Supporting highlights
 
@@ -51,26 +51,26 @@ Text below matches inspected React source, not a proposed replacement or indepen
 ### Self-hosting and source
 
 - H2: `RUN YOUR DRIVE. NOT ANOTHER STACK.`
-- Copy: `CubyCloud packages its Go backend and embedded web interface in a single container. SQLite stores application data without a separate database server.`
+- Copy: `CubyCrate packages its Go backend and embedded web interface in a single container. SQLite stores application data without a separate database server.`
 - Open Source H2: `NO BLACK BOX. READ THE CODE.`
-- Copy: `CubyCloud's source is available on GitHub. Inspect how it works, review its license, and make it yours.`
+- Copy: `CubyCrate's source is available on GitHub. Inspect how it works, review its license, and make it yours.`
 
 ### FAQ and Get Started
 
 The FAQ copy is implemented as follows:
 
-- `What do I need to run CubyCloud?` A host that can run the published container, persistent storage, and the ability to configure network access. Check the product repository for current installation requirements.
-- `Can I use local disks and S3-compatible storage?` Yes. CubyCloud supports local filesystem storage and optional S3-compatible storage configured by an administrator. These are storage options, not automatic replication.
-- `How can I share files?` Share with registered users using Viewer or Editor access, or create public links with optional passwords.
-- `Does the Organization drive support separate team permissions?` No. The current Organization drive is one shared tree accessible to authenticated users, not separate group-based workspaces or granular team permissions.
-- `Is CubyCloud open source?` Yes. The source is available on GitHub. Review the repository license for the current AGPL-3.0-or-later terms.
+- `What do I need to run CubyCrate?` Docker, a supported host architecture, persistent storage, and a way to configure network access. Follow the installation guide for the published image and current Compose settings.
+- `Can I use local disks and S3-compatible storage?` Yes. Administrators can configure local filesystem or S3-compatible storage. These are storage choices, not automatic replication.
+- `How can I share files?` Share My Storage items with registered users as Viewer or Editor, or create public links with optional password protection.
+- `Does Organization have separate team permissions?` No. Organization is one shared tree for authenticated users, without separate team spaces or granular group permissions.
+- `What license does CubyCrate use?` CubyCrate is distributed under GNU AGPL version 3. Review the product repository license for its terms.
 
 - FAQ H2: `BEFORE YOU MAKE IT YOURS.`
 - Get Started H2: `YOUR FILES. YOUR RULES. START HERE.`
-- Get Started copy: `Ready for a simpler place to manage files? Find the installation instructions in the CubyCloud product repository to set up your drive on your own infrastructure.`
-- CTA: `GET STARTED ON GITHUB`
+- Get Started copy: `Install the published CubyCrate image with Docker Compose and create your first administrator.`
+- CTA: `INSTALL CUBYCRATE`
 
-`src/config.ts` directs installation traffic to the product GitHub README. Keep that destination until verified installation instructions are available at a published guide; do not imply the Starlight target is live.
+`src/config.ts` directs installation traffic to `/docs/getting-started/installation/`.
 
 ## Product vocabulary
 
@@ -96,9 +96,9 @@ The approved documentation direction is English, task-oriented content for insta
 
 ## SEO and metadata
 
-Current homepage title: `CubyCloud | Simple Self-Hosted File Drive`.
+Current homepage title: `CubyCrate | Simple Self-Hosted File Drive`.
 
-Current description: `CubyCloud is an open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server.`
+Current description: `CubyCrate is an open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server.`
 
 Current HTML also uses this title and description for Open Graph metadata, plus `og:type=website`. Preserve existing metadata unless an approved replacement is implemented.
 

@@ -1,7 +1,7 @@
 import { ArrowLeft, ChevronRight, FileImage, FileText, Folder, HardDrive, MoreHorizontal, RotateCcw, Search, Star, Trash2, Users, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
+import { trackEvent } from '../analytics/dataLayer';
 type Item = { name: string; type: 'folder' | 'text' | 'image' | 'unsupported'; detail: string; content?: string };
 const data: Record<string, Item[]> = {
   root: [
@@ -46,17 +46,53 @@ export default function FileExplorerDemo() {
     return () => cancelAnimationFrame(frame);
   }, [path, selected, error]);
   const current = path.at(-1) ?? 'root';
-  const reset = () => { setPath([]); setSelected(null); setPreview(null); setError(false); };
-  const openPreview = (item: Item) => { if (item.type === 'unsupported') { setError(true); return; } setPreview(item); setError(false); };
+  const reset = () => {
+    setPath([]);
+    setSelected(null);
+    setPreview(null);
+    setError(false);
+    trackEvent({ name: 'demo_reset', payload: { demo_name: 'file_explorer' } });
+  };
+  const openPreview = (item: Item) => {
+    if (item.type === 'unsupported') {
+      setError(true);
+      trackEvent({
+        name: 'demo_interaction',
+        payload: { demo_name: 'file_explorer', action: 'preview_unsupported', file_type: 'unsupported', result: 'error' },
+      });
+      return;
+    }
+    setPreview(item);
+    setError(false);
+    trackEvent({
+      name: 'demo_interaction',
+      payload: { demo_name: 'file_explorer', action: 'preview_opened', file_type: item.type },
+    });
+  };
   const enter = (item: Item, button: HTMLButtonElement) => {
-    if (item.type === 'folder') { setPath([...path, item.name]); setSelected(null); setError(false); }
-    else { opener.current = button; setSelected(item); setError(false); }
+    if (item.type === 'folder') {
+      setPath([...path, item.name]);
+      setSelected(null);
+      setError(false);
+      trackEvent({
+        name: 'demo_interaction',
+        payload: { demo_name: 'file_explorer', action: 'folder_opened', selection: 'folder' },
+      });
+    } else {
+      opener.current = button;
+      setSelected(item);
+      setError(false);
+      trackEvent({
+        name: 'demo_interaction',
+        payload: { demo_name: 'file_explorer', action: 'file_selected', file_type: item.type },
+      });
+    }
   };
   return <div className="explorer" aria-label="Interactive file explorer illustration">
     <div className="explorer-toolbar"><div className="explorer-logo"><img src="/logos/icon/cubycrate-icon-color.webp" alt="" width="16" height="20" style={{ height: '16px', width: 'auto', display: 'inline-block' }} />CubyCrate</div><span className="explorer-toolbar-right"><Search size={15} /><span className="explorer-avatar">CC</span></span></div>
     <div className="explorer-layout"><aside className="explorer-sidebar"><small>WORKSPACE</small><div className="sidebar-item active"><HardDrive size={16} />My Storage</div><div className="sidebar-item"><Users size={16} />Organization</div><small>LIBRARY</small><div className="sidebar-item"><Star size={16} />Starred</div><div className="sidebar-item"><Trash2 size={16} />Trash</div><div className="sidebar-foot">DEMO WORKSPACE<br />NO LIVE FILES</div></aside>
       <div className="explorer-main">
-        <div className="explorer-breadcrumb"><button onClick={() => { setPath([]); setSelected(null); setError(false); }} aria-label="Go to My Storage">My Storage</button>{path.map((segment, index) => <span key={segment} className="crumb"><ChevronRight size={13} /><button onClick={() => { setPath(path.slice(0, index + 1)); setSelected(null); setError(false); }}>{segment}</button></span>)}</div>
+        <div className="explorer-breadcrumb"><button onClick={() => { setPath([]); setSelected(null); setError(false); trackEvent({ name: 'demo_interaction', payload: { demo_name: 'file_explorer', action: 'navigation', selection: 'root' } }); }} aria-label="Go to My Storage">My Storage</button>{path.map((segment, index) => <span key={segment} className="crumb"><ChevronRight size={13} /><button onClick={() => { setPath(path.slice(0, index + 1)); setSelected(null); setError(false); trackEvent({ name: 'demo_interaction', payload: { demo_name: 'file_explorer', action: 'navigation', selection: 'breadcrumb' } }); }}>{segment}</button></span>)}</div>
         <div className="explorer-title"><div><small>YOUR FILES / ORGANIZED</small><h3>{current === 'root' ? 'My Storage' : current}</h3></div><MoreHorizontal size={22} /></div>
         <div className="explorer-list-head"><span>NAME</span><span>DETAILS</span></div>
         <span className="explorer-token-anchor" aria-hidden="true" />

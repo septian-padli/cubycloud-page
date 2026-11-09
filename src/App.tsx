@@ -5,6 +5,7 @@ import HeroExperience from './components/HeroExperience';
 import NarrativeThread from './components/NarrativeThread';
 import { ChapterNavigation, SiteHeader } from './components/SiteNavigation';
 import { FilesSection, GetStartedSection, OpenSourceSection, PracticalFAQ, SelfHostingSection, SharingSection, SiteFooter, StorageSection, SupportingHighlights } from './components/Sections';
+import { trackEvent, getStoredConsent } from './analytics/dataLayer';
 import { useMotionTier } from './hooks/useMotion';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -28,5 +29,80 @@ export default function App() {
     });
     return () => ctx.revert();
   }, [tier]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+
+    const viewed = new Set<string>();
+    const sections: Array<{ selector: string; name: string }> = [
+      { selector: '#top', name: 'hero' },
+      { selector: '#files', name: 'files' },
+      { selector: '#sharing', name: 'sharing' },
+      { selector: '#storage', name: 'storage' },
+      { selector: '.highlights', name: 'highlights' },
+      { selector: '#self-hosting', name: 'self_hosting' },
+      { selector: '.open-source', name: 'open_source' },
+      { selector: '#faq', name: 'faq' },
+      { selector: '#get-started', name: 'get_started' },
+    ];
+
+    const checkVisible = () => {
+      if (getStoredConsent() !== 'granted') return;
+      sections.forEach(({ selector, name }) => {
+        if (viewed.has(name)) return;
+        const el = document.querySelector(selector) as HTMLElement | null;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        if (rect.top < vh * 0.75 && rect.bottom > vh * 0.25) {
+          viewed.add(name);
+          trackEvent({
+            name: 'section_view',
+            payload: { section_name: name },
+          });
+          observer.unobserve(el);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const sectionName = (entry.target as HTMLElement).dataset.analyticsSection;
+          if (sectionName && !viewed.has(sectionName)) {
+            if (getStoredConsent() === 'granted') {
+              viewed.add(sectionName);
+              trackEvent({
+                name: 'section_view',
+                payload: { section_name: sectionName },
+              });
+              observer.unobserve(entry.target);
+            }
+          }
+        }
+      });
+    }, { threshold: 0.25 });
+
+    sections.forEach(({ selector, name }) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (el) {
+        el.dataset.analyticsSection = name;
+        observer.observe(el);
+      }
+    });
+
+    const handleConsentChange = () => {
+      checkVisible();
+      setTimeout(checkVisible, 150);
+    };
+    window.addEventListener('cubycrate:consent-changed', handleConsentChange);
+    checkVisible();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('cubycrate:consent-changed', handleConsentChange);
+    };
+  }, []);
+
   return <><a className="skip-link" href="#main">Skip to content</a><SiteHeader /><ChapterNavigation /><main id="main" className={`motion-${tier}`}><HeroExperience tier={tier} /><NarrativeThread tier={tier} /><FilesSection /><SharingSection /><StorageSection /><SupportingHighlights /><SelfHostingSection /><OpenSourceSection /><PracticalFAQ /><GetStartedSection /></main><SiteFooter /></>;
 }

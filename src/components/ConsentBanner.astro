@@ -1,0 +1,287 @@
+---
+// ConsentBanner.astro — Privacy-conscious, opt-in analytics consent manager
+---
+
+<aside
+  id="cubycrate-consent-banner"
+  class="consent-banner"
+  aria-label="Privacy and analytics choices"
+  role="region"
+  tabindex="-1"
+  style="display: none;"
+>
+  <div class="consent-shell">
+    <div class="consent-header">
+      <span class="consent-tag">[ PRIVACY / 01 ]</span>
+      <h3 class="consent-title">MEASUREMENT CHOICES</h3>
+    </div>
+    <p class="consent-body">
+      We use Google Tag Manager and Google Analytics 4 to measure site traffic and improve our documentation. No passwords, credentials, file names, or personal data are collected.
+    </p>
+    <div class="consent-actions">
+      <button id="consent-decline-btn" type="button" class="consent-btn btn-decline">
+        DECLINE
+      </button>
+      <button id="consent-accept-btn" type="button" class="consent-btn btn-accept">
+        ACCEPT ANALYTICS
+      </button>
+    </div>
+  </div>
+</aside>
+
+<button
+  id="consent-settings-toggle"
+  type="button"
+  class="consent-settings-toggle"
+  aria-label="Manage cookie and analytics preferences"
+  title="Manage cookie and analytics preferences"
+>
+  <span class="toggle-indicator" aria-hidden="true"></span>
+  <span class="toggle-text">ANALYTICS PREFERENCES</span>
+</button>
+
+<style>
+  .consent-banner {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    width: min(440px, calc(100vw - 32px));
+    background: #0f130e;
+    color: #f0eee3;
+    border: 1px solid #dda15e66;
+    box-shadow: 12px 12px 0 #050805, 0 20px 40px rgba(0, 0, 0, 0.7);
+    font-family: Montserrat, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 22px 24px;
+    box-sizing: border-box;
+    animation: consent-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes consent-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .consent-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .consent-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .consent-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #dda15e;
+    letter-spacing: 0.08em;
+  }
+
+  .consent-title {
+    font-family: 'Barlow Condensed', Impact, sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #f0eee3;
+  }
+
+  .consent-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #b5c2a7;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .consent-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .consent-btn {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-decline {
+    background: transparent;
+    color: #f0eee3;
+    border-color: #f0eee344;
+  }
+
+  .btn-decline:hover {
+    background: #ffffff14;
+    border-color: #f0eee388;
+  }
+
+  .btn-accept {
+    background: #dda15e;
+    color: #0f130e;
+    border-color: #dda15e;
+    font-weight: 700;
+  }
+
+  .btn-accept:hover {
+    background: #e5b377;
+    border-color: #e5b377;
+  }
+
+  .consent-btn:focus-visible {
+    outline: 2px solid #dda15e;
+    outline-offset: 3px;
+  }
+
+  .consent-settings-toggle {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    z-index: 9000;
+    background: #0f130eef;
+    backdrop-filter: blur(8px);
+    color: #a3b194;
+    border: 1px solid #f0eee322;
+    padding: 7px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+  }
+
+  .consent-settings-toggle:hover {
+    color: #f0eee3;
+    border-color: #dda15e88;
+    background: #182017;
+  }
+
+  .consent-settings-toggle:focus-visible {
+    outline: 2px solid #dda15e;
+    outline-offset: 3px;
+  }
+
+  .toggle-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #606c38;
+    transition: background 0.2s ease;
+  }
+
+  .consent-settings-toggle.is-granted .toggle-indicator {
+    background: #7ca954;
+    box-shadow: 0 0 6px #7ca954aa;
+  }
+
+  .consent-settings-toggle.is-denied .toggle-indicator {
+    background: #944b0c;
+  }
+
+  @media (max-width: 640px) {
+    .consent-banner {
+      bottom: 12px;
+      right: 12px;
+      left: 12px;
+      width: auto;
+      padding: 18px 18px;
+    }
+    .consent-settings-toggle {
+      bottom: 10px;
+      left: 10px;
+      padding: 6px 10px;
+      font-size: 9px;
+    }
+  }
+</style>
+
+<script>
+  import { initGTM, setConsent, getStoredConsent } from '../analytics/dataLayer';
+
+  function setupConsentUI() {
+    const banner = document.getElementById('cubycrate-consent-banner');
+    const acceptBtn = document.getElementById('consent-accept-btn');
+    const declineBtn = document.getElementById('consent-decline-btn');
+    const toggleBtn = document.getElementById('consent-settings-toggle');
+
+    const updateToggleState = () => {
+      const current = getStoredConsent();
+      if (!toggleBtn) return;
+      toggleBtn.classList.remove('is-granted', 'is-denied');
+      if (current === 'granted') {
+        toggleBtn.classList.add('is-granted');
+      } else if (current === 'denied') {
+        toggleBtn.classList.add('is-denied');
+      }
+    };
+
+    const currentConsent = getStoredConsent();
+    if (currentConsent === 'granted') {
+      initGTM();
+      if (banner) banner.style.display = 'none';
+    } else if (currentConsent === 'denied') {
+      if (banner) banner.style.display = 'none';
+    } else {
+      if (banner) banner.style.display = 'block';
+    }
+    updateToggleState();
+
+    acceptBtn?.addEventListener('click', () => {
+      setConsent('granted');
+      if (banner) banner.style.display = 'none';
+      updateToggleState();
+    });
+
+    declineBtn?.addEventListener('click', () => {
+      setConsent('denied');
+      if (banner) banner.style.display = 'none';
+      updateToggleState();
+    });
+
+    toggleBtn?.addEventListener('click', () => {
+      if (!banner) return;
+      if (banner.style.display === 'none' || banner.style.display === '') {
+        banner.style.display = 'block';
+        banner.focus();
+      } else {
+        banner.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('cubycrate:consent-changed', () => {
+      updateToggleState();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupConsentUI);
+  } else {
+    setupConsentUI();
+  }
+</script>

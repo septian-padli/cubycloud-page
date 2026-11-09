@@ -18,6 +18,8 @@ export default defineConfig({
       favicon: '/favicon.svg',
       customCss: ['./src/docs/starlight.css'],
       components: {
+        Head: './src/docs/Head.astro',
+        Footer: './src/docs/Footer.astro',
         ThemeSelect: './src/docs/ThemeSelect.astro',
       },
       head: [

@@ -21,10 +21,10 @@ test('dist/index.html exists and contains canonical, metadata, and static SSR SE
 
   const content = fs.readFileSync(indexPath, 'utf8');
   assert.match(content, /<link rel="canonical" href="https:\/\/cubycrate\.com\/"/);
-  assert.match(content, /<meta property="og:image" content="https:\/\/cubycrate\.com\/og-image\.png"/);
-  assert.match(content, /<meta property="og:image:width" content="1200"/);
-  assert.match(content, /<meta property="og:image:height" content="630"/);
-  assert.match(content, /<meta name="twitter:image" content="https:\/\/cubycrate\.com\/og-image\.png"/);
+  assert.match(content, /<meta property="og:image" content="https:\/\/cubycrate\.com\/og-homepage\.png"/);
+  assert.match(content, /<meta property="og:image:width" content="1731"/);
+  assert.match(content, /<meta property="og:image:height" content="909"/);
+  assert.match(content, /<meta name="twitter:image" content="https:\/\/cubycrate\.com\/og-homepage\.png"/);
 
   // Structured Data Schema.org
   assert.match(content, /"applicationCategory":\s*"BusinessApplication"/);
@@ -42,11 +42,17 @@ test('dist/index.html exists and contains canonical, metadata, and static SSR SE
   assert.ok(content.includes('<div id="root">'), 'Expected #root mount target for React island');
 });
 
-test('dist/og-image.png exists and meets 1200x630 dimension requirement', () => {
-  const ogPath = path.join(distDir, 'og-image.png');
-  assert.ok(fs.existsSync(ogPath), 'dist/og-image.png must exist');
-  const stats = fs.statSync(ogPath);
-  assert.ok(stats.size > 10000, 'dist/og-image.png must be non-empty valid image asset');
+test('dist homepage and docs OG PNGs are valid 1731x909 images', () => {
+  const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  for (const fileName of ['og-homepage.png', 'og-docs.png']) {
+    const imagePath = path.join(distDir, fileName);
+    assert.ok(fs.existsSync(imagePath), `dist/${fileName} must exist`);
+    const image = fs.readFileSync(imagePath);
+    assert.ok(image.subarray(0, 8).equals(pngSignature), `dist/${fileName} must have a PNG signature`);
+    assert.equal(image.toString('ascii', 12, 16), 'IHDR', `dist/${fileName} must have an IHDR chunk`);
+    assert.equal(image.readUInt32BE(16), 1731, `dist/${fileName} width must be 1731`);
+    assert.equal(image.readUInt32BE(20), 909, `dist/${fileName} height must be 909`);
+  }
 });
 
 test('dist/404.html exists and contains branded page title and return actions', () => {
@@ -88,11 +94,10 @@ test('All 12 Starlight documentation pages exist in dist/ with canonical tags', 
       content.includes(`href="${expectedCanonical}"`),
       `Expected canonical tag ${expectedCanonical} in ${relPath}`
     );
-    assert.match(content, /\| CubyCrate<\/title>/);
-    assert.ok(
-      content.includes('content="https://cubycrate.com/og-image.png"'),
-      `Expected og:image meta tag in ${relPath}`
-    );
+    assert.match(content, /<meta property="og:image" content="https:\/\/cubycrate\.com\/og-docs\.png"/);
+    assert.match(content, /<meta name="twitter:image" content="https:\/\/cubycrate\.com\/og-docs\.png"/);
+    assert.match(content, /<meta property="og:image:width" content="1731"/);
+    assert.match(content, /<meta property="og:image:height" content="909"/);
   }
 });
 

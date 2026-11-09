@@ -1,0 +1,7 @@
+---
+import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
+---
+
+<DefaultFooter {...Astro.props}><slot /></DefaultFooter>
+<ConsentBanner />

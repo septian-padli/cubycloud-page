@@ -88,8 +88,9 @@ The example body limits are proxy settings, not application upload guarantees. A
 
 ## Health checks
 
-- `GET /health` is used by the Docker healthcheck and checks whether the HTTP listener responds.
-- `GET /api/health` checks SQLite connectivity and configured storage-node availability. It can return unavailable when a configured node is offline.
+- `GET /health` and `GET /api/health` execute identical health checks: they ping the SQLite database and verify the availability of all configured storage nodes.
+- Both endpoints return `200 OK` (`{"status":"ok"}`) when all systems are operational. If the database connection fails or any configured storage node is unreachable or offline, the server returns `503 Service Unavailable`.
+- Because Docker's built-in container health check probes `/health`, an offline storage node will cause Docker to report the entire container as unhealthy.
 
 ```sh
 curl -i http://127.0.0.1:8383/health

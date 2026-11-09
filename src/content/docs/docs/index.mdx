@@ -27,8 +27,7 @@ My Storage uses personal quota limits. Organization is one shared tree available
 <Aside type="caution" title="Organization permissions">
   Organization is a shared tree for authenticated users. It does not provide separate team spaces or granular group permissions.
 </Aside>
-
-Local and S3 storage are choices, not automatic replication, synchronization, or high availability. Operators manage backups for application data, external mounts, and object storage.
+Local and S3 storage are choices, not automatic replication, synchronization, or high availability. Operators manage backups for application data, external mounts, and object storage. See the [Local vs. S3 Storage Guide](/docs/guides/local-vs-s3-storage/) for architecture details.
 
 ## Getting started
 
@@ -38,3 +37,14 @@ Local and S3 storage are choices, not automatic replication, synchronization, or
 - [Sharing](/docs/user-guide/sharing/): Manage user shares and public links.
 - [Backup & Disaster Recovery](/docs/administrator-guide/backup-restore/): Protect application and external storage data.
 - [Troubleshooting](/docs/troubleshooting/): Diagnose startup and storage issues.
+
+## In-depth guides
+
+- [Self-Hosted File Storage Architecture](/docs/guides/self-hosted-file-storage/): Why CubyCrate runs Go, Svelte 5, and SQLite WAL in a single lightweight container instead of multi-container stacks.
+- [Local vs. S3 Storage](/docs/guides/local-vs-s3-storage/): POSIX filesystem I/O, direct presigned S3 uploads, AES-256-GCM credentials encryption, and asynchronous node migration.
+- [Production Docker Deployment Checklist](/docs/guides/docker-deployment-checklist/): Actionable deployment, reverse proxy hardening (Caddy & Nginx), healthcheck verification, and cold backup runbooks.
+
+## Project & Community
+
+- [About CubyCrate](/docs/about/): Project vision, maintainer identity, AGPL-3.0 copyleft terms, and architectural scope boundaries.
+- [Changelog & Releases](/docs/changelog/): Release notes, version history, and upgrade guidelines.

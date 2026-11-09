@@ -1,5 +1,6 @@
 ---
 import App from '../App';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import '../styles.css';
 import '../responsive.css';
 import '../cinematic.css';
@@ -18,8 +19,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://cubycrat
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="description" content="CubyCrate is an open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server." />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CubyCrate" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content="CubyCrate | Simple Self-Hosted File Drive" />
     <meta property="og:description" content="CubyCrate is an open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server." />
@@ -48,7 +52,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://cubycrat
           "@id": "https://cubycrate.com/#software",
           "name": "CubyCrate",
           "applicationCategory": "BusinessApplication",
-          "operatingSystem": "Linux, Docker",
+          "operatingSystem": "Linux",
+          "softwareVersion": "v0.0.1-alpha.2",
           "offers": {
             "@type": "Offer",
             "price": "0",
@@ -56,8 +61,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://cubycrat
           },
           "license": "https://github.com/septian-padli/cubycrate/blob/main/LICENSE",
           "url": "https://cubycrate.com/",
+          "downloadUrl": "https://github.com/septian-padli/cubycrate/pkgs/container/cubycrate",
+          "codeRepository": "https://github.com/septian-padli/cubycrate",
+          "sameAs": [
+            "https://github.com/septian-padli/cubycrate"
+          ],
           "description": "Lightweight, open-source, self-hosted file drive for teams. Organize and share files using local or S3-compatible storage on your own server.",
-          "softwareRequirements": "Docker, Docker Compose"
+          "softwareRequirements": "Docker Engine >= 24.0, Docker Compose >= 2.20",
+          "storageRequirements": "Local filesystem storage or S3-compatible object storage",
+          "memoryRequirements": "30-50 MB RAM baseline idle footprint"
         }
       ]
     })} />
@@ -70,5 +82,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://cubycrat
     <div id="root">
       <App client:load />
     </div>
+    <ConsentBanner />
   </body>
 </html>

@@ -66,6 +66,7 @@
 </script>
 
 <script>
+	import { trackEvent } from '../analytics/dataLayer';
 	type Theme = 'auto' | 'dark' | 'light';
 	type ResolvedTheme = 'dark' | 'light';
 
@@ -104,7 +105,7 @@
 		});
 	}
 
-	function onThemeChange(theme: Theme): void {
+	function onThemeChange(theme: Theme, isUserAction = false): void {
 		const resolvedTheme: ResolvedTheme = theme === 'auto' ? getPreferredColorScheme() : theme;
 		document.documentElement.dataset.theme = resolvedTheme;
 		storeTheme(theme);
@@ -112,8 +113,15 @@
 		if (typeof (window as any).StarlightThemeProvider !== 'undefined') {
 			(window as any).StarlightThemeProvider.updatePickers(theme);
 		}
+		if (isUserAction) {
+			trackEvent({
+				name: 'docs_theme_change',
+				payload: {
+					selection: resolvedTheme,
+				},
+			});
+		}
 	}
-
 	matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
 		if (loadTheme() === 'auto') {
 			onThemeChange('auto');
@@ -130,7 +138,7 @@
 			btn?.addEventListener('click', () => {
 				const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 				const next: Theme = current === 'dark' ? 'light' : 'dark';
-				onThemeChange(next);
+				onThemeChange(next, true);
 			});
 		}
 	}

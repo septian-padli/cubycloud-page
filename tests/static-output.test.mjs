@@ -28,7 +28,8 @@ test('dist/index.html exists and contains canonical, metadata, and static SSR SE
 
   // Structured Data Schema.org
   assert.match(content, /"applicationCategory":\s*"BusinessApplication"/);
-  assert.match(content, /"operatingSystem":\s*"Linux,\s*Docker"/);
+  assert.match(content, /"operatingSystem":\s*"Linux"/);
+  assert.match(content, /"softwareRequirements":\s*"Docker Engine >= 24\.0, Docker Compose >= 2\.20"/);
   assert.match(content, /"@type":\s*"SoftwareApplication"/);
 
   // Verify Static SSR SEO content: H1, headings, FAQ, CTA in initial HTML payload
@@ -56,17 +57,23 @@ test('dist/404.html exists and contains branded page title and return actions', 
   assert.match(content, /<title>Page Not Found \| CubyCrate<\/title>/);
   assert.match(content, /Go to Homepage/);
   assert.match(content, /href="\/docs\/"/);
+  assert.match(content, /<meta name="robots" content="noindex, nofollow"\/?>/);
 });
 
-test('All 7 Starlight documentation pages exist in dist/ with canonical tags', () => {
+test('All 12 Starlight documentation pages exist in dist/ with canonical tags', () => {
   const docRoutes = [
     'docs/index.html',
     'docs/getting-started/installation/index.html',
     'docs/getting-started/configuration/index.html',
+    'docs/guides/self-hosted-file-storage/index.html',
+    'docs/guides/local-vs-s3-storage/index.html',
+    'docs/guides/docker-deployment-checklist/index.html',
     'docs/user-guide/file-management/index.html',
     'docs/user-guide/sharing/index.html',
     'docs/administrator-guide/backup-restore/index.html',
     'docs/troubleshooting/index.html',
+    'docs/about/index.html',
+    'docs/changelog/index.html',
   ];
 
   for (const relPath of docRoutes) {

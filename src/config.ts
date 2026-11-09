@@ -2,6 +2,8 @@ export const links = {
   github: 'https://github.com/septian-padli/cubycrate',
   installation: 'https://cubycrate.com/docs/getting-started/installation/',
   license: 'https://github.com/septian-padli/cubycrate/blob/main/LICENSE',
+  docs: '/docs/',
+  about: '/docs/about/',
 } as const;
 
 

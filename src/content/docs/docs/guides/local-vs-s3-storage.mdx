@@ -1,0 +1,191 @@
+---
+title: Local Filesystem vs S3-Compatible Storage in CubyCrate
+description: Deep dive into CubyCrate's storage engine comparing local POSIX mounts and S3-compatible object storage backends.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+CubyCrate decouples file metadata from physical file storage. While SQLite manages directory hierarchies, access control, quotas, and public links, file payloads are stored on configurable **storage nodes**.
+
+Administrators can configure two classes of storage drivers:
+1. **Local Filesystem Driver:** High-performance direct POSIX filesystem I/O to container directory mounts.
+2. **S3-Compatible Object Storage Driver:** Cloud and distributed object storage powered by the AWS Go SDK v2.
+
+This guide explains how each driver works under the hood, how browser upload flows differ, how credentials are encrypted, and how the asynchronous migration pipeline safely moves data between nodes.
+
+<Aside type="caution" title="Storage choices are not automatic replication">
+  Configuring multiple storage nodes does not create automatic data replication, mirroring, or RAID-like striping. Each storage node functions as an independent storage target. Files stored on Node A are not automatically replicated to Node B. Operators must maintain their own backup and redundancy policies for each node.
+</Aside>
+
+## Driver Architecture & Implementation
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      CubyCrate Core                         │
+│                                                             │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │               Storage Driver Interface              │   │
+│   └───────────────┬─────────────────────────────┬───────┘   │
+│                   │                             │           │
+│                   ▼                             ▼           │
+│   ┌─────────────────────────────┐ ┌─────────────────────┐   │
+│   │     Local POSIX Driver      │ │   AWS Go SDK v2     │   │
+│   │                             │ │   S3 Object Driver  │   │
+│   └───────────────┬─────────────┘ └─────────────┬───────┘   │
+└───────────────────┼─────────────────────────────┼───────────┘
+                    │                             │
+                    ▼                             ▼
+       /app/data/storage/default         S3-Compatible Object Store
+       (or secondary host mount)         (AWS S3, Cloudflare R2,
+                                          MinIO, Backblaze B2, Ceph)
+```
+
+### 1. Local Filesystem Driver
+The local driver interacts directly with the host filesystem via POSIX system calls (`open`, `read`, `write`, `stat`). It is optimized for low-latency operations on NVMe SSDs, hardware RAID arrays, or network-attached NFS/SMB volumes mounted into the container.
+
+* **Default Location:** `/app/data/storage/default/` within the `cubycrate_data` volume.
+* **Secondary Mounts:** Additional host directories can be mounted into the container (e.g., `-v /mnt/storage_pool:/storage_pool`) and configured as secondary local nodes in the administrator panel.
+* **Characteristics:** Zero network latency, full POSIX semantics, straightforward cold backup via volume tarballs.
+
+### 2. S3-Compatible Object Storage Driver
+The S3 driver uses the official AWS SDK for Go v2 (`github.com/aws/aws-sdk-go-v2`). It communicates with any standard S3-compliant API endpoint, including:
+* Amazon Web Services (AWS S3)
+* Cloudflare R2 (zero-egress object storage)
+* MinIO (self-hosted distributed object storage)
+* Backblaze B2 (S3-compatible API)
+* Ceph RADOS Gateway / Wasabi
+
+* **Characteristics:** Virtually unlimited horizontal capacity, offloads bulk storage traffic from host drives, enables multi-region deployment.
+
+## Upload Pipelines: Local vs. S3
+
+The transfer mechanism varies fundamentally depending on whether the destination node is local or S3-compatible.
+
+### Local Storage Flow: Resumable TUS Protocol
+
+For local storage nodes, upload traffic routes through the CubyCrate application server using the open [TUS resumable upload protocol](https://tus.io/):
+
+```
+[Browser Client] ───► (Chunked TUS Stream) ───► [CubyCrate Server]
+                                                       │
+                                            Writes to temp directory
+                                            (/app/data/temp/tus)
+                                                       │
+                                            Validates payload
+                                                       │
+                                                       ▼
+                                            Moves to local node
+                                            (/app/data/storage/...)
+```
+
+1. **Chunked Streaming:** The browser uploads the file in serialized chunks over standard HTTP PATCH requests.
+2. **Resilience:** If network connectivity drops mid-upload, the client queries the server's received byte offset and resumes without retransmitting previous data.
+3. **Commit Phase:** Once the final chunk arrives, CubyCrate verifies the byte length, relocates the completed blob to its persistent node path, and commits metadata to SQLite.
+
+### S3 Storage Flow: Direct Presigned Browser Transfers
+
+For S3-compatible nodes, CubyCrate routes payloads directly between the browser and the storage provider, keeping data transfers completely off the application server:
+
+* **Files under 100 MiB (Single PUT):** The server generates a 15-minute presigned `PUT` URL. The browser streams the payload directly to the bucket endpoint, and CubyCrate verifies the upload via `HeadObject` before committing metadata.
+* **Files 100 MiB and larger (Multipart):** The server issues a durable upload intent and generates per-part presigned URLs (16 MiB adaptive part size, up to 10,000 parts). The client transfers parts directly to the S3 endpoint and completes the multipart upload on the provider, bypassing server memory and bandwidth entirely.
+
+```
+1. Request Upload Intent
+   [Browser Client] ──────────────────────────────────────────► [CubyCrate Server]
+                    ◄──────────────────────────────────────────
+                    2. Return 15-min Presigned S3 PUT URL
+                       & Record Intent in SQLite
+
+3. Direct PUT Stream (Bypasses server bandwidth & CPU)
+   [Browser Client] ──────────────────────────────────────────► [S3 Bucket Endpoint]
+                    ◄──────────────────────────────────────────
+                    4. S3 200 OK + ETag
+
+5. Finalize Notification
+   [Browser Client] ──────────────────────────────────────────► [CubyCrate Server]
+                                                                        │
+                                                                   HeadObject check
+                                                                        │
+                                                                        ▼
+                                                                Commit to SQLite
+```
+
+1. **Upload Request:** The browser client notifies the CubyCrate API of its intent to upload a file (including size and MIME type).
+2. **Presigned URL Generation:** The server verifies user quota and permissions, creates a 24-hour upload intent record in SQLite, and generates a **15-minute presigned S3 PUT URL** using the AWS SDK v2 credentials.
+3. **Direct Transfer:** The browser streams the file data directly to the S3 bucket endpoint over HTTPS. The CubyCrate server consumes **zero bandwidth and zero CPU** during the payload transfer.
+4. **Verification & Finalization:** Once the S3 endpoint acknowledges the transfer with a `200 OK`, the browser notifies CubyCrate's `/finalize` endpoint. CubyCrate executes an S3 `HeadObject` call to verify the object exists and its byte length matches the declared size before committing the file record to SQLite.
+
+## Technical Comparison Matrix
+
+| Feature / Behavior | Local Filesystem Storage | S3-Compatible Object Storage |
+| :--- | :--- | :--- |
+| **Transfer Path** | Browser → CubyCrate Server → Disk | Browser → S3 Endpoint (Direct) |
+| **Server Bandwidth Impact** | Consumes ingress & egress on host | Zero server transfer during direct file uploads & individual downloads (batch/folder ZIP downloads route through server) |
+| **Upload Protocol** | TUS resumable chunked protocol | Direct presigned single-PUT (< 100 MiB) or direct presigned multipart (≥ 100 MiB) |
+| **Temporary Disk Buffer** | Requires space in `DATA_DIR_PATH/temp/tus` | None (Streams directly to object store) |
+| **Credential Storage** | None (Filesystem permissions) | Access & secret keys encrypted in SQLite (AES-256-GCM) |
+| **Maximum File Size** | Limited by host filesystem/volume | Single PUT < 100 MiB; multipart transfers scale to multi-gigabyte files (up to 10,000 parts) |
+| **Scaling Capability** | Bound by physical host disk capacity | Horizontally scalable object storage |
+| **Primary Backup Method** | Cold volume snapshot / tar archive | Bucket versioning + SQLite metadata backup |
+
+## S3 Credential Security: AES-256-GCM Encryption
+
+Because S3 nodes require sensitive access keys and secret keys, CubyCrate implements envelope encryption at the application layer:
+
+* **Cryptographic Primitive:** AES-256 in Galois/Counter Mode (AES-256-GCM), providing authenticated encryption with associated data (AEAD).
+* **Master Key Generation:** When CubyCrate initializes, it generates a cryptographically random 256-bit key stored at `/app/data/secrets/master.key` (with strict `0600` file permissions).
+* **Environment Override:** Administrators can supply an external master key using the `CUBYCRATE_MASTER_KEY` environment variable or specify a custom path with `CUBYCRATE_MASTER_KEY_FILE`.
+* **Encrypted Credentials:** S3 access keys and secret keys are encrypted using AES-256-GCM before being stored in SQLite (bucket names and endpoints remain unencrypted configuration fields). If the SQLite database file is leaked or compromised, stored S3 credentials cannot be decrypted without the master key.
+
+<Aside type="danger" title="Protect the master key">
+  If you use S3 storage nodes and lose your `master.key` (or fail to back up `/app/data/secrets/master.key`), CubyCrate will be permanently unable to decrypt your S3 credentials, disconnecting the instance from your object store.
+</Aside>
+
+## Uniform Blob Namespace Hierarchy
+
+Regardless of whether a storage node is local or S3-compatible, CubyCrate enforces a uniform, predictable blob namespace:
+
+```text
+cubycrate/{instance_id}/{node_id}/blobs/{blob_id}
+```
+
+* `instance_id`: Unique identifier generated during the first-run setup wizard.
+* `node_id`: Unique identifier assigned to the specific storage node.
+* `blob_id`: Cryptographically generated UUID for the immutable storage object.
+
+This namespace design ensures that multiple CubyCrate instances can safely share a single S3 bucket without key collisions, and makes physical blobs easily auditable on raw storage media.
+
+## Asynchronous Node Detach & Migration Pipeline
+
+When decommissioning or replacing a storage node, administrators can initiate a safe, automated migration through the administrator panel or API:
+
+```sh
+POST /api/v1/admin/storage-nodes/:id/detach
+```
+
+### The Migration Pipeline Lifecycle
+
+1. **Node State Transition:** The source node is immediately marked as `detaching`. It rejects new uploads while continuing to serve read requests.
+2. **Background Worker Dispatch:** CubyCrate spawns an asynchronous background worker (`node_migration` task).
+3. **Blob-by-Blob Streaming:** The worker reads blobs from the source node and streams them to the selected destination node (Local to S3, S3 to Local, or S3 to S3).
+4. **Integrity Verification:** After each blob is written to the destination, the worker validates:
+   * Exact byte length equivalence.
+   * SHA-256 checksum verification.
+5. **Atomic Pointer Update:** Once verified, the virtual filesystem record in SQLite is updated to point to the destination node ID.
+6. **Zero-Deletion Safety Invariant:** Source blobs are **never deleted** during migration. If an error, network timeout, or container restart occurs, the worker halts safely. The source node retains all original data, preventing data loss.
+7. **Finalization:** Once all blobs have transferred and validated, the source node transitions to `detached` status and can be safely removed.
+
+## Orphan File Reconciliation Safeguards
+
+Over time, failed client connections or interrupted uploads can leave unreferenced blobs on storage media. CubyCrate includes an automated orphan cleanup engine designed with strict safety boundaries:
+
+* **Audit-Only Dry Run Default:** The cleanup engine operates in non-destructive dry-run mode (`CUBYCRATE_STORAGE_CLEANUP_DRY_RUN=true`). It logs unreferenced blobs without deleting them.
+* **72-Hour Safety Window:** Any blob created within the last 72 hours is strictly exempt from reconciliation, ensuring in-flight uploads and pending presigned URLs are never disturbed.
+* **Dual-Scan Verification:** To become eligible for deletion, an unreferenced blob must be detected across **at least two consecutive, verified reconciliation cycles**.
+
+## Next Steps
+
+- [Configuration Reference](/docs/getting-started/configuration/): Learn how to configure S3 environment variables and master keys.
+- [Backup & Disaster Recovery](/docs/administrator-guide/backup-restore/): Safe procedures for backing up local disks and S3 metadata.
+- [Self-Hosted File Storage Guide](/docs/guides/self-hosted-file-storage/): Architectural overview of CubyCrate's single-container design.
+- [Operational Diagnostics](/docs/troubleshooting/): Resolving storage node disconnects and permission errors.

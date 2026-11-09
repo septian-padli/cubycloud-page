@@ -18,6 +18,8 @@ export default defineConfig({
       favicon: '/favicon.svg',
       customCss: ['./src/docs/starlight.css'],
       components: {
+        Head: './src/docs/Head.astro',
+        Footer: './src/docs/Footer.astro',
         ThemeSelect: './src/docs/ThemeSelect.astro',
       },
       head: [
@@ -56,6 +58,13 @@ export default defineConfig({
             content: 'https://cubycrate.com/og-image.png',
           },
         },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:site_name',
+            content: 'CubyCrate',
+          },
+        },
       ],
       social: [
         {
@@ -74,6 +83,14 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Guides',
+          items: [
+            { label: 'Self-Hosted File Storage', slug: 'docs/guides/self-hosted-file-storage' },
+            { label: 'Local vs S3 Storage', slug: 'docs/guides/local-vs-s3-storage' },
+            { label: 'Docker Deployment Checklist', slug: 'docs/guides/docker-deployment-checklist' },
+          ],
+        },
+        {
           label: 'User Guide',
           items: [
             { label: 'File Management', slug: 'docs/user-guide/file-management' },
@@ -84,6 +101,13 @@ export default defineConfig({
           label: 'Administrator Guide',
           items: [
             { label: 'Backup & Disaster Recovery', slug: 'docs/administrator-guide/backup-restore' },
+          ],
+        },
+        {
+          label: 'Project',
+          items: [
+            { label: 'About CubyCrate', slug: 'docs/about' },
+            { label: 'Release History', slug: 'docs/changelog' },
           ],
         },
         {

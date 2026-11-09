@@ -1,0 +1,65 @@
+---
+title: About CubyCrate
+description: Project identity, architectural design, maintainer, licensing, and scope boundaries of CubyCrate.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+CubyCrate is an open-source, self-hosted file drive designed for individuals, families, and teams who want complete control over their files without the complexity of enterprise collaboration suites or the privacy compromises of commercial cloud storage.
+
+## Project Identity & Origins
+
+CubyCrate was created and is actively maintained by **Septian Padli** ([@septian-padli](https://github.com/septian-padli)). The source code is hosted publicly on GitHub at [github.com/septian-padli/cubycrate](https://github.com/septian-padli/cubycrate).
+
+The project was born out of frustration with existing self-hosted storage solutions. Traditional options frequently require 3–6 separate Docker containers (web server, application server, Redis cache, database server, cron worker), consume gigabytes of memory at idle, and bundle dozens of non-storage features like mail clients, calendars, and office document suites.
+
+CubyCrate adheres to the Unix philosophy: do one thing and do it exceptionally well. It is focused entirely on storing, streaming, organizing, and sharing files.
+
+## Technical Architecture
+
+CubyCrate is engineered as a single, lightweight binary distributed in an Alpine Linux container:
+
+* **Backend Engine (Go 1.25):** High-concurrency HTTP API built with the Echo framework. Handles file streaming, TUS resumable upload chunking, batch ZIP archiving, and storage node drivers with native machine code speed.
+* **Frontend UI (Svelte 5 & Tailwind CSS 4):** A responsive, reactive Single Page Application (SPA) built with SvelteKit and Svelte 5. During container compilation, the frontend build artifacts are embedded directly into the Go executable using Go's `embed.FS`, eliminating the need for an external web server.
+* **Database (Embedded SQLite WAL):** Application metadata (users, directories, file nodes, permissions, and shares) is persisted in an embedded SQLite database using a pure-Go driver (`glebarez/go-sqlite`). SQLite runs in Write-Ahead Logging (WAL) mode with a 5000ms busy timeout, enabling high concurrent read performance without database server processes.
+* **Storage Drivers:** A decoupled storage abstraction supporting direct POSIX filesystem mounts and S3-compatible object stores (AWS S3, Cloudflare R2, MinIO, Backblaze B2).
+* **Container Packaging:** A single multi-architecture container (`linux/amd64` and `linux/arm64`) with an image footprint under **150 MB** and a baseline idle memory usage of **30–50 MB**.
+
+## Software License: GNU AGPLv3
+
+CubyCrate is free and open-source software licensed under the **GNU Affero General Public License version 3** (`AGPL-3.0-or-later`).
+
+### Network Copyleft (Section 13)
+The AGPL-3.0 license is designed specifically for network and cloud software. Under Section 13:
+
+> If you modify CubyCrate and run it as a network service accessible to users over a computer network, you must make the corresponding source code of your modified version available to all network users at no charge under the terms of the AGPL-3.0.
+
+This copyleft guarantee ensures that CubyCrate remains open and transparent. Community improvements, security hardening, and feature enhancements cannot be locked away in closed-source proprietary forks.
+
+## Scope Boundaries: What CubyCrate Is and Is Not
+
+To maintain its speed, reliability, and low operational overhead, CubyCrate maintains strict architectural boundaries:
+
+### What CubyCrate IS:
+- A fast, self-contained personal and shared team file drive.
+- A single-container solution running Go, Svelte 5, and SQLite WAL without external database servers.
+- A flexible storage consumer supporting local disks and S3-compatible object buckets.
+- A modern web interface with real-time SSE updates, drag-and-drop uploads, media previews (images, audio, video, PDF, code), and responsive mobile layout.
+- A fine-grained sharing system supporting user-to-user folder/file delegation (Viewer/Editor) and password-protected public share links with expiration dates.
+
+### What CubyCrate IS NOT:
+- **NOT an Enterprise Collaboration Suite:** CubyCrate does not include email clients, calendar synchronization (CalDAV), contacts books (CardDAV), Kanban boards, or live collaborative office document editors (e.g., OnlyOffice or Collabora integrations).
+- **NOT a Distributed Multi-Master Cluster:** CubyCrate is designed as a standalone instance with pluggable local or remote storage targets. It does not run Raft consensus clusters or distributed active-active database replicas.
+- **NOT a Continuous Desktop Background Sync Daemon:** File access is browser-driven and API-driven. There is no background desktop sync client that mirrors entire hard drives continuously in the background.
+- **NOT an Enterprise Departmental RBAC Silo:** The Organization workspace is a single shared virtual drive for authenticated users across the instance. It does not provide isolated departmental sub-tenants or complex nested group ACLs.
+
+<Aside type="note" title="Philosophy">
+  By keeping the feature boundary focused on file storage and sharing, CubyCrate stays maintainable, secure, and resource-efficient for years without operational drift.
+</Aside>
+
+## Next Steps
+
+- [Release History & Changelog](/docs/changelog/): View verified release milestones and migration notices.
+- [Self-Hosted File Storage Guide](/docs/guides/self-hosted-file-storage/): Technical architecture deep dive.
+- [Getting Started](/docs/getting-started/installation/): Deploy CubyCrate on your server in minutes.
+- [GitHub Repository](https://github.com/septian-padli/cubycrate): Source code, issues, and discussions.

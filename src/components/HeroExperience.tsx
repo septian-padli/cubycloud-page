@@ -1,10 +1,10 @@
 import { ArrowDown, ArrowUpRight, MoveDownRight } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { links } from '../config';
 import type { MotionTier } from '../hooks/useMotion';
-import StorageCoreScene from './StorageCoreScene';
+const StorageCoreScene = lazy(() => import('./StorageCoreScene'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,7 +26,7 @@ export default function HeroExperience({ tier }: { tier: MotionTier }) {
     <div className="hero-topline hero-enter"><span>AN OPEN-SOURCE FILE DRIVE</span><span>01 — YOUR INFRASTRUCTURE, YOUR RULES</span></div>
     <div className="hero-headline hero-bigtype"><p className="hero-kicker hero-enter"><span className="kicker-dash" />WELCOME TO YOUR SPACE</p><h1 id="hero-heading" className="hero-enter">YOUR FILES.<br /><em>YOUR SPACE.</em></h1></div>
     <div className="core-aura" aria-hidden="true" />
-    <div className="core-scene"><StorageCoreScene progress={progress} tier={tier} /></div>
+    <div className="core-scene"><Suspense fallback={<div className="core-render"><div className="core-fallback" aria-hidden="true"><span className="fallback-grid" /><span className="fallback-left" /><span className="fallback-right" /><span className="fallback-token" /></div></div>}><StorageCoreScene progress={progress} tier={tier} /></Suspense></div>
     <div className="hero-object-note"><span className="crosshair">+</span><span>CUBYCRATE / STORAGE CORE<br />MODULAR SYSTEM · 001</span></div>
     <div className="hero-copy hero-enter"><span className="overline">FILES BELONG WITH YOU.</span><p>Your files don’t need another bloated platform.</p><span>Meet CubyCrate, a focused, self-hosted file drive for organizing, accessing, and sharing files on infrastructure you control.</span><div className="hero-buttons"><a href="#get-started" className="button button-light">GET STARTED <ArrowUpRight size={20} /></a><a href={links.github} target="_blank" rel="noopener noreferrer" className="text-link">VIEW ON GITHUB <ArrowUpRight size={17} /></a></div></div>
     <div className="hero-bottom"><div className="hero-scroll"><ArrowDown size={22} strokeWidth={1.4} /><span>EXPLORE THE SYSTEM<br />SCROLL TO DISCOVER</span></div><p>YOUR FILES. YOUR SERVER. YOUR RULES.</p><span className="hero-coordinate">[ 00 / 04 ] <MoveDownRight size={16} /></span></div>

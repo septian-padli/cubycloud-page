@@ -28,12 +28,13 @@ function initStarlightAnalytics() {
 
   // 2. Code Copy button clicks
   document.addEventListener('click', (e) => {
-    const copyBtn = (e.target as HTMLElement)?.closest('button[data-code], .copy-code-button, button[aria-label*="copy" i], button[title*="copy" i]');
+    const copyBtn = (e.target as HTMLElement)?.closest('button[data-code], .copy button, .expressive-code button, .copy-code-button, button[aria-label*="copy" i], button[title*="copy" i]');
     if (copyBtn) {
-      const pre = copyBtn.closest('figure, pre, .expressive-code');
-      const codeEl = pre?.querySelector('code');
-      const langClass = Array.from(codeEl?.classList || []).find((c) => c.startsWith('language-'));
-      const lang = langClass ? langClass.replace('language-', '') : 'code';
+      const container = copyBtn.closest('.expressive-code, figure, pre');
+      const pre = container?.matches('pre') ? container : container?.querySelector('pre');
+      const lang = pre?.getAttribute('data-language')
+        || Array.from(pre?.querySelector('code')?.classList || []).find((c) => c.startsWith('language-'))?.replace('language-', '')
+        || 'code';
 
       trackEvent({
         name: 'docs_code_copy',
@@ -50,10 +51,9 @@ function initStarlightAnalytics() {
     if (getStoredConsent() !== 'granted') return;
     const content = document.querySelector('.sl-markdown-content, main, article');
     if (!content) return;
-
     const rect = content.getBoundingClientRect();
     const contentHeight = rect.height;
-    if (contentHeight <= 0) return;
+    if (contentHeight <= 200) return;
 
     const viewportHeight = window.innerHeight;
     const scrolled = Math.max(0, -rect.top + (viewportHeight * 0.5));
@@ -85,25 +85,28 @@ function initStarlightAnalytics() {
   setTimeout(checkMilestones, 1000);
   // 4. Pagefind / Starlight Search Instrumentation
   let searchInitiated = false;
-  document.addEventListener('focusin', (e) => {
-    const input = e.target as HTMLElement;
+  document.addEventListener('input', (e) => {
+    const input = e.target as HTMLInputElement;
     if (input && (input.matches('.pagefind-ui__search-input') || input.matches('input[type="search"]'))) {
-      if (!searchInitiated) {
+      const val = input.value.trim();
+      if (val.length >= 2 && !searchInitiated) {
         searchInitiated = true;
         trackEvent({
           name: 'docs_search',
           payload: {
-            action: 'search_initiated',
+            action: 'search_query_submitted',
             docs_section: currentPath,
           },
         });
+      } else if (val.length === 0) {
+        searchInitiated = false;
       }
     }
   });
 
   // Search result clicks
   document.addEventListener('click', (e) => {
-    const resultLink = (e.target as HTMLElement)?.closest('.pagefind-ui__result-link, .pagefind-ui__result a');
+    const resultLink = (e.target as HTMLElement)?.closest('.pagefind-ui__result-link, .pagefind-ui__result a, .pagefind-ui__result-title a');
     if (resultLink) {
       const href = resultLink.getAttribute('href') || '';
       const sanitizedTarget = href.split('?')[0].split('#')[0];
@@ -117,28 +120,42 @@ function initStarlightAnalytics() {
     }
   });
 
-  // Search no results detection via MutationObserver
-  const searchObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === 'childList') {
-        const noResults = document.querySelector('.pagefind-ui__message:not(:empty)');
-        if (noResults && noResults.textContent?.toLowerCase().includes('no results')) {
-          trackEvent({
-            name: 'docs_search_no_results',
-            payload: {
-              action: 'no_results',
-            },
-          });
-          break;
-        }
+  // Search no results detection with state deduplication
+  let noResultsReported = false;
+  const searchObserver = new MutationObserver(() => {
+    const messageEl = document.querySelector('.pagefind-ui__message');
+    if (messageEl && messageEl.textContent?.toLowerCase().includes('no results')) {
+      if (!noResultsReported) {
+        noResultsReported = true;
+        trackEvent({
+          name: 'docs_search_no_results',
+          payload: {
+            action: 'no_results',
+          },
+        });
       }
+    } else {
+      noResultsReported = false;
     }
   });
 
-  const searchContainer = document.querySelector('dialog, starlight-search, .pagefind-ui');
-  if (searchContainer) {
-    searchObserver.observe(searchContainer, { childList: true, subtree: true });
-  }
+  let observerAttached = false;
+  const attachSearchObserver = () => {
+    if (observerAttached) return;
+    const searchContainer = document.querySelector('dialog, site-search, starlight-search, .pagefind-ui');
+    if (searchContainer) {
+      searchObserver.observe(searchContainer, { childList: true, subtree: true });
+      observerAttached = true;
+    }
+  };
+
+  attachSearchObserver();
+  document.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement)?.closest('button[data-open-modal], site-search, starlight-search')) {
+      setTimeout(attachSearchObserver, 50);
+      setTimeout(attachSearchObserver, 300);
+    }
+  });
 }
 
 if (document.readyState === 'loading') {

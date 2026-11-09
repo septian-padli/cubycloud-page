@@ -53,7 +53,7 @@ export default function SharingDemo() {
       name: 'demo_complete',
       payload: {
         demo_name: 'sharing',
-        action: 'simulation_confirmed',
+        action: 'simulated_share_complete',
         selection: mode ?? 'internal',
         result: 'success',
       },

@@ -91,12 +91,16 @@ export default function App() {
       }
     });
 
-    window.addEventListener('cubycrate:consent-changed', checkVisible);
+    const handleConsentChange = () => {
+      checkVisible();
+      setTimeout(checkVisible, 150);
+    };
+    window.addEventListener('cubycrate:consent-changed', handleConsentChange);
     checkVisible();
 
     return () => {
       observer.disconnect();
-      window.removeEventListener('cubycrate:consent-changed', checkVisible);
+      window.removeEventListener('cubycrate:consent-changed', handleConsentChange);
     };
   }, []);
 

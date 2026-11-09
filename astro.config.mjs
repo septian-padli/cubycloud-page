@@ -27,21 +27,21 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: 'https://cubycrate.com/og-image.png',
+            content: 'https://cubycrate.com/og-docs.png',
           },
         },
         {
           tag: 'meta',
           attrs: {
             property: 'og:image:width',
-            content: '1200',
+            content: '1731',
           },
         },
         {
           tag: 'meta',
           attrs: {
             property: 'og:image:height',
-            content: '630',
+            content: '909',
           },
         },
         {
@@ -55,7 +55,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             name: 'twitter:image',
-            content: 'https://cubycrate.com/og-image.png',
+            content: 'https://cubycrate.com/og-docs.png',
           },
         },
         {

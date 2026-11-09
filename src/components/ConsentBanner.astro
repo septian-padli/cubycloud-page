@@ -222,7 +222,7 @@
 </style>
 
 <script>
-  import { initGTM, setConsent, getStoredConsent } from '../analytics/dataLayer';
+  import { initGTM, setConsent, getStoredConsent, GA4_MEASUREMENT_ID } from '../analytics/dataLayer';
 
   function setupConsentUI() {
     const banner = document.getElementById('cubycrate-consent-banner');
@@ -243,12 +243,16 @@
 
     const currentConsent = getStoredConsent();
     if (currentConsent === 'granted') {
+      window[`ga-disable-${GA4_MEASUREMENT_ID}`] = false;
       initGTM();
       if (banner) banner.style.display = 'none';
-    } else if (currentConsent === 'denied') {
-      if (banner) banner.style.display = 'none';
     } else {
-      if (banner) banner.style.display = 'block';
+      window[`ga-disable-${GA4_MEASUREMENT_ID}`] = true;
+      if (currentConsent === 'denied') {
+        if (banner) banner.style.display = 'none';
+      } else {
+        if (banner) banner.style.display = 'block';
+      }
     }
     updateToggleState();
 

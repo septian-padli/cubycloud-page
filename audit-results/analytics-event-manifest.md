@@ -5,7 +5,7 @@
 **Stream ID:** `16297834902`  
 **Target Domain:** `cubycrate.com` (and `www.cubycrate.com`)  
 **Specification Date:** November 9, 2026  
-**Status:** Codebase Implemented & Automated Tests Verified (28/28 Pass); GTM & GA4 Configuration Handed Off to Property Owner.
+**Status:** Codebase Implemented & Automated Tests Verified (33/33 Pass); Client-Side Data Layer Parameter Clearing Active; GTM & GA4 Configuration Handed Off to Property Owner.
 
 ---
 
@@ -114,10 +114,10 @@ To prevent stale parameters (where parameters from a prior event inadvertently p
 | `GA4 - Event - docs_read_milestone` | `ce - docs_read_milestone` | `docs_read_milestone` | `milestone` = `{{dlv - milestone}}`<br>`docs_section` = `{{dlv - docs_section}}` |
 | `GA4 - Event - docs_theme_change` | `ce - docs_theme_change` | `docs_theme_change` | `selection` = `{{dlv - selection}}` |
 
-### 4. Consent-Aware Execution Rules
+### 4. Consent-Aware Execution Rules & Stale Parameter Prevention
 - All tags must use GTM's built-in Consent Settings check for `analytics_storage`.
 - In CubyCrate, `initGTM()` sets default consent: `analytics_storage: granted`, with advertising storages denied. When consent is denied or withdrawn, `analytics_storage` is updated to `denied` and `ga-disable-G-GRFZ1ZVX0Q = true` disables all GA4 collection immediately.
-
+- **Client-Side Parameter Clearing:** CubyCrate's `trackEvent()` automatically resets all cross-event optional parameters (`selection`, `result`, `file_type`, `docs_section`, `destination`, `target_section`) to `undefined` when not specified on subsequent events. This clears GTM's internal Data Layer model and guarantees that parameters from previous events cannot bleed into later tags.
 ---
 
 ## D. GA4 Configuration

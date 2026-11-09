@@ -9,6 +9,9 @@ import {
   initGTM,
   setConsent,
   trackEvent,
+  OPTIONAL_EVENT_KEYS,
+  normalizeEventPayload,
+  sanitizePayload,
 } from '../src/analytics/dataLayer.ts';
 
 // Setup DOM mocks for node environment
@@ -135,19 +138,45 @@ test('Domain restrictions block non-production environments', () => {
 
   createMockEnvironment('www.cubycrate.com');
   assert.equal(isTrackingAllowed(), true);
+
+  // Unknown and untrusted domains must be rejected
+  createMockEnvironment('attacker-domain.com');
+  assert.equal(isTrackingAllowed(), false);
+
+  createMockEnvironment('random.vercel.app');
+  assert.equal(isTrackingAllowed(), false);
 });
 
-test('Production-safe test isolation via window.__CUBYCRATE_ANALYTICS_FORCE__ only', () => {
+test('Dependency injection hostname validation and complete removal of test bypass', () => {
+  // Pure DI check without touching window
+  assert.equal(isTrackingAllowed('cubycrate.com'), true);
+  assert.equal(isTrackingAllowed('www.cubycrate.com'), true);
+  assert.equal(isTrackingAllowed('localhost'), false);
+  assert.equal(isTrackingAllowed('127.0.0.1'), false);
+  assert.equal(isTrackingAllowed('staging.cubycrate.com'), false);
+  assert.equal(isTrackingAllowed('random.workers.dev'), false);
+  assert.equal(isTrackingAllowed('evil-domain.com'), false);
+  assert.equal(isTrackingAllowed(''), false);
+
+  // Verify window.__CUBYCRATE_ANALYTICS_FORCE__ does not exist or bypass restrictions
   createMockEnvironment('localhost');
   assert.equal(isTrackingAllowed(), false);
 
-  // Storage override is strictly ignored
-  window.sessionStorage.getItem = (k) => (k === 'cubycrate_analytics_force' ? 'true' : null);
-  assert.equal(isTrackingAllowed(), false, 'sessionStorage must not bypass domain restrictions');
-
-  // Explicit window global override allowed for tests
+  // Attempting to set window bypass property must have zero effect
   window.__CUBYCRATE_ANALYTICS_FORCE__ = true;
-  assert.equal(isTrackingAllowed(), true, '__CUBYCRATE_ANALYTICS_FORCE__ should allow test execution');
+  assert.equal(isTrackingAllowed(), false, '__CUBYCRATE_ANALYTICS_FORCE__ must not bypass production domain gate');
+});
+
+test('No GTM script injection and ga-disable active before explicit user consent', () => {
+  const env = createMockEnvironment('cubycrate.com');
+  assert.equal(env.scripts.length, 0, 'No script should be present before consent');
+  assert.equal(localStorage.getItem(CONSENT_STORAGE_KEY), null, 'Stored consent must be null on clean load');
+
+  // Attempting initGTM without stored consent must return false and inject nothing
+  const initResult = initGTM();
+  assert.equal(initResult, false, 'initGTM must refuse execution without granted consent');
+  assert.equal(env.scripts.length, 0, 'No script should be injected');
+  assert.equal(window.__CUBYCRATE_GTM_INITIALIZED__, undefined);
 });
 
 test('Analytics events are blocked until consent is granted (zero tracking before consent)', () => {
@@ -229,6 +258,91 @@ test('Consent withdrawal removes GTM script from DOM, sets ga-disable flag, and 
   assert.equal(env.scripts.length, 0, 'GTM script must be removed from DOM upon consent denial');
   assert.equal(window.__CUBYCRATE_GTM_INITIALIZED__, false, 'Initialization flag must be reset to false');
   assert.equal(window[`ga-disable-${GA4_MEASUREMENT_ID}`], true, 'GA4 disable flag must be active');
+});
+test('Withdrawal after GTM has loaded disables GA4, removes script, and re-consent avoids duplicate injection', () => {
+  const env = createMockEnvironment('cubycrate.com');
+
+  // 1. Initial grant
+  setConsent('granted');
+  assert.equal(env.scripts.length, 1);
+  assert.equal(window.__CUBYCRATE_GTM_INITIALIZED__, true);
+  assert.equal(window[`ga-disable-${GA4_MEASUREMENT_ID}`], false);
+
+  // 2. Withdrawal
+  setConsent('denied');
+  assert.equal(env.scripts.length, 0, 'Script removed from DOM on denial');
+  assert.equal(window.__CUBYCRATE_GTM_INITIALIZED__, false, 'Active initialized flag set to false');
+  assert.equal(window[`ga-disable-${GA4_MEASUREMENT_ID}`], true, 'GA4 disable must be true');
+
+  // Verify tracking blocked after withdrawal
+  trackEvent({
+    name: 'section_view',
+    payload: { section_name: 'features' },
+  });
+  const featureViews = window.dataLayer.filter((e) => e.event === 'section_view');
+  assert.equal(featureViews.length, 0, 'No section_view events allowed after withdrawal');
+
+  // 3. Re-grant consent in the same session
+  setConsent('granted');
+  assert.equal(window[`ga-disable-${GA4_MEASUREMENT_ID}`], false, 'GA4 disable revoked on re-grant');
+  assert.equal(window.__CUBYCRATE_GTM_INITIALIZED__, true);
+  assert.equal(env.scripts.length, 0, 'Script must not be re-injected if container was already loaded in memory');
+});
+
+test('Stale optional Data Layer parameters are cleared on subsequent events', () => {
+  createMockEnvironment('cubycrate.com');
+  setConsent('granted');
+
+  // Event 1 with all optional parameters populated
+  trackEvent({
+    name: 'demo_interaction',
+    payload: {
+      demo_name: 'file_explorer',
+      action: 'preview_unsupported',
+      selection: 'folder',
+      file_type: 'unsupported',
+      result: 'error',
+    },
+  });
+
+  const evt1 = window.dataLayer.find((e) => e.event === 'demo_interaction');
+  assert.ok(evt1);
+  assert.equal(evt1.selection, 'folder');
+  assert.equal(evt1.file_type, 'unsupported');
+  assert.equal(evt1.result, 'error');
+
+  // Event 2 without those optional parameters
+  trackEvent({
+    name: 'cta_click',
+    payload: {
+      cta_name: 'get_started',
+      cta_location: 'hero',
+      destination: '#get-started',
+    },
+  });
+
+  const evt2 = window.dataLayer.find((e) => e.event === 'cta_click');
+  assert.ok(evt2);
+  assert.equal(evt2.destination, '#get-started');
+  assert.equal(evt2.selection, undefined, 'Stale selection must be cleared to undefined');
+  assert.equal(evt2.file_type, undefined, 'Stale file_type must be cleared to undefined');
+  assert.equal(evt2.result, undefined, 'Stale result must be cleared to undefined');
+  assert.equal(evt2.docs_section, undefined, 'Stale docs_section must be cleared to undefined');
+  assert.equal(evt2.target_section, undefined, 'Stale target_section must be cleared to undefined');
+
+  // Event 3 with no optional parameters at all
+  trackEvent({
+    name: 'section_view',
+    payload: {
+      section_name: 'storage',
+    },
+  });
+
+  const evt3 = window.dataLayer.find((e) => e.event === 'section_view');
+  assert.ok(evt3);
+  assert.equal(evt3.destination, undefined, 'Previous destination must be cleared to undefined');
+  assert.equal(evt3.selection, undefined);
+  assert.equal(evt3.result, undefined);
 });
 
 test('Revoking consent clears Google Analytics cookies across domain variations', () => {
@@ -364,4 +478,40 @@ test('Sensitive data exclusion: verify no raw queries, passwords, file names, or
   const demoEvt = window.dataLayer.find((e) => e.action === 'password_toggle');
   assert.ok(demoEvt);
   assert.equal(demoEvt.password, undefined, 'Password value must never be tracked');
+});
+
+test('Payload sanitization strips sensitive parameter keys', () => {
+  const dirtyPayload = {
+    action: 'test_action',
+    password: 'super-secret-password',
+    credential: 'api-credential',
+    secret_key: 'top-secret',
+    auth_token: 'bearer-token-12345',
+    query: 'select * from users',
+    search_term: 'private query string',
+  };
+
+  const sanitized = sanitizePayload(dirtyPayload);
+  assert.equal(sanitized.action, 'test_action');
+  assert.equal(sanitized.password, undefined);
+  assert.equal(sanitized.credential, undefined);
+  assert.equal(sanitized.secret_key, undefined);
+  assert.equal(sanitized.auth_token, undefined);
+  assert.equal(sanitized.query, undefined);
+  assert.equal(sanitized.search_term, undefined);
+});
+
+test('normalizeEventPayload presets all OPTIONAL_EVENT_KEYS to undefined', () => {
+  assert.ok(OPTIONAL_EVENT_KEYS.includes('selection'));
+  assert.ok(OPTIONAL_EVENT_KEYS.includes('result'));
+  assert.ok(OPTIONAL_EVENT_KEYS.includes('file_type'));
+  assert.ok(OPTIONAL_EVENT_KEYS.includes('docs_section'));
+  assert.ok(OPTIONAL_EVENT_KEYS.includes('destination'));
+  assert.ok(OPTIONAL_EVENT_KEYS.includes('target_section'));
+
+  const normalized = normalizeEventPayload({ custom_key: 'value' });
+  assert.equal(normalized.custom_key, 'value');
+  for (const key of OPTIONAL_EVENT_KEYS) {
+    assert.equal(normalized[key], undefined);
+  }
 });

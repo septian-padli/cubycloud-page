@@ -8,24 +8,82 @@ declare global {
   interface Window {
     dataLayer: Array<Record<string, unknown> | unknown[]>;
     __CUBYCRATE_GTM_INITIALIZED__?: boolean;
-    __CUBYCRATE_ANALYTICS_FORCE__?: boolean;
+    __CUBYCRATE_GTM_LOADED__?: boolean;
     [key: `ga-disable-${string}`]: boolean | undefined;
   }
 }
 
 /**
+ * Optional Data Layer parameters that must be normalized and reset to undefined
+ * when absent from subsequent events, preventing stale state leakage across GTM tags.
+ */
+export const OPTIONAL_EVENT_KEYS = [
+  'selection',
+  'result',
+  'file_type',
+  'docs_section',
+  'destination',
+  'target_section',
+] as const;
+
+const SENSITIVE_KEY_PATTERNS = [
+  /password/i,
+  /credential/i,
+  /secret/i,
+  /token/i,
+  /search_term/i,
+  /^query$/i,
+  /api[_-]?key/i,
+];
+
+/**
+ * Strips sensitive parameter keys from event payloads.
+ */
+export function sanitizePayload(
+  payload: Record<string, unknown>
+): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(payload)) {
+    const isSensitive = SENSITIVE_KEY_PATTERNS.some((pattern) => pattern.test(key));
+    if (!isSensitive) {
+      sanitized[key] = val;
+    }
+  }
+  return sanitized;
+}
+
+/**
+ * Normalizes event payloads so that optional parameters not explicitly
+ * provided on an event are set to undefined. Google Tag Manager recognizes
+ * undefined values to clear variables from its internal Data Layer model.
+ */
+export function normalizeEventPayload(
+  payload: Record<string, unknown>
+): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
+  for (const key of OPTIONAL_EVENT_KEYS) {
+    normalized[key] = undefined;
+  }
+  for (const [key, value] of Object.entries(payload)) {
+    if (value !== undefined) {
+      normalized[key] = value;
+    }
+  }
+  return normalized;
+}
+
+/**
  * Validates whether current runtime is on an allowed production domain.
  * Restricts tracking on localhost, preview, staging, and workers.dev domains.
+ * Supports dependency injection of hostname for deterministic testing without global bypasses.
  */
-export function isTrackingAllowed(): boolean {
-  if (typeof window === 'undefined') return false;
+export function isTrackingAllowed(targetHostname?: string): boolean {
+  if (typeof window === 'undefined' && !targetHostname) return false;
 
-  // Isolated test override: only permitted in test environments or explicit test global
-  if (window.__CUBYCRATE_ANALYTICS_FORCE__) {
-    return true;
-  }
-
-  const hostname = window.location.hostname.toLowerCase();
+  const rawHostname =
+    targetHostname ??
+    (typeof window !== 'undefined' && window.location ? window.location.hostname : '');
+  const hostname = rawHostname.toLowerCase().trim();
 
   // Explicitly deny non-production, staging, preview, local, and worker domains
   if (
@@ -97,13 +155,17 @@ export function initGTM(): boolean {
   if (getStoredConsent() !== 'granted') return false;
   if (window.__CUBYCRATE_GTM_INITIALIZED__) return true;
 
-  // Check if GTM script is already present in DOM
-  if (typeof document !== 'undefined' && typeof document.querySelector === 'function') {
-    const existingScript = document.querySelector(`script[src*="googletagmanager.com/gtm.js?id=${GTM_ID}"]`);
-    if (existingScript) {
-      window.__CUBYCRATE_GTM_INITIALIZED__ = true;
-      return true;
-    }
+  // Check if GTM script is already present in DOM or already loaded in memory
+  const existingScript =
+    typeof document !== 'undefined' && typeof document.querySelector === 'function'
+      ? document.querySelector(`script[src*="googletagmanager.com/gtm.js?id=${GTM_ID}"]`)
+      : null;
+
+  if (existingScript || window.__CUBYCRATE_GTM_LOADED__) {
+    window[`ga-disable-${GA4_MEASUREMENT_ID}`] = false;
+    window.__CUBYCRATE_GTM_INITIALIZED__ = true;
+    window.__CUBYCRATE_GTM_LOADED__ = true;
+    return true;
   }
 
   window.dataLayer = window.dataLayer || [];
@@ -140,6 +202,7 @@ export function initGTM(): boolean {
   })(window, document, 'script', 'dataLayer', GTM_ID);
 
   window.__CUBYCRATE_GTM_INITIALIZED__ = true;
+  window.__CUBYCRATE_GTM_LOADED__ = true;
   return true;
 }
 
@@ -199,9 +262,11 @@ export function setConsent(status: ConsentStatus): void {
           ad_personalization: 'denied',
         },
       ]);
-      window.dataLayer.push({
-        event: 'consent_update',
-        selection: 'denied',
+      trackEvent({
+        name: 'consent_update',
+        payload: {
+          selection: 'denied',
+        },
       });
     }
   }
@@ -224,8 +289,11 @@ export function trackEvent(event: AnalyticsEvent): void {
   }
 
   window.dataLayer = window.dataLayer || [];
+  const sanitized = sanitizePayload(event.payload as Record<string, unknown>);
+  const normalized = normalizeEventPayload(sanitized);
+
   window.dataLayer.push({
     event: event.name,
-    ...event.payload,
+    ...normalized,
   });
 }

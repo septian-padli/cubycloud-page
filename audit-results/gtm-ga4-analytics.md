@@ -20,11 +20,11 @@
 | Component / Layer | Status | Evidence / Notes |
 | :--- | :--- | :--- |
 | **Code Implementation** | `IMPLEMENTED & VERIFIED` | `src/analytics/dataLayer.ts`, `src/analytics/types.ts`, `src/analytics/starlight-analytics.ts`, `src/components/ConsentBanner.astro`, `src/docs/Head.astro`, `src/docs/Footer.astro`, `src/docs/ThemeSelect.astro` |
-| **Local Automated Tests** | `VERIFIED (28/28 PASS)` | Node test runner (`node --test tests/**/*.test.mjs`) exercises domain isolation, test overrides, pre-consent blocking, consent revocation, DOM cleanup, cookie deletion, duplicate prevention, and parameter schemas |
+| **Local Automated Tests** | `VERIFIED (33/33 PASS)` | Node test runner (`node --test tests/**/*.test.mjs`) exercises domain isolation, test bypass removal, pre-consent blocking, consent revocation, DOM cleanup, cookie deletion, duplicate prevention, stale parameter clearing, sensitive-data exclusion, and parameter schemas |
 | **Static Build & Checks** | `VERIFIED` | `pnpm check` (0 errors), `pnpm build` (14 pages + search index), `wrangler deploy --dry-run` (clean dry-run exit) |
 | **GTM Configuration** | `PARTIALLY CREATED (PENDING OWNER VERIFICATION)` | 13 DLVs reported created in draft workspace 2. Remaining 4 DLVs, Triggers, and GA4 Event Tags handed off for manual configuration via manifest |
 | **GA4 Configuration** | `PARTIALLY CONFIGURED (PENDING OWNER VERIFICATION)` | 10 event-scoped Custom Dimensions confirmed active. 7 additional custom dimensions and Key Event marking (`installation_intent`) handed off to property owner |
-| **Production Activation** | `PENDING OWNER REVIEW` | GTM container intentionally unpublished; PR #8 ready for review; no production deployment executed |
+| **Production Activation** | `PENDING OWNER REVIEW` | GTM container intentionally unpublished; PR ready for review from `dev` to `main`; no production deployment executed |
 
 ---
 
@@ -32,24 +32,27 @@
 
 During the technical audit and remediation, the following architectural fixes were implemented:
 
-1. **Hardened Domain Isolation & Test Override Isolation**:
-   - Removed `sessionStorage` and URL parameter bypasses from `isTrackingAllowed()`.
-   - Only `window.__CUBYCRATE_ANALYTICS_FORCE__` is permitted for isolated automated test runs.
-   - Non-production hostnames (`localhost`, `127.0.0.1`, `0.0.0.0`, `*.local`, `*.localhost`, `*.workers.dev`, staging, preview) strictly reject all tracking and consent events.
+1. **Hardened Domain Isolation & Complete Test Bypass Removal**:
+   - Completely removed `window.__CUBYCRATE_ANALYTICS_FORCE__` from codebase and window declarations.
+   - Implemented dependency injection in `isTrackingAllowed(targetHostname?: string)` for deterministic testing without global runtime bypasses.
+   - Non-production hostnames (`localhost`, `127.0.0.1`, `0.0.0.0`, `*.local`, `*.localhost`, `*.workers.dev`, staging, preview, and arbitrary/unknown domains) strictly reject all tracking and consent events.
    - Only official apex `cubycrate.com` and `www.cubycrate.com` are permitted in production.
 
-2. **Hardened Consent Withdrawal & Script Removal**:
-   - On consent denial or revocation, `setConsent('denied')` sets `window['ga-disable-G-GRFZ1ZVX0Q'] = true`.
-   - Injected GTM script (`googletagmanager.com/gtm.js?id=GTM-MMF4R3FS`) is systematically removed from the DOM.
-   - Initialization flag `__CUBYCRATE_GTM_INITIALIZED__` is reset to `false`.
-   - First-party cookies (`_ga`, `_gid`, `_gat`, `_gac`, `_gcl`, `_ga_*`) are deleted across domain scopes (`''`, hostname, `.` + hostname, apex).
-   - Google Consent Mode v2 `consent update` is dispatched with `analytics_storage: 'denied'`.
-   - Subsequent `trackEvent()` invocations are strictly dropped.
+2. **Hardened Consent Lifecycle & Memory Isolation**:
+   - Acknowledged that DOM removal of `<script>` alone does not unload already executed JavaScript in memory.
+   - On consent denial or withdrawal, `setConsent('denied')` immediately activates `window['ga-disable-G-GRFZ1ZVX0Q'] = true`, dispatches Google Consent Mode v2 `consent update` with `analytics_storage: 'denied'`, and purges first-party cookies across domain variations.
+   - Subsequent `trackEvent()` invocations are strictly blocked at code level.
+   - Initial page loads without user consent set `ga-disable` to true and avoid GTM injection entirely.
+   - In the event of consent re-granting within the same page session, existing in-memory container state (`__CUBYCRATE_GTM_LOADED__`) is reused without injecting duplicate GTM scripts.
 
-3. **Duplicate Injection Prevention**:
-   - `initGTM()` performs a DOM presence check (`document.querySelector`) in addition to the boolean guard `__CUBYCRATE_GTM_INITIALIZED__` to guarantee that GTM is never injected multiple times.
+3. **Stale Data Layer Parameter Clearing & Sensitive Data Exclusion**:
+   - Implemented `normalizeEventPayload()` to explicitly set optional parameters (`selection`, `result`, `file_type`, `docs_section`, `destination`, `target_section`) to `undefined` when omitted, forcing GTM's internal Data Layer model to clear prior values.
+   - Implemented `sanitizePayload()` to strip sensitive keys (`password`, `credential`, `secret`, `token`, `query`, `search_term`) before events are pushed.
 
-4. **Starlight Documentation Tracking Remediation**:
+4. **Duplicate Injection Prevention**:
+   - `initGTM()` performs a DOM presence check (`document.querySelector`) and checks `window.__CUBYCRATE_GTM_LOADED__` in addition to `__CUBYCRATE_GTM_INITIALIZED__` to guarantee that GTM is never injected multiple times.
+
+5. **Starlight Documentation Tracking Remediation**:
    - **Search Input**: Replaced misleading `focusin` trigger with `input` event on length >= 2 characters emitting `action: 'search_query_submitted'`. Resets when input is cleared. Never transmits raw search queries.
    - **Search No Results**: Added state deduplication flag `noResultsReported` in `MutationObserver` to prevent duplicate events on consecutive keystrokes.
    - **Code Copy**: Enhanced container lookup (`.expressive-code, figure, pre`) to extract `data-language` reliably from Starlight's Expressive Code component without capturing code content.
@@ -123,7 +126,7 @@ pnpm run check
 
 # 2. Automated test suite
 pnpm test
-# Result: 28 tests passing, 0 failing
+# Result: 33 tests passing, 0 failing
 
 # 3. Production static build
 pnpm run build
@@ -136,10 +139,15 @@ pnpm exec wrangler deploy --dry-run
 
 ---
 
-## 7. Next Steps for Production Activation
+## 7. Next Steps for Production Activation (Owner Responsibilities)
 
-1. Review and merge Pull Request #8 (`feat/gtm-ga4-analytics` → `dev`).
-2. Follow **[`audit-results/analytics-event-manifest.md`](./analytics-event-manifest.md)** to complete GTM triggers/tags and GA4 custom dimensions.
-3. Perform end-to-end testing in GTM Preview Mode against staging/preview or production.
-4. Publish GTM container workspace version.
-5. Star `installation_intent` Key Event in GA4 Admin.
+> **Note on Verification Scope:**  
+> Code-level correctness and deterministic behavior are fully verified by automated tests (`33/33 PASS`), TypeScript type checking (`0 errors`), Astro build, and Wrangler dry-run.  
+> GTM Preview and GA4 DebugView live-network verification can only be performed by the property owner upon publishing or in GTM Preview mode with access to the production analytics accounts.
+
+1. Review and merge Pull Request (`dev` → `main`).
+2. Follow **[`audit-results/analytics-event-manifest.md`](./analytics-event-manifest.md)** to complete remaining GTM triggers/tags and GA4 custom dimensions.
+3. Validate container in GTM Preview Mode (`tagassistant.google.com`) against `https://cubycrate.com/`.
+4. Verify real-time hits in GA4 DebugView.
+5. Publish GTM container workspace version.
+6. Star `installation_intent` Key Event in GA4 Admin.
